@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import ReactFlow, { Background, NodeTypes, ReactFlowProvider } from 'reactflow';
+import './App.scss';
+import ChatNode from './nodes/chat-node/chat-node';
+import ConceptNode from './nodes/concept-node/concept-node';
+import TopicNode from './nodes/topic-node/topic-node';
+// import { ChatNode } from './nodes/chat-node/chat-node.types';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const proOptions = { account: 'paid-pro', hideAttribution: true };
+
+const nodeTypes: NodeTypes = {
+  chat: ChatNode,
+  topic: TopicNode,
+  concept: ConceptNode,
+};
+
+export default class App extends Component {
+
+
+  render() {
+    return (
+      <div className='App'>
+        <ReactFlowProvider>
+          <ReactFlow
+            proOptions={proOptions}
+            nodeTypes={nodeTypes}
+            panOnScroll={true}
+          >
+            <Background />
+          </ReactFlow>
+        </ReactFlowProvider>
+      </div>
+    )
+  }
 }
-
-export default App;
