@@ -1,10 +1,23 @@
 .chat-node {
+  position: relative;
   width: 525px;
   height: fit-content;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
   border-radius: 12px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
   background: #fff;
+  font-size: 14px;
+  user-select: text;
+
+  .drag-handle {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%
+  }
 
   .chat-input {
     display: flex;
@@ -17,6 +30,7 @@
       flex-grow: 2;
       border: none;
       background-color: #fff;
+      font-size: 14px;
     }
 
     input::placeholder {
@@ -59,6 +73,29 @@
   }
 
   .chat-response {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    line-height: 1.4em;
+    // border: 2px solid #98D2C4;
+    // border: 2px solid #98D2C4;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: text;
+  }
+
+  .highlight-box {
 
   }
+}
+
+highlight-text {
+  background-color: #d9f8f1;
+  padding: 1px 0;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: ease 0.15s;
+}
+
+highlight-text:hover {
+  background-color: #b2ecdd;
 }

@@ -19,8 +19,9 @@ const initialNodes: Node[] = [
   {
     id: "1",
     type: "chat",
+    dragHandle: '.drag-handle',
     data: { label: "Node 1" },
-    position: { x: 250, y: 5 }
+    position: { x: 250, y: 200 }
   }
 ];
 

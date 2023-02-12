@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
 import { askGPT3Input } from '../../../openai-api';
 import './chat-node.scss';
+import {ReactComponent as DragHandle} from '../../assets/drag-handle.svg';
 
 interface Chat {
   text: string;
@@ -27,7 +28,7 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.generateResponse = this.generateResponse.bind(this);
+    this.highlightSelection = this.highlightSelection.bind(this);
   }
 
   async generateResponse(prompt: string) {
@@ -58,11 +59,23 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
     this.setState({input: event.target.value});
   }
 
+  highlightSelection() {
+    const range = document.getSelection()?.getRangeAt(0);
+    const selectedText = range?.toString();
+    if (selectedText) {
+      const highlight = document.createElement('highlight-text');
+      highlight.innerHTML = selectedText;
+      range?.deleteContents();
+      range?.insertNode(highlight);
+      console.log('planning to highlight', range?.toString());
+    }
+  }
+
   render() {
     return (
       <div className='chat-node'>
-        {!this.state.responseIsLoading || (<div>Loading</div>)}
-          {/* <label htmlFor="text">GPT-3 Input</label> */}
+        <DragHandle className='drag-handle' />
+
         <form
           className='chat-input'
           onSubmit={(event) => {
@@ -89,11 +102,25 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
             </svg>
           </button>
         </form>
-        <div className='chat-response'>
-          {this.state.response ?? (<div>{this.state.response}</div>)}
+        <div
+          className='highlight-box'
+          onMouseUp={this.highlightSelection}
+        >
+          {!this.state.responseIsLoading || (<div>Loading...</div>)}
+          {this.state.response ? (
+            <div className='chat-response'>{this.state.response}</div>
+          ) : <></>}
         </div>
         <Handle type="source" position={Position.Bottom} id="a" />
       </div>
     )
   }
 }
+
+class Highlight extends HTMLSpanElement {
+  constructor() {
+    super();
+  }
+}
+
+customElements.define("highlight-text", Highlight, { extends: "span" });
