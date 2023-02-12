@@ -120,6 +120,18 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
 class Highlight extends HTMLSpanElement {
   constructor() {
     super();
+    this.draggable = true;
+    this.addEventListener('dragstart', this.handleDragStart);
+    this.addEventListener('dragend', this.handleDragEnd);
+  }
+
+  handleDragStart(event: any) {
+    event.dataTransfer.setData('text/plain', this.innerText);
+    event.dataTransfer.dropEffect = 'move';
+  }
+
+  handleDragEnd(event: any) {
+    // Optional: Add some logic here to handle the end of the drag operation
   }
 }
 
