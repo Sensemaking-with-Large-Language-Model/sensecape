@@ -24,10 +24,7 @@ const initialNodes: Node[] = [
   }
 ];
 
-const initialEdges: Edge[] = [
-  { id: "e1-2", source: "1", target: "2", animated: true },
-  { id: "e1-3", source: "1", target: "3" }
-];
+const initialEdges: Edge[] = [];
 
 const proOptions = { account: 'paid-pro', hideAttribution: true };
 
@@ -54,6 +51,8 @@ const ExploreFlow = () => {
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
       nodeTypes={nodeTypes}
+      panOnScroll={true}
+      panOnDrag={false}
     >
       <Background />
     </ReactFlow>
