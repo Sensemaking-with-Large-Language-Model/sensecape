@@ -5,6 +5,7 @@ import { askGPT3Input } from '../../../openai-api';
 import './chat-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { isHighlightable } from './highlighter';
+import HighlightTooltip from './highlight-tooplip/highlight-toolip';
 
 interface Chat {
   text: string;
@@ -140,10 +141,11 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
           className='highlight-box'
           onMouseUp={this.highlightSelection}
         >
+          {/* <HighlightTooltip /> */}
           {!this.state.responseIsLoading || (<div>Loading...</div>)}
           {this.state.response ? (
             <div className='chat-response'>{this.state.response}</div>
-          ) : <></>}
+            ) : <></>}
         </div>
         <Handle type="source" position={Position.Bottom} id="a" />
       </div>

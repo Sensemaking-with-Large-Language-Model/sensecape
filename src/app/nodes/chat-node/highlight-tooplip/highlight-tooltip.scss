@@ -1,0 +1,26 @@
+.highlight-tooltip {
+  width: 65px;
+  height: fit-content;
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  gap: 5px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+
+  svg {
+    padding: 5px;
+    cursor: pointer;
+  }
+
+  svg path {
+    transition: ease 0.15s;
+  }
+
+  svg:hover path {
+    stroke: #aaa
+  }
+}
