@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom/client';
 import './index.scss';
 import App from './app/App';
 import reportWebVitals from './reportWebVitals';
-import ExploreFlow from './app/flow';
-import { ReactFlow } from 'reactflow';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

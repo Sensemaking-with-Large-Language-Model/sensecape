@@ -21,18 +21,6 @@ type ChatState = {
 class Highlight extends HTMLSpanElement {
   constructor() {
     super();
-    this.draggable = true;
-    this.addEventListener('dragstart', this.handleDragStart);
-    this.addEventListener('dragend', this.handleDragEnd);
-  }
-
-  handleDragStart(event: any) {
-    event.dataTransfer.setData('text/plain', this.innerText);
-    event.dataTransfer.dropEffect = 'move';
-  }
-
-  handleDragEnd(event: any) {
-    // Optional: Add some logic here to handle the end of the drag operation
   }
 }
 
@@ -89,16 +77,25 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
       highlight.innerHTML = selectedText;
       range.surroundContents(highlight);
       highlight.addEventListener('dragstart', (event) => {
-        console.log('start drag', event);
-        this.onDragStart(event, 'input');
+        this.onDragStart(event, 'topic', selectedText);
       })
       window.getSelection()?.removeAllRanges();
     }
   }
 
-  onDragStart(event: any, nodeType: string) {
-    event.dataTransfer.setData('application/reactflow', nodeType);
+  onDragStart(event: any, nodeType: string, topicName: string) {
+    event.dataTransfer.setData('dragNodeType', nodeType);
     event.dataTransfer.effectAllowed = 'move';
+    const data = JSON.stringify({
+      chatNodeId: this.props.id,
+      chatReference: {
+        input: this.state.input,
+        response: this.state.response,
+      },
+      topicName,
+    });
+    console.log(data);
+    event.dataTransfer.setData('dragNodeData', data);
   };
 
   render() {

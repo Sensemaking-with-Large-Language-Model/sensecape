@@ -13,10 +13,12 @@ import ReactFlow, {
   XYPosition
 } from "reactflow";
 
+import "reactflow/dist/style.css";
 import './flow.scss';
 import ChatNode from "./nodes/chat-node/chat-node";
 import ConceptNode from "./nodes/concept-node/concept-node";
 import TopicNode from "./nodes/topic-node/topic-node";
+import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 
 const initialNodes: Node[] = [
   {
@@ -61,7 +63,8 @@ const ExploreFlow = () => {
     (event: any) => {
       event.preventDefault();
       const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow');
+      const type = event.dataTransfer.getData('dragNodeType');
+      const data = JSON.parse(event.dataTransfer.getData('dragNodeData'));
 
       // check if the dropped element is valid
       if (typeof type === 'undefined' || !type) {
@@ -73,11 +76,11 @@ const ExploreFlow = () => {
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
         });
-        const newNode: Node = {
+        const newNode: TypeTopicNode = {
           id: getId(),
           type,
           position,
-          data: { label: `${type} node` },
+          data,
         };
         setNodes((nodes) => nodes.concat(newNode));
       }
@@ -96,14 +99,15 @@ const ExploreFlow = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
-            // onDrop={onDrop}
-            // onDragOver={onDragOver}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
             panOnScroll={true}
             panOnDrag={false}
           >
-          </ReactFlow>
           <Background />
+          </ReactFlow>
         </div>
       </ReactFlowProvider>
     </div>

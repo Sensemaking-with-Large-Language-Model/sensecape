@@ -4,4 +4,4 @@ type ChatNodeData = {
   value: number;
 };
 
-export type ChatNode = Node<ChatNodeData>;
+export type TypeChatNode = Node<ChatNodeData>;
