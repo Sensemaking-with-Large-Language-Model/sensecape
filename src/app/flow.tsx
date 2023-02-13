@@ -1,16 +1,19 @@
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import ReactFlow, {
   Node,
   addEdge,
+  ReactFlowProvider,
   Background,
   Edge,
   Connection,
   useNodesState,
   useEdgesState,
-  NodeTypes
+  ReactFlowInstance,
+  NodeTypes,
+  XYPosition
 } from "reactflow";
 
-import "reactflow/dist/style.css";
+import './flow.scss';
 import ChatNode from "./nodes/chat-node/chat-node";
 import ConceptNode from "./nodes/concept-node/concept-node";
 import TopicNode from "./nodes/topic-node/topic-node";
@@ -35,28 +38,75 @@ const nodeTypes: NodeTypes = {
   concept: ConceptNode,
 };
 
+let id = 0;
+const getId = () => `explore_flow_${id++}`;
+
 const ExploreFlow = () => {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const reactFlowWrapper = useRef<any>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((els) => addEdge(params, els)),
     [setEdges]
   );
 
+  const onDragOver = useCallback((event: any) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: any) => {
+      event.preventDefault();
+      const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect();
+      const type = event.dataTransfer.getData('application/reactflow');
+
+      // check if the dropped element is valid
+      if (typeof type === 'undefined' || !type) {
+        return;
+      }
+
+      if (reactFlowInstance) {
+        const position: XYPosition = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
+        const newNode: Node = {
+          id: getId(),
+          type,
+          position,
+          data: { label: `${type} node` },
+        };
+        setNodes((nodes) => nodes.concat(newNode));
+      }
+    },
+    [reactFlowInstance]
+  );
+
   return (
-    <ReactFlow
-      proOptions={proOptions}
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      nodeTypes={nodeTypes}
-      panOnScroll={true}
-      panOnDrag={false}
-    >
-      <Background />
-    </ReactFlow>
+    <div className="explore-flow">
+      <ReactFlowProvider>
+        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+          <ReactFlow
+            proOptions={proOptions}
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            // onDrop={onDrop}
+            // onDragOver={onDragOver}
+            panOnScroll={true}
+            panOnDrag={false}
+          >
+          </ReactFlow>
+          <Background />
+        </div>
+      </ReactFlowProvider>
+    </div>
   );
 };
 
