@@ -1,11 +1,14 @@
-import { Component } from 'react';
+import { Component, useState } from 'react';
 import { useCallback } from 'react';
-import { Handle, NodeProps, Position } from 'reactflow';
+import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, XYPosition } from 'reactflow';
 import { askGPT3Input } from '../../../openai-api';
 import './chat-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { isHighlightable } from './highlighter';
 import HighlightTooltip from './highlight-tooplip/highlight-toolip';
+import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
+import { createRoot } from 'react-dom/client';
+import { TypeChatNode } from './chat-node.model';
 
 interface Chat {
   text: string;
@@ -17,81 +20,111 @@ type ChatState = {
   chatHistory: Chat[], // TODO: instead of saving local history, save chathistory in global state
   response: string, // Singular response. more follow ups/responses belong in another chatnode
   responseIsLoading: boolean,
+  highlightIds: string[],
+  currentHighlightId: string,
+  reactFlowInstance: ReactFlowInstance,
 };
 
-class Highlight extends HTMLSpanElement {
+// interface HighlightHoverPosition {
+  
+// }
+
+class Highlight extends HTMLElement {
   constructor() {
-    super();
+    const curr = super();
+    // this.attachShadow({ mode: 'open' });
+    // console.log(curr)
+    // const ReactApp = () => {
+    //   return (
+    //     <span onMouseEnter={() => this.handleMouseEnter()}>
+    //       <TooltipWrapper content="This is a tooltip">
+    //         text
+    //       </TooltipWrapper>
+    //     </span>
+    //   );
+    // };
+    // createRoot(this.shadowRoot ?? new ShadowRoot).render(<ReactApp />);
+  }
+
+  handleMouseEnter() {
+    console.log('hovering in react!');
   }
 }
 
-customElements.define("highlight-text", Highlight, { extends: "span" });
+customElements.define("highlight-text", Highlight);
 
-export default class ChatNode extends Component<NodeProps, ChatState> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      input: '',
-      chatHistory: [],
-      response: '',
-      responseIsLoading: false,
-    };
+const ChatNode = (props: NodeProps) => {
+  const [input, setInput] = useState('');
+  const [chatHistory, setChatHistory] = useState<Chat[]>([]);
+  const [response, setResponse] = useState('');
+  const [responseIsLoading, setResponseIsLoading] = useState(false);
+  const [highlightIds, setHighlightIds] = useState<string[]>([]);
+  const [currentHighlightId, setCurrentHighlightId] = useState('');
 
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.highlightSelection = this.highlightSelection.bind(this);
-  }
+  const reactFlowInstance = useReactFlow();
 
-  async generateResponse(prompt: string) {
+  const addChatFollowUpNode = useCallback(
+    (input: string, response: string) => {
+      const currNode: TypeChatNode | undefined = reactFlowInstance.getNode(props.id);
+      if (!currNode) {
+        return;
+      }
+      console.log(currNode);
+      const position: XYPosition = {
+        x: currNode.position.x,
+        y: currNode.position.y + (currNode.height ?? 0),
+      };
+      const newNode: TypeChatNode = {
+        id: `chat-${reactFlowInstance.getNodes().length}`,
+        type: 'chat',
+        dragHandle: '.drag-handle',
+        position,
+        data: {
+          parentChatId: currNode.id,
+          chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
+          placeholder: 'Ask a follow up question'
+        },
+      };
+      const edge: Edge =  {
+        id: `e-${reactFlowInstance.getEdges().length}`,
+        source: currNode.id,
+        target: newNode.id,
+      }
+      reactFlowInstance.addNodes(newNode);
+      reactFlowInstance.addEdges(edge);
+      console.log(reactFlowInstance.getNodes());
+    },
+    [reactFlowInstance]
+  )
+
+  const generateResponse = async (prompt: string) => {
     if (!prompt) {
       return;
     }
 
-    this.setState({responseIsLoading: true});
-    const input: Chat = {
-      text: prompt,
-      type: 'INPUT',
-    };
+    setResponseIsLoading(true);
 
     const response = await askGPT3Input(
-      this.state.chatHistory.map(chat => chat.text), prompt
+      props.data.chatReference, prompt
     ) || 'Error: no response received';
 
-    this.setState({response: response});
-    this.state.chatHistory.push(input);
-    this.state.chatHistory.push({
-      text: response,
-      type: 'OUTPUT',
-    });
-    this.setState({responseIsLoading: false});
+    setResponse(response);
+    setResponseIsLoading(false);
+    addChatFollowUpNode(prompt, response);
   }
 
-  handleInputChange(event: any) {
-    this.setState({input: event.target.value});
+  const handleInputChange = (event: any) => {
+    setInput(event.target.value);
   }
 
-  highlightSelection() {
-    const range: Range = document.getSelection()?.getRangeAt(0) ?? new Range;
-    const selectedText = range.toString();
-    if (isHighlightable(range)) {
-      const highlight = document.createElement('highlight-text');
-      highlight.draggable = true;
-      highlight.innerHTML = selectedText;
-      range.surroundContents(highlight);
-      highlight.addEventListener('dragstart', (event) => {
-        this.onDragStart(event, 'topic', selectedText);
-      })
-      window.getSelection()?.removeAllRanges();
-    }
-  }
-
-  onDragStart(event: any, nodeType: string, topicName: string) {
+  const onDragStart = (event: any, nodeType: string, topicName: string) => {
     event.dataTransfer.setData('dragNodeType', nodeType);
     event.dataTransfer.effectAllowed = 'move';
     const data = JSON.stringify({
-      chatNodeId: this.props.id,
+      chatNodeId: props.id,
       chatReference: {
-        input: this.state.input,
-        response: this.state.response,
+        input,
+        response,
       },
       topicName,
     });
@@ -99,20 +132,52 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
     event.dataTransfer.setData('dragNodeData', data);
   };
 
-  render() {
-    return (
-      <div className='chat-node'>
-        <DragHandle className='drag-handle' />
+  const highlightSelection = () => {
+    const range: Range = document.getSelection()?.getRangeAt(0) ?? new Range;
+    const selectedText = range.toString();
+    if (isHighlightable(range)) {
+      const highlight = document.createElement('highlight-text', {is: selectedText});
+      highlight.draggable = true;
+      highlight.innerHTML = selectedText;
+      range.surroundContents(highlight);
+      highlight.classList.add('highlight-elm');
+      highlight.id = `highlight-${highlightIds.length}`;
+      setHighlightIds(highlightIds.concat([highlight.id]));
+      highlight.addEventListener('mouseenter', (event) => {
+        console.log('entering');
+        setCurrentHighlightId(highlight.id);
+      })
+      highlight.addEventListener('mouseleave', (event) => {
+        console.log('leaving');
+        setCurrentHighlightId('');
+      })
+      highlight.addEventListener('dragstart', (event) => {
+        onDragStart(event, 'topic', selectedText);
+      })
+      window.getSelection()?.removeAllRanges();
+    }
+  }
+
+
+
+  return (
+    <div className='chat-node'>
+      <TooltipProvider>
+        <Handle type="target" position={Position.Top} id="b" />
+
+        {/* <TooltipWrapper content="drag"> */}
+          <DragHandle className='drag-handle' />
+        {/* </TooltipWrapper> */}
 
         {
-          this.state.response ? (
+          response ? (
             <div className='chat-input'>
-              {this.state.input}
+              {input}
             </div>
           ) : <form
             className='chat-input'
             onSubmit={(event) => {
-              this.generateResponse(this.state.input.trim());
+              generateResponse(input.trim());
               event.preventDefault();
             }}
           >
@@ -123,11 +188,11 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
               type="text"
               placeholder='Ask GPT3'
               autoComplete='off'
-              value={this.state.input}
-              onChange={this.handleInputChange}
+              value={input}
+              onChange={handleInputChange}
             />
             <button
-              onClick={() => this.generateResponse(this.state.input.trim())}
+              onClick={() => generateResponse(input.trim())}
               type="button"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -139,16 +204,24 @@ export default class ChatNode extends Component<NodeProps, ChatState> {
         <div
           id='highlight-box'
           className='highlight-box'
-          onMouseUp={this.highlightSelection}
+          onMouseUp={highlightSelection}
         >
-          {/* <HighlightTooltip /> */}
-          {!this.state.responseIsLoading || (<div>Loading...</div>)}
-          {this.state.response ? (
-            <div className='chat-response'>{this.state.response}</div>
+          {!responseIsLoading || (<div>Loading...</div>)}
+          {response ? (
+            <div className='chat-response'>{response}</div>
             ) : <></>}
         </div>
         <Handle type="source" position={Position.Bottom} id="a" />
-      </div>
-    )
-  }
+        <Tooltip
+          // anchorId={this.state.currentHighlightId}
+          place="bottom"
+        ></Tooltip>
+        {/* <div className="highlight-tooltip">tooltip?</div> */}
+        {/* <HighlightTooltip /> */}
+      </TooltipProvider>
+    </div>
+  )
+
 }
+
+export default ChatNode;

@@ -3,7 +3,11 @@ import { ReactComponent as Expand } from '../../../assets/expand-to-topic.svg';
 import { ReactComponent as Delete } from '../../../assets/delete-highlight.svg';
 import './highlight-tooltip.scss';
 
-export default class HighlightTooltip extends Component {
+interface TopicProps {
+  // position: any;
+}
+
+export default class HighlightTooltip extends Component<TopicProps> {
   constructor(props: any) {
     super(props);
     this.state = {};

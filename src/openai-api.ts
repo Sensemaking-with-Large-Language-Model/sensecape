@@ -7,8 +7,8 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 
-export const askGPT3Input = async (history: string[], prompt: string) => {
-  const gptPrompt: string = `${history.join('\n\n')}\n\n${prompt}`;
+export const askGPT3Input = async (history: string, prompt: string) => {
+  const gptPrompt: string = `${history}\n\n${prompt}`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',

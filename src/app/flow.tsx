@@ -16,16 +16,21 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import './flow.scss';
 import ChatNode from "./nodes/chat-node/chat-node";
+import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
 import ConceptNode from "./nodes/concept-node/concept-node";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 
 const initialNodes: Node[] = [
   {
-    id: "1",
+    id: "chat-0",
     type: "chat",
     dragHandle: '.drag-handle',
-    data: { label: "Node 1" },
+    data: {
+      parentChatId: '',
+      chatReference: '',
+      placeholder: 'Ask GPT-3'
+    },
     position: { x: 250, y: 200 }
   }
 ];
@@ -41,7 +46,7 @@ const nodeTypes: NodeTypes = {
 };
 
 let id = 0;
-const getId = () => `explore_flow_${id++}`;
+const getId = () => `${id++}`;
 
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -87,6 +92,35 @@ const ExploreFlow = () => {
     },
     [reactFlowInstance]
   );
+  const createChatNode = useCallback(
+    (e: any) => {
+      console.log('received!', e.id);
+    },
+    // (event: any) => {
+    //   event.preventDefault();
+    //   const data = JSON.parse(event.dataTransfer.getData('chatParentData'));
+
+    //   // if (reactFlowInstance) {
+    //   //   // const position: XYPosition = reactFlowInstance.project({
+    //   //   //   x: ,
+    //   //   //   y: ,
+    //   //   // });
+    //   //   const newNode: TypeChatNode = {
+    //   //     id: getId(),
+    //   //     type: 'chat',
+    //   //     position,
+    //   //     data,
+    //   //   };
+    //   //   setNodes((nodes) => nodes.concat(newNode));
+    //   // }
+    // },
+    [reactFlowInstance]
+  );
+
+  document.addEventListener('create-chat-follow-up', (e) => {
+    console.log('listened');
+    createChatNode(e);
+  });
 
   return (
     <div className="explore-flow">
