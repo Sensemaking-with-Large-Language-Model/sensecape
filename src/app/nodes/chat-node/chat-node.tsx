@@ -1,14 +1,15 @@
 import { Component, useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
 import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, XYPosition } from 'reactflow';
-import { askGPT3Input } from '../../../openai-api';
+import { askGPT3Input } from '../../../api/openai-api';
 import './chat-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { isHighlightable } from './highlighter';
 import HighlightTooltip from './highlight-tooplip/highlight-toolip';
 import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { createRoot } from 'react-dom/client';
-import { TypeChatNode } from './chat-node.model';
+import { ResponseState, TypeChatNode } from './chat-node.model';
+import ChatInput from './chat-input/chat-input';
 
 interface Chat {
   text: string;
@@ -51,19 +52,13 @@ class Highlight extends HTMLElement {
   }
 }
 
-enum ResopnseState {
-  INPUT = 'input',
-  LOADING = 'loading',
-  COMPLETE = 'complete',
-}
-
 customElements.define("highlight-text", Highlight);
 
 const ChatNode = (props: NodeProps) => {
-  const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Chat[]>([]);
+  const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
-  const [responseInputState, setResponseInputState] = useState<ResopnseState>(ResopnseState.INPUT);
+  const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
   const [highlightIds, setHighlightIds] = useState<string[]>([]);
   const [currentHighlightId, setCurrentHighlightId] = useState('');
 
@@ -114,19 +109,15 @@ const ChatNode = (props: NodeProps) => {
       return;
     }
 
-    setResponseInputState(ResopnseState.LOADING);
+    setResponseInputState(ResponseState.LOADING);
 
     const response = await askGPT3Input(
       props.data.chatReference, prompt
     ) || 'Error: no response received';
 
     setResponse(response);
-    setResponseInputState(ResopnseState.COMPLETE);
+    setResponseInputState(ResponseState.COMPLETE);
     addChatFollowUpNode(prompt, response);
-  }
-
-  const handleInputChange = (event: any) => {
-    setInput(event.target.value);
   }
 
   const onDragStart = (event: any, nodeType: string, topicName: string) => {
@@ -145,7 +136,11 @@ const ChatNode = (props: NodeProps) => {
   };
 
   const highlightSelection = () => {
-    const range: Range = document.getSelection()?.getRangeAt(0) ?? new Range;
+    const selection = document.getSelection();
+    if ((selection?.rangeCount ?? 0) <= 0) {
+      return;
+    }
+    const range: Range = selection?.getRangeAt(0) ?? new Range;
     const selectedText = range.toString();
     if (isHighlightable(range)) {
       const highlight = document.createElement('highlight-text', {is: selectedText});
@@ -155,11 +150,18 @@ const ChatNode = (props: NodeProps) => {
       highlight.classList.add('highlight-elm');
       highlight.id = `highlight-${highlightIds.length}`;
       setHighlightIds(highlightIds.concat([highlight.id]));
-      highlight.addEventListener('mouseenter', (event) => {
-        setCurrentHighlightId(highlight.id);
-      })
-      highlight.addEventListener('mouseleave', (event) => {
-        setCurrentHighlightId('');
+
+      // Event Listeners
+      // highlight.addEventListener('mouseenter', (event) => {
+      //   setCurrentHighlightId(highlight.id);
+      // })
+      // highlight.addEventListener('mouseleave', (event) => {
+      //   setCurrentHighlightId('');
+      // })
+      highlight.addEventListener('click', (event) => {
+        range.extractContents();
+        range.insertNode(document.createTextNode(selectedText));
+        range.commonAncestorContainer.normalize();
       })
       highlight.addEventListener('dragstart', (event) => {
         onDragStart(event, 'topic', selectedText);
@@ -168,55 +170,24 @@ const ChatNode = (props: NodeProps) => {
     }
   }
 
-
-
   return (
     <div className='chat-node'>
       <TooltipProvider>
         <Handle type="target" position={Position.Top} id="b" />
-
-        {/* <TooltipWrapper content="drag"> */}
-          <DragHandle className='drag-handle' />
-        {/* </TooltipWrapper> */}
-
-        {
-          responseInputState !== ResopnseState.INPUT ? (
-            <div className='chat-input'>
-              {input}
-            </div>
-          ) : <form
-            className='chat-input'
-            onSubmit={(event) => {
-              generateResponse(input.trim());
-              event.preventDefault();
-            }}
-          >
-            <input
-              id="text"
-              className="text-input"
-              name="text"
-              type="text"
-              placeholder={props.data.placeholder}
-              autoComplete='off'
-              value={input}
-              onChange={handleInputChange}
-            />
-            <button
-              onClick={() => generateResponse(input.trim())}
-              type="button"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7.58227 10.2376L10.2673 7.54512M5.54977 4.74012L11.9173 2.61762C14.7748 1.66512 16.3273 3.22512 15.3823 6.08262L13.2598 12.4501C11.8348 16.7326 9.49477 16.7326 8.06977 12.4501L7.43977 10.5601L5.54977 9.93012C1.26727 8.50512 1.26727 6.17262 5.54977 4.74012Z" stroke="#aaa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </form>
-        }
+        <DragHandle className='drag-handle' />
+        <ChatInput
+          responseState={responseInputState}
+          generateResponse={generateResponse}
+          placeholder={props.data.placeholder}
+          input={input}
+          setInput={setInput}
+        />
         <div
           id='highlight-box'
           className='highlight-box'
           onMouseUp={highlightSelection}
         >
-          {responseInputState !== ResopnseState.LOADING || (<div>Loading...</div>)}
+          {/* {responseInputState !== ResopnseState.LOADING || (<div>Loading...</div>)} */}
           {response ? (
             <div className='chat-response'>{response}</div>
             ) : <></>}

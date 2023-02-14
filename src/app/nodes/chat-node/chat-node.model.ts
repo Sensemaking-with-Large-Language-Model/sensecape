@@ -6,4 +6,10 @@ type ChatNodeData = {
   placeholder: string;
 };
 
+export enum ResponseState {
+  INPUT = 'input',
+  LOADING = 'loading',
+  COMPLETE = 'complete',
+}
+
 export type TypeChatNode = Node<ChatNodeData>;
