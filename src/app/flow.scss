@@ -6,3 +6,17 @@
     height: inherit;
   }
 }
+
+.drag-handle {
+  position: absolute;
+  top: 0;
+  padding: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}

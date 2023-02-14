@@ -3,13 +3,13 @@ import { Node } from 'reactflow';
 type ChatNodeData = {
   parentChatId: string;
   chatReference: string;
-  placeholder: string;
+  placeholder: string;        // If no response yet, use placeholder
+  instantInput?: string;       // If instant input exists, instantly generate response
 };
 
-export enum ResponseState {
-  INPUT = 'input',
-  LOADING = 'loading',
-  COMPLETE = 'complete',
+export interface Reference {
+  input: string;
+  response: string;
 }
 
 export type TypeChatNode = Node<ChatNodeData>;

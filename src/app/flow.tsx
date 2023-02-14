@@ -83,6 +83,7 @@ const ExploreFlow = () => {
         });
         const newNode: TypeTopicNode = {
           id: getId(),
+          dragHandle: '.drag-handle',
           type,
           position,
           data,

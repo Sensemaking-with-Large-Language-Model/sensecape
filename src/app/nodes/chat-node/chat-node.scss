@@ -12,20 +12,6 @@
   user-select: text;
   cursor: default;
 
-  .drag-handle {
-    position: absolute;
-    top: 0;
-    padding: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    cursor: grab;
-  }
-
-  .drag-handle:active {
-    cursor: grabbing;
-  }
-
   .chat-response {
     margin-top: 20px;
     white-space: pre-wrap;

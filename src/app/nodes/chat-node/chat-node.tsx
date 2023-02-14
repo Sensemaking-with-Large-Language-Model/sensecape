@@ -8,17 +8,12 @@ import { isHighlightable } from './highlighter';
 import HighlightTooltip from './highlight-tooplip/highlight-toolip';
 import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { createRoot } from 'react-dom/client';
-import { ResponseState, TypeChatNode } from './chat-node.model';
-import ChatInput from './chat-input/chat-input';
-
-interface Chat {
-  text: string;
-  type: 'INPUT' | 'OUTPUT';
-}
+import { TypeChatNode } from './chat-node.model';
+import GPTInput from '../../components/gpt-input/gpt-input';
+import { ResponseState } from '../../components/gpt-input/gpt-input.model';
 
 type ChatState = {
   input: string,
-  chatHistory: Chat[], // TODO: instead of saving local history, save chathistory in global state
   response: string, // Singular response. more follow ups/responses belong in another chatnode
   responseIsLoading: boolean,
   highlightIds: string[],
@@ -55,12 +50,10 @@ class Highlight extends HTMLElement {
 customElements.define("highlight-text", Highlight);
 
 const ChatNode = (props: NodeProps) => {
-  const [chatHistory, setChatHistory] = useState<Chat[]>([]);
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
   const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
   const [highlightIds, setHighlightIds] = useState<string[]>([]);
-  const [currentHighlightId, setCurrentHighlightId] = useState('');
 
   const reactFlowInstance = useReactFlow();
 
@@ -71,23 +64,27 @@ const ChatNode = (props: NodeProps) => {
         return;
       }
       setTimeout(() => {
-        const height = document.querySelectorAll(`[data-id="${props.id}"]`)[0].clientHeight;
+        const nodeElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0]
+        const height = nodeElement.clientHeight;
+        const width = nodeElement.clientWidth;
+        // x: subtract half of new node width, add half of current width
         const position: XYPosition = {
-          // x: 0,
-          // y:(height ?? 0) + 20,
-          x: currNode.position.x,
-          y: currNode.position.y + (height ?? 0) + 20,
+          x: (width / 2) - (575 / 2),
+          y: (height ?? 0) + 20,
+          // x: currNode.position.x,
+          // y: currNode.position.y + (height ?? 0) + 20,
         };
         const newNode: TypeChatNode = {
           id: `chat-${reactFlowInstance.getNodes().length}`,
           type: 'chat',
           dragHandle: '.drag-handle',
           position,
-          // parentNode: currNode.id,
+          parentNode: currNode.id,
           data: {
             parentChatId: currNode.id,
-            chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
-            placeholder: 'Ask a follow up question'
+            chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}\n\n`,
+            // We want chat node to have no response yet, since the user will ask for a response
+            placeholder: 'Ask a follow up question',
           },
         };
         const edge: Edge =  {
@@ -99,7 +96,6 @@ const ChatNode = (props: NodeProps) => {
         reactFlowInstance.addEdges(edge);
         console.log(reactFlowInstance.getNodes());
       }, 0);
-
     },
     [reactFlowInstance]
   )
@@ -120,15 +116,26 @@ const ChatNode = (props: NodeProps) => {
     addChatFollowUpNode(prompt, response);
   }
 
+  useEffect(() => {
+    // If a response is already given, don't take in any input.
+    if (props.data.instantInput) {
+      console.log('ready to create follow up!');
+      setInput(props.data.instantInput);
+      generateResponse(props.data.instantInput);
+    }
+  }, []);
+
+  // When a highlight is dragged out of text
   const onDragStart = (event: any, nodeType: string, topicName: string) => {
     event.dataTransfer.setData('dragNodeType', nodeType);
     event.dataTransfer.effectAllowed = 'move';
+    const currNode: TypeChatNode | undefined = reactFlowInstance.getNode(props.id);
+    if (!currNode) {
+      return;
+    }
     const data = JSON.stringify({
       chatNodeId: props.id,
-      chatReference: {
-        input,
-        response,
-      },
+      chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
       topicName,
     });
     console.log(data);
@@ -175,7 +182,7 @@ const ChatNode = (props: NodeProps) => {
       <TooltipProvider>
         <Handle type="target" position={Position.Top} id="b" />
         <DragHandle className='drag-handle' />
-        <ChatInput
+        <GPTInput
           responseState={responseInputState}
           generateResponse={generateResponse}
           placeholder={props.data.placeholder}
@@ -187,7 +194,9 @@ const ChatNode = (props: NodeProps) => {
           className='highlight-box'
           onMouseUp={highlightSelection}
         >
-          {/* {responseInputState !== ResopnseState.LOADING || (<div>Loading...</div>)} */}
+          {/* <div className='chat-response'>
+            this is a temporary response block because GPT-3 is not working for me right now. Idk why but I hope it works soon so I can ask questions. I have a lot of questions that need to be answered.
+          </div> */}
           {response ? (
             <div className='chat-response'>{response}</div>
             ) : <></>}

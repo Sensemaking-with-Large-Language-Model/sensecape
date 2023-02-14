@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ResponseState } from "../chat-node.model";
-import './chat-input.scss';
-import loadingDots from "../../../assets/loading.gif";
+import './gpt-input.scss';
+import loadingDots from "../../assets/loading.gif";
+import { ResponseState } from "./gpt-input.model";
 
-const ChatInput = (props: any) => {
+
+const GPTInput = (props: any) => {
 
   const handleInputChange = (event: any) => {
     props.setInput(event.target.value);
@@ -54,4 +55,4 @@ const ChatInput = (props: any) => {
   }
 }
 
-export default ChatInput;
+export default GPTInput;
