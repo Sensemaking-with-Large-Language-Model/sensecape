@@ -1,4 +1,4 @@
-import { Component, useState } from 'react';
+import { Component, useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
 import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, XYPosition } from 'reactflow';
 import { askGPT3Input } from '../../../openai-api';
@@ -69,30 +69,36 @@ const ChatNode = (props: NodeProps) => {
       if (!currNode) {
         return;
       }
-      console.log(currNode);
-      const position: XYPosition = {
-        x: currNode.position.x,
-        y: currNode.position.y + (currNode.height ?? 0),
-      };
-      const newNode: TypeChatNode = {
-        id: `chat-${reactFlowInstance.getNodes().length}`,
-        type: 'chat',
-        dragHandle: '.drag-handle',
-        position,
-        data: {
-          parentChatId: currNode.id,
-          chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
-          placeholder: 'Ask a follow up question'
-        },
-      };
-      const edge: Edge =  {
-        id: `e-${reactFlowInstance.getEdges().length}`,
-        source: currNode.id,
-        target: newNode.id,
-      }
-      reactFlowInstance.addNodes(newNode);
-      reactFlowInstance.addEdges(edge);
-      console.log(reactFlowInstance.getNodes());
+      setTimeout(() => {
+        const height = document.querySelectorAll(`[data-id="${props.id}"]`)[0].clientHeight;
+        const position: XYPosition = {
+          // x: 0,
+          // y:(height ?? 0) + 20,
+          x: currNode.position.x,
+          y: currNode.position.y + (height ?? 0) + 20,
+        };
+        const newNode: TypeChatNode = {
+          id: `chat-${reactFlowInstance.getNodes().length}`,
+          type: 'chat',
+          dragHandle: '.drag-handle',
+          position,
+          // parentNode: currNode.id,
+          data: {
+            parentChatId: currNode.id,
+            chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
+            placeholder: 'Ask a follow up question'
+          },
+        };
+        const edge: Edge =  {
+          id: `e-${reactFlowInstance.getEdges().length}`,
+          source: currNode.id,
+          target: newNode.id,
+        }
+        reactFlowInstance.addNodes(newNode);
+        reactFlowInstance.addEdges(edge);
+        console.log(reactFlowInstance.getNodes());
+      }, 0);
+
     },
     [reactFlowInstance]
   )
@@ -144,11 +150,9 @@ const ChatNode = (props: NodeProps) => {
       highlight.id = `highlight-${highlightIds.length}`;
       setHighlightIds(highlightIds.concat([highlight.id]));
       highlight.addEventListener('mouseenter', (event) => {
-        console.log('entering');
         setCurrentHighlightId(highlight.id);
       })
       highlight.addEventListener('mouseleave', (event) => {
-        console.log('leaving');
         setCurrentHighlightId('');
       })
       highlight.addEventListener('dragstart', (event) => {
@@ -186,7 +190,7 @@ const ChatNode = (props: NodeProps) => {
               className="text-input"
               name="text"
               type="text"
-              placeholder='Ask GPT3'
+              placeholder={props.data.placeholder}
               autoComplete='off'
               value={input}
               onChange={handleInputChange}
