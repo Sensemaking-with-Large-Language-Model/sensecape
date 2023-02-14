@@ -51,13 +51,19 @@ class Highlight extends HTMLElement {
   }
 }
 
+enum ResopnseState {
+  INPUT = 'input',
+  LOADING = 'loading',
+  COMPLETE = 'complete',
+}
+
 customElements.define("highlight-text", Highlight);
 
 const ChatNode = (props: NodeProps) => {
   const [input, setInput] = useState('');
   const [chatHistory, setChatHistory] = useState<Chat[]>([]);
   const [response, setResponse] = useState('');
-  const [responseIsLoading, setResponseIsLoading] = useState(false);
+  const [responseInputState, setResponseInputState] = useState<ResopnseState>(ResopnseState.INPUT);
   const [highlightIds, setHighlightIds] = useState<string[]>([]);
   const [currentHighlightId, setCurrentHighlightId] = useState('');
 
@@ -108,14 +114,14 @@ const ChatNode = (props: NodeProps) => {
       return;
     }
 
-    setResponseIsLoading(true);
+    setResponseInputState(ResopnseState.LOADING);
 
     const response = await askGPT3Input(
       props.data.chatReference, prompt
     ) || 'Error: no response received';
 
     setResponse(response);
-    setResponseIsLoading(false);
+    setResponseInputState(ResopnseState.COMPLETE);
     addChatFollowUpNode(prompt, response);
   }
 
@@ -174,7 +180,7 @@ const ChatNode = (props: NodeProps) => {
         {/* </TooltipWrapper> */}
 
         {
-          response ? (
+          responseInputState !== ResopnseState.INPUT ? (
             <div className='chat-input'>
               {input}
             </div>
@@ -210,7 +216,7 @@ const ChatNode = (props: NodeProps) => {
           className='highlight-box'
           onMouseUp={highlightSelection}
         >
-          {!responseIsLoading || (<div>Loading...</div>)}
+          {responseInputState !== ResopnseState.LOADING || (<div>Loading...</div>)}
           {response ? (
             <div className='chat-response'>{response}</div>
             ) : <></>}
