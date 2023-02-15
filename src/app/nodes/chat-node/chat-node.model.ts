@@ -1,6 +1,6 @@
 import { Node } from 'reactflow';
 
-type ChatNodeData = {
+export interface ChatNodeData {
   parentChatId: string;
   chatReference: string;
   placeholder: string;        // If no response yet, use placeholder

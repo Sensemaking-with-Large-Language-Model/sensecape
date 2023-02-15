@@ -93,35 +93,6 @@ const ExploreFlow = () => {
     },
     [reactFlowInstance]
   );
-  const createChatNode = useCallback(
-    (e: any) => {
-      console.log('received!', e.id);
-    },
-    // (event: any) => {
-    //   event.preventDefault();
-    //   const data = JSON.parse(event.dataTransfer.getData('chatParentData'));
-
-    //   // if (reactFlowInstance) {
-    //   //   // const position: XYPosition = reactFlowInstance.project({
-    //   //   //   x: ,
-    //   //   //   y: ,
-    //   //   // });
-    //   //   const newNode: TypeChatNode = {
-    //   //     id: getId(),
-    //   //     type: 'chat',
-    //   //     position,
-    //   //     data,
-    //   //   };
-    //   //   setNodes((nodes) => nodes.concat(newNode));
-    //   // }
-    // },
-    [reactFlowInstance]
-  );
-
-  document.addEventListener('create-chat-follow-up', (e) => {
-    console.log('listened');
-    createChatNode(e);
-  });
 
   return (
     <div className="explore-flow">

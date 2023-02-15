@@ -8,9 +8,10 @@ import { isHighlightable } from './highlighter';
 import HighlightTooltip from './highlight-tooplip/highlight-toolip';
 import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { createRoot } from 'react-dom/client';
-import { TypeChatNode } from './chat-node.model';
+import { ChatNodeData, TypeChatNode } from './chat-node.model';
 import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/gpt-input/gpt-input.model';
+import { createChatNode } from './chat-node.helper';
 
 type ChatState = {
   input: string,
@@ -59,43 +60,13 @@ const ChatNode = (props: NodeProps) => {
 
   const addChatFollowUpNode = useCallback(
     (input: string, response: string) => {
-      const currNode: TypeChatNode | undefined = reactFlowInstance.getNode(props.id);
-      if (!currNode) {
-        return;
-      }
-      setTimeout(() => {
-        const nodeElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0]
-        const height = nodeElement.clientHeight;
-        const width = nodeElement.clientWidth;
-        // x: subtract half of new node width, add half of current width
-        const position: XYPosition = {
-          x: (width / 2) - (575 / 2),
-          y: (height ?? 0) + 20,
-          // x: currNode.position.x,
-          // y: currNode.position.y + (height ?? 0) + 20,
-        };
-        const newNode: TypeChatNode = {
-          id: `chat-${reactFlowInstance.getNodes().length}`,
-          type: 'chat',
-          dragHandle: '.drag-handle',
-          position,
-          parentNode: currNode.id,
-          data: {
-            parentChatId: currNode.id,
-            chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}\n\n`,
-            // We want chat node to have no response yet, since the user will ask for a response
-            placeholder: 'Ask a follow up question',
-          },
-        };
-        const edge: Edge =  {
-          id: `e-${reactFlowInstance.getEdges().length}`,
-          source: currNode.id,
-          target: newNode.id,
-        }
-        reactFlowInstance.addNodes(newNode);
-        reactFlowInstance.addEdges(edge);
-        console.log(reactFlowInstance.getNodes());
-      }, 0);
+      const data: ChatNodeData = {
+        parentChatId: props.id,
+        chatReference: `${props.data.chatReference}\n\n${input}\n\n${response}\n\n`,
+        // We want chat node to have no response yet, since the user will ask for a response
+        placeholder: 'Ask a follow up question',
+      };
+      createChatNode(reactFlowInstance, props.id, data);
     },
     [reactFlowInstance]
   )
@@ -180,7 +151,7 @@ const ChatNode = (props: NodeProps) => {
   return (
     <div className='chat-node'>
       <TooltipProvider>
-        <Handle type="target" position={Position.Top} id="b" />
+        <Handle type="target" position={Position.Top} id="b" className="node-handle-direct"/>
         <DragHandle className='drag-handle' />
         <GPTInput
           responseState={responseInputState}
@@ -201,7 +172,7 @@ const ChatNode = (props: NodeProps) => {
             <div className='chat-response'>{response}</div>
             ) : <></>}
         </div>
-        <Handle type="source" position={Position.Bottom} id="a" />
+        <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct"/>
         <Tooltip
           // anchorId={this.state.currentHighlightId}
           place="bottom"
