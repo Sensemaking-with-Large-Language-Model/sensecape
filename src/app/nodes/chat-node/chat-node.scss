@@ -39,3 +39,7 @@ highlight-text {
 highlight-text:hover {
   background-color: #b2ecdd;
 }
+
+.chat-node:hover {
+  user-select: text;
+}

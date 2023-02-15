@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Node,
   addEdge,
@@ -10,14 +10,17 @@ import ReactFlow, {
   useEdgesState,
   ReactFlowInstance,
   NodeTypes,
-  XYPosition
+  XYPosition,
+  OnSelectionChangeParams
 } from "reactflow";
 
 import "reactflow/dist/style.css";
+import GenerateConceptButton from "./components/button-generate-concept/button-generate-concept";
 import './flow.scss';
 import ChatNode from "./nodes/chat-node/chat-node";
 import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
 import ConceptNode from "./nodes/concept-node/concept-node";
+import { createConceptNode } from "./nodes/concept-node/concept-node.helper";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 
@@ -53,7 +56,8 @@ const ExploreFlow = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<any>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
-  
+  const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
+
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((els) => addEdge(params, els)),
     [setEdges]
@@ -94,6 +98,44 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
+  // const onSelectTopicNodes = useCallback(
+  //   () => {
+  //     const selectedTopicNodes: TypeTopicNode[] = reactFlowInstance?.getNodes()
+  //       .filter(node => node.type === 'topic' && node.selected) ?? [];
+
+  //     if (selectedTopicNodes.length <= 0) {
+  //       return;
+  //     }
+
+  //     console.log('topic', selectedTopicNodes);
+  //     setShowSelectedTopicMenu(true);
+  //   },
+  //   [reactFlowInstance]
+  // )
+
+  const onSelectionChange = useCallback(
+    (params: OnSelectionChangeParams) => {
+      const selectedTopicNodes: TypeTopicNode[] = params.nodes
+        .filter(node => node.type === 'topic' && node.selected);
+
+      if (selectedTopicNodes.length === 0) {
+        return;
+      }
+
+      console.log('topic', selectedTopicNodes);
+      setSelectedTopics(selectedTopicNodes);
+    },
+    [reactFlowInstance]
+  )
+
+  const generateConceptNode = useCallback(
+    () => {
+      console.log('generating concept from ', selectedTopics);
+      if (reactFlowInstance) createConceptNode(reactFlowInstance, selectedTopics);
+    },
+    [reactFlowInstance, selectedTopics]
+  );
+
   return (
     <div className="explore-flow">
       <ReactFlowProvider>
@@ -109,11 +151,19 @@ const ExploreFlow = () => {
             nodeTypes={nodeTypes}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            onSelectionChange={onSelectionChange}
+            // onSelectionEnd={onSelectTopicNodes}
+            // onSelectionContextMenu={onSelectTopicNodes}
             panOnScroll={true}
             panOnDrag={false}
           >
-          <Background />
+            <Background />
           </ReactFlow>
+          {selectedTopics.length > 0 ? 
+            <GenerateConceptButton
+              generateConceptNode={generateConceptNode}
+            /> : <></>
+          }
         </div>
       </ReactFlowProvider>
     </div>

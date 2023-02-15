@@ -1,6 +1,5 @@
-import { Component, useCallback, useState } from "react";
+import { Component, useCallback, useEffect, useState } from "react";
 import { Edge, Handle, NodeProps, Position, useReactFlow, XYPosition } from "reactflow";
-import { askGPT3Input } from "../../../api/openai-api";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { ResponseState } from "../../components/gpt-input/gpt-input.model";
 import { createChatNode } from "../chat-node/chat-node.helper";
@@ -42,8 +41,6 @@ const TopicNode = (props: NodeProps) => {
     if (!prompt) {
       return;
     }
-
-
     addInstantChatNode(prompt);
     setTooltipAvailable(false);
   }

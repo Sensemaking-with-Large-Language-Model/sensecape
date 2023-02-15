@@ -1,7 +1,7 @@
 import { Component, useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
 import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, XYPosition } from 'reactflow';
-import { askGPT3Input } from '../../../api/openai-api';
+import { getGPT3Response } from '../../../api/openai-api';
 import './chat-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { isHighlightable } from './highlighter';
@@ -72,13 +72,11 @@ const ChatNode = (props: NodeProps) => {
   )
 
   const generateResponse = async (prompt: string) => {
-    if (!prompt) {
-      return;
-    }
+    if (!prompt) return;
 
     setResponseInputState(ResponseState.LOADING);
 
-    const response = await askGPT3Input(
+    const response = await getGPT3Response(
       props.data.chatReference, prompt
     ) || 'Error: no response received';
 

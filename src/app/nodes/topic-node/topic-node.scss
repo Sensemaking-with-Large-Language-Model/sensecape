@@ -4,7 +4,6 @@
   align-items: center;
   position: relative;
   cursor: default;
-  user-select: text;
 
   .topic-node-box {
     width: fit-content;
@@ -17,5 +16,14 @@
     border-radius: 12px;
     background-color: #fff;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+    transition: ease 0.15s;
   }
+
+  .topic-selected {
+    border: 2px solid rgb(58, 178, 238);
+  }
+}
+
+.topic-node:hover {
+  user-select: text;
 }
