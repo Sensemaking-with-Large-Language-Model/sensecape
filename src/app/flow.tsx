@@ -23,6 +23,9 @@ import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
 import ConceptNode from "./nodes/concept-node/concept-node";
 import { createConceptNode } from "./nodes/concept-node/concept-node.helper";
 import { TypeConceptNode } from "./nodes/concept-node/concept-node.model";
+import MemoNode from "./nodes/memo-node/memo-node";
+import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
+import { CreativeNode } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 
@@ -48,6 +51,7 @@ const nodeTypes: NodeTypes = {
   chat: ChatNode,
   topic: TopicNode,
   concept: ConceptNode,
+  memo: MemoNode,
 };
 
 let id = 0;
@@ -87,8 +91,8 @@ const ExploreFlow = () => {
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
         });
-        let newNode: TypeChatNode | TypeTopicNode | TypeConceptNode;
-        if (type === 'chat') {
+        let newNode: CreativeNode;
+        if (type === 'chat' || type === 'topic') {
           newNode = {
             id: getId(),
             dragHandle: '.drag-handle',
@@ -96,21 +100,15 @@ const ExploreFlow = () => {
             position,
             data,
           };
-        } else if (type === 'topic') {
-          newNode = {
-            id: getId(),
-            dragHandle: '.drag-handle',
-            type,
-            position,
-            data,
-          };
-        } else { // (type === 'concept')
+        } else if (type === 'memo' || type === 'concept') {
           newNode = {
             id: getId(),
             type,
             position,
             data,
           };
+        } else {
+          return;
         }
         setNodes((nodes) => nodes.concat(newNode));
       }
