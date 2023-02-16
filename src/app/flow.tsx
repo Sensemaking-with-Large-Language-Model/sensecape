@@ -16,11 +16,13 @@ import ReactFlow, {
 
 import "reactflow/dist/style.css";
 import GenerateConceptButton from "./components/button-generate-concept/button-generate-concept";
+import NodeToolkit from "./components/node-toolkit/node-toolkit";
 import './flow.scss';
 import ChatNode from "./nodes/chat-node/chat-node";
 import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
 import ConceptNode from "./nodes/concept-node/concept-node";
 import { createConceptNode } from "./nodes/concept-node/concept-node.helper";
+import { TypeConceptNode } from "./nodes/concept-node/concept-node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 
@@ -85,13 +87,31 @@ const ExploreFlow = () => {
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
         });
-        const newNode: TypeTopicNode = {
-          id: getId(),
-          dragHandle: '.drag-handle',
-          type,
-          position,
-          data,
-        };
+        let newNode: TypeChatNode | TypeTopicNode | TypeConceptNode;
+        if (type === 'chat') {
+          newNode = {
+            id: getId(),
+            dragHandle: '.drag-handle',
+            type,
+            position,
+            data,
+          };
+        } else if (type === 'topic') {
+          newNode = {
+            id: getId(),
+            dragHandle: '.drag-handle',
+            type,
+            position,
+            data,
+          };
+        } else { // (type === 'concept')
+          newNode = {
+            id: getId(),
+            type,
+            position,
+            data,
+          };
+        }
         setNodes((nodes) => nodes.concat(newNode));
       }
     },
@@ -164,6 +184,7 @@ const ExploreFlow = () => {
               generateConceptNode={generateConceptNode}
             /> : <></>
           }
+          <NodeToolkit />
         </div>
       </ReactFlowProvider>
     </div>

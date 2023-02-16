@@ -1,0 +1,42 @@
+.node-toolkit {
+  position: absolute;
+  bottom: 0;
+  width: fit-content;
+  height: fit-content;
+  padding: 6px 12px;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: rgb(255, 255, 255);
+  border: 2px solid #eee;
+  border-radius: 20px;
+  box-shadow: 0 5px 10px rgba(154, 154, 154, 0.2);
+}
+
+.node-toolkit > svg {
+  width: 24px;
+}
+
+.add-node {
+  /* width: 45px; */
+  height: 45px;
+  color: #AAA;
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  overflow-y: auto;
+  border-radius: 50%;
+}
+
+.add-gpt-node:hover {
+  color: #444;
+}
+
+.add-gpt-node:hover path {
+  stroke: #444;
+}
