@@ -34,6 +34,12 @@ const NodeToolkit = () => {
       };
     } else if (nodeType === 'concept') {
       data = {
+        label: '',
+        topicNodes: [],
+      };
+    }
+     else if (nodeType === 'concept-from-topic') {
+      data = {
         topicNodes: [],
       };
     } else if (nodeType === 'memo') {

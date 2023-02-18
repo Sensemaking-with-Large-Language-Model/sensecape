@@ -28,6 +28,11 @@ import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
 import { CreativeNode } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
+import WorkflowNode  from "./nodes/concept-node/WorkflowNode";
+import useLayout from './hooks/useLayout';
+import SubTopicNode from "./nodes/concept-node/subtopic-node/subtopic-node";
+
+import edgeTypes from './edges';
 
 const initialNodes: Node[] = [
   {
@@ -47,10 +52,15 @@ const initialEdges: Edge[] = [];
 
 const proOptions = { account: 'paid-pro', hideAttribution: true };
 
+const fitViewOptions = {
+  padding: 0.95,
+};
+
 const nodeTypes: NodeTypes = {
   chat: ChatNode,
   topic: TopicNode,
-  concept: ConceptNode,
+  subtopic: SubTopicNode,
+  concept: WorkflowNode,
   memo: MemoNode,
 };
 
@@ -103,6 +113,7 @@ const ExploreFlow = () => {
         } else if (type === 'memo' || type === 'concept') {
           newNode = {
             id: getId(),
+            dragHandle: '.drag-handle',
             type,
             position,
             data,
@@ -162,11 +173,14 @@ const ExploreFlow = () => {
             proOptions={proOptions}
             nodes={nodes}
             edges={edges}
+            // fitView
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            // fitViewOptions={fitViewOptions}
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             onDrop={onDrop}
             onDragOver={onDragOver}
             onSelectionChange={onSelectionChange}

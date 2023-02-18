@@ -30,6 +30,22 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
   }, 0);
 }
 
+// generate subtopics 
+export const generateSubtopics = (reactFlowInstance: ReactFlowInstance, id: string, concept: string) => {
+  setTimeout(() => {
+    
+    
+  }, 0);
+}
+
+export const updateConceptNode = (reactFlowInstance: ReactFlowInstance, id: string, data: string) => {
+  setTimeout(() => {
+    const nodeToUpdate = reactFlowInstance.getNode(id);
+    
+  }, 0);
+}
+
+
 // export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: string, data: ChatNodeData) => {
 //   const currNode: TypeChatNode | undefined = reactFlowInstance.getNode(sourceId);
 //   if (!currNode) {

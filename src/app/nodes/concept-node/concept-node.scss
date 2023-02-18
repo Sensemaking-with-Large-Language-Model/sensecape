@@ -1,0 +1,79 @@
+// .node {
+//     border: 1px solid #0984e3;
+//     border-radius: 4px;
+//     background-color: #fff;
+//     box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+//     padding: 12px;
+//     width: 160px;
+//     text-align: center;
+//     font-weight: bold;
+//     color: #0984e3;
+//     cursor: pointer;
+//     line-height: 1.2;
+//   }
+  
+//   .node:hover {
+//     background: radial-gradient(circle at 18.7% 37.8%, rgb(252, 252, 252) 0%, rgb(239, 241, 243) 90%);
+//   }
+  
+//   .content {
+//     pointer-events: none;
+//   }
+  
+//   .handle {
+//     visibility: hidden;
+//   }
+  
+//   .placeholder {
+//     width: 160px;
+//     background: #fff;
+//     border: 1px dashed #bbb;
+//     color: #bbb;
+//     box-shadow: none;
+//   }
+  
+.concept-node {
+  position: relative;
+  width: 525px;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  font-size: 14px;
+  user-select: text;
+  cursor: default;
+
+  .concept-response {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    line-height: 1.4em;
+    // border: 2px solid #98D2C4;
+    // border: 2px solid #98D2C4;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: text;
+  }
+
+  .highlight-box {
+
+  }
+}
+
+highlight-text {
+  background-color: #d9f8f1;
+  padding: 1px 0;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: ease 0.15s;
+}
+
+highlight-text:hover {
+  background-color: #b2ecdd;
+}
+
+.concept-node:hover {
+  user-select: text;
+}
