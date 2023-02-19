@@ -1,6 +1,6 @@
 import { ReactFlowInstance, XYPosition } from "reactflow";
 import { TypeTopicNode } from "../topic-node/topic-node.model";
-import { ConceptNodeData, TypeConceptNode } from "./concept-node.model";
+import { ConceptNodeData, TypeConceptNode, ExtendedConceptNodeData, TypeExtendedConceptNode } from "./concept-node.model";
 
 export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNodes: TypeTopicNode[]) => {
   if (topicNodes.length === 0) {
@@ -31,10 +31,32 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
 }
 
 // generate subtopics 
-export const generateSubtopics = (reactFlowInstance: ReactFlowInstance, id: string, concept: string) => {
+export const extendConcepts = (reactFlowInstance: ReactFlowInstance, id_: string) => {
   setTimeout(() => {
-    
-    
+
+    if (!id_){
+      return;
+    }
+    // select concept node & get input value
+    const nodeElement:any = document.querySelectorAll(`[data-id="${id_}"]`)[0];
+    const currentValue:any = nodeElement.getElementsByClassName('text-input')[0].value;
+    const elem = reactFlowInstance.getNode(id_);
+
+    // const topics = generateTopic('bottom', currentValue);
+    // console.log('topics', topics);
+    const position = {
+        x: elem?.position.x,
+        y: elem?.position.y,
+      };
+    const id = reactFlowInstance.getNodes().length;
+    // console.log(id);
+    const newNode:any = {
+      id,
+      position,
+      data: { label: `Node ${id}` },
+    };
+
+    reactFlowInstance.addNodes(newNode);
   }, 0);
 }
 
@@ -44,38 +66,3 @@ export const updateConceptNode = (reactFlowInstance: ReactFlowInstance, id: stri
     
   }, 0);
 }
-
-
-// export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: string, data: ChatNodeData) => {
-//   const currNode: TypeChatNode | undefined = reactFlowInstance.getNode(sourceId);
-//   if (!currNode) {
-//     return;
-//   }
-//   setTimeout(() => {
-//     const nodeElement = document.querySelectorAll(`[data-id="${sourceId}"]`)[0]
-//     const height = nodeElement.clientHeight;
-//     const width = nodeElement.clientWidth;
-//     const position: XYPosition = {
-//       x: (width / 2) - (575 / 2),
-//       y: (height ?? 0) + 20,
-//       // x: currNode.position.x,
-//       // y: currNode.position.y + (height ?? 0) + 20,
-//     };
-//     const newNode: TypeChatNode = {
-//       id: `chat-${reactFlowInstance.getNodes().length}`,
-//       type: 'chat',
-//       dragHandle: '.drag-handle',
-//       position,
-//       parentNode: sourceId,
-//       data,
-//     };
-//     const edge: Edge =  {
-//       id: `e-${reactFlowInstance.getEdges().length}`,
-//       source: sourceId,
-//       target: newNode.id,
-//     }
-//     reactFlowInstance.addNodes(newNode);
-//     reactFlowInstance.addEdges(edge);
-//     console.log(reactFlowInstance.getNodes());
-//   }, 0);
-// }

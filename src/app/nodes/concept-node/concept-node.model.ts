@@ -6,3 +6,14 @@ export interface ConceptNodeData {
 }
 
 export type TypeConceptNode = Node<ConceptNodeData>;
+
+export interface ExtendedConceptNodeData {
+  
+}
+
+export type TypeExtendedConceptNode = Node<ConceptNodeData>;
+
+export enum ConceptNodeState {
+  INPUT = 'input',
+  COMPLETE = 'complete',
+}

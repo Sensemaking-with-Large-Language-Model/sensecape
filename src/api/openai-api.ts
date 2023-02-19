@@ -58,6 +58,22 @@ export const getTopics = async (prompt: string, concept: string) => {
     'logprobs': null,
     'stop': ''
   }).then((data) => {
-    return data.data.choices[0].text?.trim();
+
+    const text = data.data.choices[0].text;
+
+    if (typeof text === 'string') {
+
+        let re = /\d.*\n*/g; // regex pattern
+
+        let subtopics : any;
+        subtopics = text.match(re);// put all subtopics into array
+        
+        if (Array.isArray(subtopics)) {        
+            // remove unnecessary characters
+            subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/\d. /, ''));
+            subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/ ?\n/, ''));
+            return subtopics;
+        }
+    }
   });
 }

@@ -41,9 +41,7 @@ const WorkflowNode = (props: NodeProps) => {
   const [lateralRightTopics, setlateralRightTopics] = useState<string[]>([]);
   const [lateralLeftTopics, setlateralLeftTopics] = useState<string[]>([]);
   const reactFlowInstance = useReactFlow();
-
-  // const createTopics = 
-  
+    
   const generateTopics = useCallback(
     (input: string, response: string) => {
       const data: ChatNodeData = {

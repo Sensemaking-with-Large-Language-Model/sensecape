@@ -1,47 +1,13 @@
-// .node {
-//     border: 1px solid #0984e3;
-//     border-radius: 4px;
-//     background-color: #fff;
-//     box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
-//     padding: 12px;
-//     width: 160px;
-//     text-align: center;
-//     font-weight: bold;
-//     color: #0984e3;
-//     cursor: pointer;
-//     line-height: 1.2;
-//   }
-  
-//   .node:hover {
-//     background: radial-gradient(circle at 18.7% 37.8%, rgb(252, 252, 252) 0%, rgb(239, 241, 243) 90%);
-//   }
-  
-//   .content {
-//     pointer-events: none;
-//   }
-  
-//   .handle {
-//     visibility: hidden;
-//   }
-  
-//   .placeholder {
-//     width: 160px;
-//     background: #fff;
-//     border: 1px dashed #bbb;
-//     color: #bbb;
-//     box-shadow: none;
-//   }
-  
 .concept-node {
   position: relative;
-  width: 525px;
+  width: 250px;
   height: fit-content;
   display: flex;
   flex-direction: column;
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
-  background: #fff;
+  background: rgb(255 103 103 / 42%);
   font-size: 14px;
   user-select: text;
   cursor: default;
@@ -60,20 +26,47 @@
   .highlight-box {
 
   }
+
+  .concept-input {
+    border: 0px;
+  }
+  
+  .visible {
+    visibility: visible;
+  }
+  
+  .hidden {
+    visibility: hidden;
+  }
+  
 }
 
-highlight-text {
-  background-color: #d9f8f1;
-  padding: 1px 0;
-  border-radius: 2px;
-  cursor: pointer;
-  transition: ease 0.15s;
+.concept-node-handle {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  background-color: #ff5c80;
 }
 
-highlight-text:hover {
-  background-color: #b2ecdd;
+.concept-node-handle .handle-top {
+  top: -21px !important;
 }
+// .react-flow .react-flow__handle {
+//   width: 20px;
+//   height: 20px;
+//   border-radius: 3px;
+//   background-color: #ff5c80;
+// }
 
-.concept-node:hover {
-  user-select: text;
+// .react-flow .react-flow__handle-top {
+//   top: -12px;
+// }
+
+// .react-flow .react-flow__handle-bottom {
+//   bottom: -12px;
+// }
+
+.react-flow .react-flow__edge path,
+.react-flow__connectionline path {
+  stroke-width: 2;
 }

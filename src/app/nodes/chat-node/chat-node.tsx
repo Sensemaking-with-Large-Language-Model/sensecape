@@ -149,7 +149,7 @@ const ChatNode = (props: NodeProps) => {
   return (
     <div className='chat-node'>
       <TooltipProvider>
-        <Handle type="target" position={Position.Top} id="b" className="node-handle-direct"/>
+        <Handle type="target" position={Position.Top} id="b" className="node-handle-direct "/>
         <DragHandle className='drag-handle' />
         <GPTInput
           responseState={responseInputState}
@@ -170,7 +170,7 @@ const ChatNode = (props: NodeProps) => {
             <div className='chat-response'>{response}</div>
             ) : <></>}
         </div>
-        <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct"/>
+        <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct" />
         <Tooltip
           // anchorId={this.state.currentHighlightId}
           place="bottom"

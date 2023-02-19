@@ -8,17 +8,17 @@ const ConceptInput = (props: any) => {
 
   const handleInputChange = (event: any) => {
     props.setInput(event.target.value);
-    console.log(event.target.value);
   }
 
   if (props.responseState === ResponseState.INPUT) {
     return (
       <form
-        className='chat-input'
+        className='concept-input'
         onSubmit={(event) => {
-          props.generateSubtopics(props.input.trim());
-          props.setResponseInputState('complete');
-          // console.log('onSubmit', props.input);
+          console.log('onSubmit', props.input.trim());
+          props.extendConcepts(props.input.trim());
+          // props.generateSubtopics(props.input.trim());
+          // props.setResponseInputState('complete');
           event.preventDefault();
         }}
       >
@@ -34,8 +34,8 @@ const ConceptInput = (props: any) => {
         />
         <button
           onClick={() => {
-            console.log(props.input);
-            props.generateSubtopics(props.input.trim());
+            // console.log(props.input);
+            // props.generateSubtopics(props.input.trim());
           }
           }
           type="button"

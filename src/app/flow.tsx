@@ -13,6 +13,7 @@ import ReactFlow, {
   XYPosition,
   OnSelectionChangeParams
 } from "reactflow";
+import { getTopics } from "../api/openai-api";
 
 import "reactflow/dist/style.css";
 import GenerateConceptButton from "./components/button-generate-concept/button-generate-concept";
@@ -28,24 +29,24 @@ import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
 import { CreativeNode } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
-import WorkflowNode  from "./nodes/concept-node/WorkflowNode";
+// import WorkflowNode  from "./nodes/concept-node/WorkflowNode";
 import useLayout from './hooks/useLayout';
 import SubTopicNode from "./nodes/concept-node/subtopic-node/subtopic-node";
 
 import edgeTypes from './edges';
 
 const initialNodes: Node[] = [
-  {
-    id: "chat-0",
-    type: "chat",
-    dragHandle: '.drag-handle',
-    data: {
-      parentChatId: '',
-      chatReference: '',
-      placeholder: 'Ask GPT-3'
-    },
-    position: { x: 250, y: 200 }
-  }
+  // {
+  //   id: "chat-0",
+  //   type: "chat",
+  //   dragHandle: '.drag-handle',
+  //   data: {
+  //     parentChatId: '',
+  //     chatReference: '',
+  //     placeholder: 'Ask GPT-3'
+  //   },
+  //   position: { x: 250, y: 200 }
+  // }
 ];
 
 const initialEdges: Edge[] = [];
@@ -60,7 +61,8 @@ const nodeTypes: NodeTypes = {
   chat: ChatNode,
   topic: TopicNode,
   subtopic: SubTopicNode,
-  concept: WorkflowNode,
+  // concept: WorkflowNode,
+  concept: ConceptNode,
   memo: MemoNode,
 };
 
@@ -73,11 +75,61 @@ const ExploreFlow = () => {
   const reactFlowWrapper = useRef<any>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
+  const connectingNodeId = useRef("");
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((els) => addEdge(params, els)),
     [setEdges]
   );
+
+  // 
+  const onConnectStart = useCallback((_:any, { nodeId }:any) => {  
+    // console.log('onConnectStart');
+    connectingNodeId.current = nodeId;
+  }, []);
+  
+  // this drops node containing extended topic at location where dragging from handle stops
+  // currently disabled, however, to switch to interaction where users can simply click on handle to create extended topic
+  // extended topic is intelligently placed at right location (so that users do not have to manually do this)
+  const onConnectEnd = useCallback(
+    async (event: any) => {
+      // console.log('onConnectEnd');
+      // get bounding box to find exact location of cursor
+      const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect();      
+      
+      if (reactFlowInstance) {
+
+        // select concept node & get text box input value
+        const nodeElement:any = document.querySelectorAll(`[data-id="${connectingNodeId.current}"]`)[0];
+        const currentValue:any = nodeElement.getElementsByClassName('text-input')[0].value;
+
+        // get (sub-, sup-, related-) topics from GPT
+        const topics: any = await generateTopic('bottom', currentValue);
+        
+          const position: XYPosition = reactFlowInstance.project({
+            x: event.clientX - reactFlowBounds.left,
+            y: event.clientY - reactFlowBounds.top,
+          });
+        const id = 'generated-topic-' + getId();
+        console.log(id);
+        const newNode:any = {
+          id,
+          position,
+          // data: { label: `Node ${id}` },
+          data: {label: topics[Math.floor(Math.random() * 10 % 5)] }
+        };
+
+        const newEdge: Edge =  {
+          id: `edge-${reactFlowInstance.getEdges().length}`,
+          source: connectingNodeId.current,
+          sourceHandle: 'c',
+          target: newNode.id,
+        }
+
+        setNodes((nds) => nds.concat(newNode));
+        setEdges((eds) => eds.concat(newEdge));
+      }
+    }, [reactFlowInstance]);
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
@@ -110,9 +162,17 @@ const ExploreFlow = () => {
             position,
             data,
           };
-        } else if (type === 'memo' || type === 'concept') {
+        } else if (type === 'concept') {
           newNode = {
-            id: getId(),
+            id: 'conccept-' + getId(),
+            dragHandle: '.drag-handle',
+            type,
+            position,
+            data,
+          };
+        } else if (type === 'memo') {
+          newNode = {
+            id: 'memo-' + getId(),
             dragHandle: '.drag-handle',
             type,
             position,
@@ -157,6 +217,21 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   )
 
+  const generateTopic = (pos: string, concept: string) => {
+    let prompt = "";
+
+    if (pos === 'top') {
+      prompt = "Give me 5 higher level topics of " + concept;
+    } else if (pos === 'bottom') {
+      prompt = "Give me 5 lower level topics of " + concept;
+    } else if (pos === 'right' || pos === 'left') {
+      prompt = "Give me 5 related topics of " + concept + " at this level of abstraction";
+    }
+    const topics = getTopics(prompt, concept);
+    
+    return topics;
+  }
+
   const generateConceptNode = useCallback(
     () => {
       console.log('generating concept from ', selectedTopics);
@@ -183,6 +258,8 @@ const ExploreFlow = () => {
             edgeTypes={edgeTypes}
             onDrop={onDrop}
             onDragOver={onDragOver}
+            onConnectStart={onConnectStart}
+            // onConnectEnd={onConnectEnd}
             onSelectionChange={onSelectionChange}
             // onSelectionEnd={onSelectTopicNodes}
             // onSelectionContextMenu={onSelectTopicNodes}
