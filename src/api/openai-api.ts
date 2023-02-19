@@ -13,7 +13,7 @@ export const getGPT3Response = async (history: string, prompt: string) => {
   return await openai.createCompletion({
     'model': 'text-davinci-003',
     'prompt': gptPrompt,
-    'max_tokens': 128,
+    'max_tokens': 1024,
     'temperature': 0.7,
     'top_p': 1,
     'n': 1,
