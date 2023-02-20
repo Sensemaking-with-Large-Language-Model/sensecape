@@ -41,7 +41,8 @@
     transition: ease 0.15s;
 
     svg path {
-      stroke: #fefefe;
+      // stroke: #fefefe;
+      stroke: #aaa;
     }
   }
 
@@ -54,7 +55,7 @@
   }
 }
 
-.chat-input:focus-within { 
+.chat-input:focus-within {
   border: 2px solid #ddd;
 }
 
@@ -63,7 +64,13 @@
     width: 90%;
     font-size: 28px;
     text-align: center;
-    background-color: rgb(219, 219, 219);
+    // background-color: rgb(219, 219, 219);
+    background-color: #fff;
+    border: 0px;
+  }
+
+  input::placeholder {
+    color: transparent;
   }
 
   button {
@@ -76,8 +83,15 @@
     width: 90%;
     font-size: 36px;
     text-align: center;
-    background-color: rgb(219, 219, 219);
+    // background-color: rgb(219, 219, 219);
+    background-color: #fff;
+    border: 0px;
   }
+
+  input::placeholder {
+    color: transparent;
+  }
+
   button {
     display: none;
   }

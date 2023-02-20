@@ -8,7 +8,8 @@
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
-  background: rgb(219 219 219);
+  // background: rgb(219 219 219);
+  background: #fff;
   font-size: 14px;
   user-select: text;
   cursor: default;
@@ -29,7 +30,7 @@
   }
 
   .concept-input {
-    border: 0px;
+    border: 2px solid #eee;
   }
   
   .visible {
@@ -74,23 +75,8 @@
 .concept-node-handle .handle-bottom {
   top: -21px !important;
 }
-// .react-flow .react-flow__handle {
-//   width: 20px;
-//   height: 20px;
-//   border-radius: 3px;
-//   background-color: #ff5c80;
-// }
-
-// .react-flow .react-flow__handle-top {
-//   top: -12px;
-// }
-
-// .react-flow .react-flow__handle-bottom {
-//   bottom: -12px;
-// }
 
 .react-flow .react-flow__edge path,
 .react-flow__connectionline path {
   stroke-width: 2;
 }
-
