@@ -55,10 +55,6 @@
   }
 }
 
-.chat-input:focus-within {
-  border: 2px solid #ddd;
-}
-
 .concept-form.summary {
   .concept-input {
     width: 90%;
@@ -95,4 +91,8 @@
   button {
     display: none;
   }
+}
+
+.concept-input:focus { 
+  border: 2px solid #ddd;
 }
