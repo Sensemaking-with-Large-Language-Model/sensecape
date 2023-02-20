@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useStore, getBezierPath } from 'reactflow';
-import { getEdgeParams } from './floating-edge.helper';
+import { getEdgeParams } from './traveller-edge.helper';
 
-import './floating-edge.scss';
+import './traveller-edge.scss';
 
 function FloatingEdge({ id, source, target, markerEnd, style }: any) {
   const sourceNode = useStore(useCallback((store) => store.nodeInternals.get(source), [source]));

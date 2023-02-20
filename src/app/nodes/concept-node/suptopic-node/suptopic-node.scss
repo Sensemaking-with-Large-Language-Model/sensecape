@@ -1,0 +1,40 @@
+.suptopic-node {
+    border: 1px solid #0984e3;
+    // border: 1px solid grey;
+    border-radius: 4px;
+    // background-color: #ffad88;
+    box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+    padding: 12px;
+    width: 160px;
+    text-align: center;
+    font-weight: bold;
+    // color: #373737;
+    color: #0984e3;
+    cursor: pointer;
+    line-height: 1.2;
+
+    .react-flow__handle-bottom {
+        visibility: none;
+        // bottom: -24px !important;
+        // cursor: s-resize !important;
+      }
+      
+      .react-flow__handle-top {
+        top: -24px !important;
+        cursor: n-resize !important;
+        width: 60px;
+        height: 20px;
+        border-radius: 3px;
+        background-color: #e5e2e2;
+      }
+
+      .react-flow__handle-top:hover {
+        background-color: #bfbfbf;
+      }
+}
+
+
+
+
+
+

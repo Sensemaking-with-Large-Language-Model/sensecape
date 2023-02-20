@@ -191,7 +191,7 @@ const ChatNode = (props: NodeProps) => {
     // <div className='chat-node highlightable'>
       <div className={`chat-node ${zoom >= ZoomState.ALL ? 'highlightable' : 'drag-handle'}`}>
       <TooltipProvider>
-        <Handle type="target" position={Position.Top} id="b" className="node-handle-direct"/>
+        <Handle type="target" position={Position.Top} id="b" className="node-handle-direct "/>
         <DragHandle className='drag-handle' />
         <GPTInput
           responseState={responseInputState}
@@ -217,7 +217,7 @@ const ChatNode = (props: NodeProps) => {
             </>
           ) : <></>}
         </div>
-        <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct"/>
+        <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct" />
         <Tooltip
           // anchorId={this.state.currentHighlightId}
           place="bottom"

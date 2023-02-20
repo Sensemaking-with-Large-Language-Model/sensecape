@@ -1,8 +1,8 @@
 import React from 'react';
 import { getBezierPath } from 'reactflow';
-import { getEdgeParams } from './floating-edge.helper';
+import { getEdgeParams } from './traveller-edge.helper';
 
-import './floating-edge.scss';
+import './traveller-edge.scss';
 
 function FloatingConnectionLine({ targetX, targetY, sourcePosition, targetPosition, sourceNode }: any) {
   if (!sourceNode) {
