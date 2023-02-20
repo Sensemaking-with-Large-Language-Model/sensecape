@@ -30,36 +30,6 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
   }, 0);
 }
 
-// generate subtopics 
-export const extendConcepts = (reactFlowInstance: ReactFlowInstance, id_: string) => {
-  setTimeout(() => {
-
-    if (!id_){
-      return;
-    }
-    // select concept node & get input value
-    const nodeElement:any = document.querySelectorAll(`[data-id="${id_}"]`)[0];
-    const currentValue:any = nodeElement.getElementsByClassName('text-input')[0].value;
-    const elem = reactFlowInstance.getNode(id_);
-
-    // const topics = generateTopic('bottom', currentValue);
-    // console.log('topics', topics);
-    const position = {
-        x: elem?.position.x,
-        y: elem?.position.y,
-      };
-    const id = reactFlowInstance.getNodes().length;
-    // console.log(id);
-    const newNode:any = {
-      id,
-      position,
-      data: { label: `Node ${id}` },
-    };
-
-    reactFlowInstance.addNodes(newNode);
-  }, 0);
-}
-
 export const updateConceptNode = (reactFlowInstance: ReactFlowInstance, id: string, data: string) => {
   setTimeout(() => {
     const nodeToUpdate = reactFlowInstance.getNode(id);
