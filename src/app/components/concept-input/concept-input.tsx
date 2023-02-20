@@ -6,75 +6,13 @@ import { ResponseState } from "./concept-input.model";
 import { uuid } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
 import { ZoomState } from "../../nodes/node.model";
+import extendConcept from "../../hooks/useExtendConcept";
 
 const zoomSelector = (s: any) => s.transform[2];
 
 const ConceptInput = (props: any) => {
   const reactFlowInstance = useReactFlow();
   const zoom: number = useStore(zoomSelector);
-
-  const extendConcept = async (concept: string, mode: string = "dev") => {
-
-    const parentNode = reactFlowInstance.getNode(props.id);
-
-    if (!parentNode) {
-      return;
-    }
-
-    let prompt = "Give me 5 lower level topics of " + concept;
-    let sourceHandleId = "b";
-    let targetHandleId = "a";
-
-    let newNodePosition = {
-      x: parentNode.position.x,
-      y: parentNode.position.y + 150,
-    };
-    let nodeType = "subtopic";
-
-    let topics: string[] | any;
-    console.log("prompt", prompt);
-    if (mode === "dev") {
-      topics = [
-        "Human Resources Management",
-        "Financial Management",
-        "Project Management",
-        "Strategic Planning",
-        "Risk Management",
-        "Quality Management",
-      ];
-    } else {
-      topics = await getTopics(prompt, concept);
-    }
-
-    // create a unique id for the child node
-    const childNodeId = uuid();
-
-    // const parentNodeLabel = parentNode.data['label'];
-    console.log("topics:", topics);
-
-    // create the child node
-    const childNode = {
-      id: childNodeId,
-      // we try to place the child node close to the calculated position from the layout algorithm
-      // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
-      position: newNodePosition!,
-      type: nodeType,
-      // data: { label: randomLabel() },
-      data: { label: topics[Math.floor((Math.random() * 10) % 5)] },
-    };
-
-    const childEdge = {
-      id: `${parentNode.id}=>${childNodeId}`,
-      source: parentNode.id,
-      target: childNodeId,
-      sourceHandle: sourceHandleId,
-      targetHandle: targetHandleId,
-      type: "placeholder",
-    };
-
-    reactFlowInstance.addNodes(childNode);
-    reactFlowInstance.addEdges(childEdge);
-  };
 
   // Depending on Zoom level, vary concept font size
   const currentZoomState = () => {
@@ -103,7 +41,7 @@ const ConceptInput = (props: any) => {
         className={`${currentZoomState()}`}
         onSubmit={(event) => {
           event.preventDefault();
-          extendConcept(props.input.trim(), "prod");
+          extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim(), 'prod')
         }}
       >
         <input
@@ -120,9 +58,7 @@ const ConceptInput = (props: any) => {
         />
         <button
           onClick={() => {
-            // console.log(props.input);
-            // props.generateSubtopics(props.input.trim());
-            extendConcept(props.input.trim(), "prod");
+            extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim(), 'prod')
           }}
           type="button"
         >
