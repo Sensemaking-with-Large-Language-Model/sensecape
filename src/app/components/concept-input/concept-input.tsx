@@ -76,7 +76,7 @@ const ConceptInput = (props: any) => {
     reactFlowInstance.addEdges(childEdge);
   };
 
-  // Depending on Zoom level, show response by length
+  // Depending on Zoom level, vary concept font size
   const currentZoomState = () => {
     if (zoom > ZoomState.ALL) {
       return 'concept-form all';
