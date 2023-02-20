@@ -21,6 +21,7 @@
 
 .toolkit-option {
   height: 45px;
+  padding: 0 8px;
   color: #AAA;
   font-size: 14px;
   display: flex;
@@ -29,8 +30,13 @@
   align-items: center;
   background: none;
   border: none;
+  border-radius: 8px;
   overflow-y: auto;
-  border-radius: 50%;
+  cursor: grab;
+}
+
+.toolkit-option:active {
+  cursor: grabbing;
 }
 
 .add-node {
