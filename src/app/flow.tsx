@@ -174,6 +174,8 @@ const ExploreFlow = () => {
             // onSelectionContextMenu={onSelectTopicNodes}
             panOnScroll={true}
             panOnDrag={false}
+            minZoom={0.3}
+            maxZoom={3}
           >
             <Background />
           </ReactFlow>

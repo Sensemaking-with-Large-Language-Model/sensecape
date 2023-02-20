@@ -7,6 +7,7 @@ export interface ChatNodeData {
   instantInput?: string;       // If instant input exists, instantly generate response
 };
 
+// Reference to a ChatNode's input and response
 export interface Reference {
   input: string;
   response: string;

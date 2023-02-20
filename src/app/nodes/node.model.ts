@@ -14,3 +14,11 @@ export type CreativeNode =
   TypeTopicNode |
   TypeConceptNode |
   TypeMemoNode;
+
+// State of Semantic Zoom Content
+// Show ZoomState.value if zoom <= value
+export enum ZoomState {
+  ALL = 0.75,         // ALL if zoom <= 0.75
+  SUMMARY = 0.35,
+  KEYWORDS = 0.2,
+}
