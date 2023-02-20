@@ -176,13 +176,10 @@ const ChatNode = (props: NodeProps) => {
   const isZoomState = (zoomState: ZoomState) => {
     // if summary and keywords both haven't loaded, show default
     if (!(summary && keywords) || zoom > ZoomState.ALL) {
-      console.log('all');
       return zoomState === ZoomState.ALL ? 'chat-text-show' : '';
     } else if (zoom > ZoomState.SUMMARY) {
-      console.log('sum');
       return zoomState === ZoomState.SUMMARY ? 'chat-text-show' : '';
     } else {
-      console.log('key');
       return zoomState === ZoomState.KEYWORDS ? 'chat-text-show' : '';
     }
   }
