@@ -1,5 +1,5 @@
 import { Component, useCallback, useEffect, useState } from "react";
-import { Edge, Handle, NodeProps, Position, useReactFlow, useStore, XYPosition } from "reactflow";
+import { Edge, Handle, NodeProps, Position, useReactFlow, useStore, useUpdateNodeInternals, XYPosition } from "reactflow";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { ResponseState } from "../../components/gpt-input/gpt-input.model";
 import { createChatNode } from "../chat-node/chat-node.helper";
@@ -14,8 +14,10 @@ const TopicNode = (props: NodeProps) => {
   const [topic, setTopic] = useState(props.data.topicName);
   const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
   const [tooltipAvailable, setTooltipAvailable] = useState(true);
+  const [handleStyle, setHandleStyle] = useState<any>({ left: 0, top: 0 });
   const zoom: number = useStore(zoomSelector);
 
+  const updateNodeInternals = useUpdateNodeInternals();
   const reactFlowInstance = useReactFlow();
 
   const addInstantChatNode = useCallback(
@@ -62,6 +64,7 @@ const TopicNode = (props: NodeProps) => {
 
   return (
     <div className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}>
+      <Handle type="target" position={Position.Left} className="node-handle-direct target-handle"/>
       <div className={`topic-node-box ${props.selected ? 'topic-selected' : ''}`}>
         <DragHandle className='drag-handle' />
         <div className={`${currentZoomState()}`}>{topic}</div>
@@ -73,7 +76,7 @@ const TopicNode = (props: NodeProps) => {
           responseState={responseInputState}
         /> : <></>
       }
-      <Handle type="source" position={Position.Bottom} className="node-handle-direct"/>
+      <Handle type="source" position={Position.Bottom} className="node-handle-direct source-handle"/>
     </div>
   )
 }

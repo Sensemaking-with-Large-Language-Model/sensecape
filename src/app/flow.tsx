@@ -13,6 +13,7 @@ import ReactFlow, {
   NodeTypes,
   XYPosition,
   OnSelectionChangeParams,
+  MarkerType,
   MiniMap,
   useStore,
 } from "reactflow";
@@ -21,7 +22,9 @@ import { getTopics } from "../api/openai-api";
 import "reactflow/dist/style.css";
 import GenerateConceptButton from "./components/button-generate-concept/button-generate-concept";
 import NodeToolkit from "./components/node-toolkit/node-toolkit";
-import "./flow.scss";
+import FloatingConnectionLine from "./edges/traveller-edge/traveller-connection";
+import FloatingEdge from "./edges/traveller-edge/traveller-edge";
+import './flow.scss';
 import ChatNode from "./nodes/chat-node/chat-node";
 import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
 import ConceptNode from "./nodes/concept-node/concept-node";
@@ -40,7 +43,6 @@ import SupTopicNode from "./nodes/concept-node/suptopic-node/suptopic-node";
 import { TypeSupTopicNode } from "./nodes/concept-node/suptopic-node/suptopic-node.model";
 import WorkflowNode from "./nodes/workflow-node/WorkflowNode";
 import PlaceholderNode from "./nodes/workflow-node/PlaceholderNode";
-
 import edgeTypes from "./edges";
 
 const nodeColor = (node:Node) => {
@@ -130,6 +132,7 @@ const ExploreFlow = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
+  const [travellerMode, setTravellerMode] = useState(false);
   const connectingNodeId = useRef("");
 
   // useLayout();
@@ -260,25 +263,28 @@ const ExploreFlow = () => {
           return;
         }
         setNodes((nodes) => nodes.concat(newNode));
+        if (data.parentId) {
+          // Add traveller edge
+          let newEdge: Edge = {
+            id: `edge-travel-${reactFlowInstance.getEdges().length}`,
+            source: data.parentId,
+            target: newNode.id,
+            hidden: !travellerMode,
+            animated: true,
+            markerEnd: {
+              type: MarkerType.Arrow,
+              width: 20,
+              height: 20,
+              color: '#3ab2ee',
+            },
+            type: 'traveller',
+          }
+          setEdges((edges) => edges.concat(newEdge));
+        }
       }
     },
-    [reactFlowInstance]
+    [reactFlowInstance, travellerMode]
   );
-
-  // const onSelectTopicNodes = useCallback(
-  //   () => {
-  //     const selectedTopicNodes: TypeTopicNode[] = reactFlowInstance?.getNodes()
-  //       .filter(node => node.type === 'topic' && node.selected) ?? [];
-
-  //     if (selectedTopicNodes.length <= 0) {
-  //       return;
-  //     }
-
-  //     console.log('topic', selectedTopicNodes);
-  //     setShowSelectedTopicMenu(true);
-  //   },
-  //   [reactFlowInstance]
-  // )
 
   const onSelectionChange = useCallback(
     (params: OnSelectionChangeParams) => {
@@ -296,6 +302,24 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
+  /**
+   * Toggles visibility of traveller edges to track progress
+   */
+  const toggleTravellerMode = useCallback(
+    () => {
+      setTravellerMode(!travellerMode);
+      console.log(travellerMode);
+      if (!reactFlowInstance) return;
+      setEdges((edges) => edges.map(edge => {
+        // if edge is traveller, toggle hidden
+        if (edge.id.includes('edge-travel')) {
+          edge.hidden = travellerMode;
+        }
+        return edge;
+      }));
+    },
+    [reactFlowInstance, travellerMode]
+  ) 
   // this function is used for generating sub- or sup- topics 
   // specifically, it determines prompt based on which handle is clicked
   // and then it calls another function getTopics() to receive and return generated sub- or sup- topics
@@ -334,6 +358,7 @@ const ExploreFlow = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            connectionLineComponent={FloatingConnectionLine}
             // fitViewOptions={fitViewOptions}
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
@@ -355,12 +380,15 @@ const ExploreFlow = () => {
             <Background />
             <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
           </ReactFlow>
-          {selectedTopics.length > 0 ? (
-            <GenerateConceptButton generateConceptNode={generateConceptNode} />
-          ) : (
-            <></>
-          )}
-          <NodeToolkit />
+          {selectedTopics.length > 0 ? 
+            <GenerateConceptButton
+              generateConceptNode={generateConceptNode}
+            /> : <></>
+          }
+          <NodeToolkit 
+            travellerMode={travellerMode}
+            toggleTravellerMode={toggleTravellerMode}
+          />
         </div>
       </ReactFlowProvider>
     </div>

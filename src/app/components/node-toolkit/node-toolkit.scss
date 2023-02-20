@@ -1,4 +1,5 @@
 .node-toolkit {
+  // transform-origin: center;
   position: absolute;
   bottom: 0;
   width: fit-content;
@@ -18,19 +19,22 @@
   width: 24px;
 }
 
-.add-node {
-  /* width: 45px; */
+.toolkit-option {
   height: 45px;
   color: #AAA;
+  font-size: 14px;
   display: flex;
   gap: 12px;
-  font-size: 14px;
   justify-content: center;
   align-items: center;
   background: none;
   border: none;
   overflow-y: auto;
   border-radius: 50%;
+}
+
+.add-node {
+  /* width: 45px; */
 }
 
 .add-gpt-node:hover {

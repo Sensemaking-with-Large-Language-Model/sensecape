@@ -105,7 +105,7 @@ const ChatNode = (props: NodeProps) => {
     getGPT3Summary(text).then(data => {
       setSummary(data || 'Error: generate summary failed');
     });
-    
+
     getGPT3Keywords(text).then(data => {
       setKeywords(data || 'Error: generate keywords failed');
     });
@@ -129,7 +129,7 @@ const ChatNode = (props: NodeProps) => {
       return;
     }
     const data = JSON.stringify({
-      chatNodeId: props.id,
+      parentId: props.id,
       chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
       topicName,
     });
