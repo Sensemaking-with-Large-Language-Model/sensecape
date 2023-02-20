@@ -55,7 +55,9 @@ export const getGPT3Stream = async (history: string, prompt: string) => {
 // Semantic Zoom: Summarize text if zoomed out medium amount
 export const getGPT3Summary = async (text: string) => {
   // If text is as short as what we're asking, just return the text
-  if (text.length <= tokens.keywords) return text;
+  if (text.length <= tokens.summary) {
+    return Promise.resolve(text);
+  };
 
   const gptPrompt: string = `Summarize this text in a 1-2 phrases:\n\n${text}`;
 
@@ -77,7 +79,9 @@ export const getGPT3Summary = async (text: string) => {
 // Semantic Zoom: Summarize text if zoomed out large amount
 export const getGPT3Keywords = async (text: string) => {
   // If text is as short as what we're asking, just return the text
-  if (text.length <= tokens.keywords) return text;
+  if (text.length <= tokens.keywords) {
+    return Promise.resolve(text);
+  };
 
   const gptPrompt: string = `Extract 3-5 key phrases from this text in CSV format\n\n${text}`;
 
