@@ -1,13 +1,17 @@
 import { useState } from "react";
 import "./concept-input.scss";
-import { useReactFlow } from "reactflow";
+import { useStore, useReactFlow } from "reactflow";
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "./concept-input.model";
 import { uuid } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
+import { ZoomState } from "../../nodes/node.model";
+
+const zoomSelector = (s: any) => s.transform[2];
 
 const ConceptInput = (props: any) => {
   const reactFlowInstance = useReactFlow();
+  const zoom: number = useStore(zoomSelector);
 
   const extendConcept = async (concept: string, mode: string = "dev") => {
 
@@ -72,6 +76,17 @@ const ConceptInput = (props: any) => {
     reactFlowInstance.addEdges(childEdge);
   };
 
+  // Depending on Zoom level, show response by length
+  const currentZoomState = () => {
+    if (zoom > ZoomState.ALL) {
+      return 'concept-form all';
+    } else if (zoom > ZoomState.SUMMARY) {
+      return 'concept-form summary';
+    } else {
+      return 'concept-form keywords';
+    }
+  }
+
   const handleInputChange = (event: any) => {
     props.setInput(event.target.value);
   };
@@ -84,18 +99,17 @@ const ConceptInput = (props: any) => {
   if (props.responseState === ResponseState.INPUT) {
     return (
       <form
-        className="concept-input"
+        // className="concept-form"
+        className={`${currentZoomState()}`}
         onSubmit={(event) => {
           event.preventDefault();
-          // console.log('onSubmit', props.input.trim());
           extendConcept(props.input.trim(), "prod");
-          // props.generateSubtopics(props.input.trim());
-          // props.setResponseInputState('complete');
         }}
       >
         <input
           id="text"
-          className="text-input"
+          className="concept-input"
+          // className={`${currentZoomState()}`}
           name="text"
           type="text"
           placeholder={props.placeholder}

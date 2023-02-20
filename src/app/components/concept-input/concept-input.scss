@@ -1,4 +1,4 @@
-.concept-input {
+.concept-form {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -19,7 +19,6 @@
   input::placeholder {
     color: #ddd;
   }
-
 
   input:focus {
     outline: none;
@@ -57,4 +56,29 @@
 
 .chat-input:focus-within { 
   border: 2px solid #ddd;
+}
+
+.concept-form.summary {
+  .concept-input {
+    width: 90%;
+    font-size: 28px;
+    text-align: center;
+    background-color: rgb(219, 219, 219);
+  }
+
+  button {
+    display: none;
+  }
+}
+
+.concept-form.keywords {
+  .concept-input {
+    width: 90%;
+    font-size: 36px;
+    text-align: center;
+    background-color: rgb(219, 219, 219);
+  }
+  button {
+    display: none;
+  }
 }
