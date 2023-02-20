@@ -69,6 +69,10 @@
     color: transparent;
   }
 
+  input {
+    pointer-events: none;
+  }
+
   button {
     display: none;
   }
@@ -86,6 +90,10 @@
 
   input::placeholder {
     color: transparent;
+  }
+
+  input {
+    pointer-events: none;
   }
 
   button {
