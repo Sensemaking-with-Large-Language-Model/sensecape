@@ -2,12 +2,13 @@
   position: relative;
   width: 250px;
   height: fit-content;
+  border: 2x solid grey;
   display: flex;
   flex-direction: column;
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
-  background: rgb(255 103 103 / 42%);
+  background: rgb(182 182 182 / 42%);
   font-size: 14px;
   user-select: text;
   cursor: default;
@@ -39,16 +40,34 @@
     visibility: hidden;
   }
   
+  .react-flow__handle-bottom {
+    bottom: -24px !important;
+    cursor: s-resize !important;
+  }
+  
+  .react-flow__handle-top {
+    top: -24px !important;
+    cursor: n-resize !important;
+  }
 }
 
+// .react-flow__node:focus {
+//   border: 1px solid black !important;
+//   border-radius: 12px;
+// }
+
 .concept-node-handle {
-  width: 20px;
+  width: 60px;
   height: 20px;
   border-radius: 3px;
-  background-color: #ff5c80;
+  background-color: #bfbfbf;
 }
 
 .concept-node-handle .handle-top {
+  top: -21px !important;
+}
+
+.concept-node-handle .handle-bottom {
   top: -21px !important;
 }
 // .react-flow .react-flow__handle {
@@ -70,3 +89,4 @@
 .react-flow__connectionline path {
   stroke-width: 2;
 }
+

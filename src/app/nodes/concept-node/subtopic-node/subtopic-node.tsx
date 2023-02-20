@@ -1,21 +1,19 @@
-import { useEffect, useState } from "react";
 import { NodeProps, Handle, Position } from "reactflow";
 import { ReactComponent as DragHandle } from '../../../assets/drag-handle.svg';
+import './subtopic-node.scss';
 // import cx from 'classnames';
 // import styles from 'subtopic-node.module.scss';
-import './subtopic-node.module.scss';
 
 const SubTopicNode = (props: NodeProps) => {
-  
     return (
-        <div className="node" title="click to add a child node">
-            <DragHandle className='drag-handle' />
-            {/* {data.label} */}
-            <Handle className="handle" type="target" position={Position.Top} isConnectable={false} />
-            <Handle className="handle" type="source" position={Position.Bottom} isConnectable={false} />
+        <div className="subtopic-node" title="click to add a child node">
+            <Handle id="a" className="handle" type="target" position={Position.Top} isConnectable={true} />
+            {/* <span>subtopic</span> */}
+            { props.data.label }
+            <Handle id="b" className="handle" type="source" position={Position.Bottom} isConnectable={true} />
         </div>
       );
 
 }
 
-  export default SubTopicNode;
+export default SubTopicNode;
