@@ -64,7 +64,7 @@ const TopicNode = (props: NodeProps) => {
 
   return (
     <div className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}>
-      <Handle type="target" position={Position.Top} className="node-handle-direct" style={handleStyle}/>
+      <Handle type="target" position={Position.Left} className="node-handle-direct target-handle"/>
       <div className={`topic-node-box ${props.selected ? 'topic-selected' : ''}`}>
         <DragHandle className='drag-handle' />
         <div className={`${currentZoomState()}`}>{topic}</div>
@@ -76,7 +76,7 @@ const TopicNode = (props: NodeProps) => {
           responseState={responseInputState}
         /> : <></>
       }
-      <Handle type="source" position={Position.Bottom} className="node-handle-direct"/>
+      <Handle type="source" position={Position.Bottom} className="node-handle-direct source-handle"/>
     </div>
   )
 }

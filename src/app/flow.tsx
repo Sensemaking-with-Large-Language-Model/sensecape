@@ -18,6 +18,8 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import GenerateConceptButton from "./components/button-generate-concept/button-generate-concept";
 import NodeToolkit from "./components/node-toolkit/node-toolkit";
+import FloatingConnectionLine from "./edges/floating-edge/floating-connection";
+import FloatingEdge from "./edges/floating-edge/floating-edge";
 import './flow.scss';
 import ChatNode from "./nodes/chat-node/chat-node";
 import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
@@ -53,6 +55,10 @@ const nodeTypes: NodeTypes = {
   topic: TopicNode,
   concept: ConceptNode,
   memo: MemoNode,
+};
+
+const edgeTypes = {
+  floating: FloatingEdge,
 };
 
 let id = 0;
@@ -119,11 +125,12 @@ const ExploreFlow = () => {
             id: `edge-travel-${reactFlowInstance.getEdges().length}`,
             source: data.parentId,
             target: newNode.id,
-            hidden: true,
+            hidden: !travellerMode,
             animated: true,
             markerEnd: {
               type: MarkerType.Arrow,
             },
+            type: 'floating',
           }
           setEdges((edges) => edges.concat(newEdge));
         }
@@ -163,12 +170,13 @@ const ExploreFlow = () => {
       setTravellerMode(!travellerMode);
       console.log(travellerMode);
       if (!reactFlowInstance) return;
-      const travellerEdges = reactFlowInstance.getEdges().filter((edge: Edge) => edge.id.includes('edge-travel'));
-      console.log(travellerEdges);
-      // traveller mode true: not hidden, else: hidden
-      travellerEdges.forEach(edge => {
-        edge.hidden = !travellerMode;
-      });
+      setEdges((edges) => edges.map(edge => {
+        // if edge is traveller, toggle hidden
+        if (edge.id.includes('edge-travel')) {
+          edge.hidden = travellerMode;
+        }
+        return edge;
+      }));
     },
     [reactFlowInstance, travellerMode]
   ) 
@@ -184,8 +192,10 @@ const ExploreFlow = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            connectionLineComponent={FloatingConnectionLine}
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             onDrop={onDrop}
             onDragOver={onDragOver}
             onSelectionChange={onSelectionChange}

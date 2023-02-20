@@ -105,7 +105,7 @@ const ChatNode = (props: NodeProps) => {
     getGPT3Summary(text).then(data => {
       setSummary(data || 'Error: generate summary failed');
     });
-    
+
     getGPT3Keywords(text).then(data => {
       setKeywords(data || 'Error: generate keywords failed');
     });
