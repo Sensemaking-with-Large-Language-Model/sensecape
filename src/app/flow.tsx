@@ -11,7 +11,8 @@ import ReactFlow, {
   ReactFlowInstance,
   NodeTypes,
   XYPosition,
-  OnSelectionChangeParams
+  OnSelectionChangeParams,
+  MarkerType
 } from "reactflow";
 
 import "reactflow/dist/style.css";
@@ -35,7 +36,7 @@ const initialNodes: Node[] = [
     type: "chat",
     dragHandle: '.drag-handle',
     data: {
-      parentChatId: '',
+      parentId: '',
       chatReference: '',
       placeholder: 'Ask GPT-3'
     },
@@ -63,6 +64,7 @@ const ExploreFlow = () => {
   const reactFlowWrapper = useRef<any>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
+  const [travellerMode, setTravellerMode] = useState(false);
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((els) => addEdge(params, els)),
@@ -111,25 +113,24 @@ const ExploreFlow = () => {
           return;
         }
         setNodes((nodes) => nodes.concat(newNode));
+        if (data.parentId) {
+          // Add traveller edge
+          let newEdge: Edge = {
+            id: `edge-travel-${reactFlowInstance.getEdges().length}`,
+            source: data.parentId,
+            target: newNode.id,
+            hidden: true,
+            animated: true,
+            markerEnd: {
+              type: MarkerType.Arrow,
+            },
+          }
+          setEdges((edges) => edges.concat(newEdge));
+        }
       }
     },
     [reactFlowInstance]
   );
-
-  // const onSelectTopicNodes = useCallback(
-  //   () => {
-  //     const selectedTopicNodes: TypeTopicNode[] = reactFlowInstance?.getNodes()
-  //       .filter(node => node.type === 'topic' && node.selected) ?? [];
-
-  //     if (selectedTopicNodes.length <= 0) {
-  //       return;
-  //     }
-
-  //     console.log('topic', selectedTopicNodes);
-  //     setShowSelectedTopicMenu(true);
-  //   },
-  //   [reactFlowInstance]
-  // )
 
   const onSelectionChange = useCallback(
     (params: OnSelectionChangeParams) => {
@@ -153,6 +154,24 @@ const ExploreFlow = () => {
     },
     [reactFlowInstance, selectedTopics]
   );
+
+  /**
+   * Toggles visibility of traveller edges to track progress
+   */
+  const toggleTravellerMode = useCallback(
+    () => {
+      setTravellerMode(!travellerMode);
+      console.log(travellerMode);
+      if (!reactFlowInstance) return;
+      const travellerEdges = reactFlowInstance.getEdges().filter((edge: Edge) => edge.id.includes('edge-travel'));
+      console.log(travellerEdges);
+      // traveller mode true: not hidden, else: hidden
+      travellerEdges.forEach(edge => {
+        edge.hidden = !travellerMode;
+      });
+    },
+    [reactFlowInstance, travellerMode]
+  ) 
 
   return (
     <div className="explore-flow">
@@ -184,7 +203,10 @@ const ExploreFlow = () => {
               generateConceptNode={generateConceptNode}
             /> : <></>
           }
-          <NodeToolkit />
+          <NodeToolkit 
+            travellerMode={travellerMode}
+            toggleTravellerMode={toggleTravellerMode}
+          />
         </div>
       </ReactFlowProvider>
     </div>

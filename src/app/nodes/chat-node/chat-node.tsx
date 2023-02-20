@@ -129,7 +129,7 @@ const ChatNode = (props: NodeProps) => {
       return;
     }
     const data = JSON.stringify({
-      chatNodeId: props.id,
+      parentId: props.id,
       chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
       topicName,
     });

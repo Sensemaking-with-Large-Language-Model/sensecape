@@ -1,3 +1,4 @@
+import { Switch } from '@mui/material';
 import { useCallback } from 'react';
 import { useReactFlow } from 'reactflow';
 import { createChatNode } from '../../nodes/chat-node/chat-node.helper';
@@ -6,7 +7,7 @@ import { ConceptNodeData } from '../../nodes/concept-node/concept-node.model';
 import { CreativeNodeData } from '../../nodes/node.model';
 import './node-toolkit.scss';
 
-const NodeToolkit = () => {
+const NodeToolkit = (props: any) => {
 
   const reactFlowInstance = useReactFlow();
 
@@ -28,7 +29,7 @@ const NodeToolkit = () => {
     let data: CreativeNodeData;
     if (nodeType === 'chat') {
       data = {
-        parentChatId: '',
+        parentId: '',
         chatReference: '',
         placeholder: 'Ask GPT-3',
       };
@@ -49,6 +50,9 @@ const NodeToolkit = () => {
 
   return (
     <div className="node-toolkit">
+      <div className='traveller-mode-toggle'>
+        <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />
+      </div>
       <div className='add-node' draggable onDragStart={(e) => onDragStart(e, 'chat')}>
         <svg width="16" height="30" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M1 8L15 8M8 15L8 1" stroke="#AAA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
