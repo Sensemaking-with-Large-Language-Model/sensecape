@@ -37,6 +37,11 @@ export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: s
     }
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);
-    console.log(reactFlowInstance.getNodes());
+    // console.log(reactFlowInstance.getNodes());
+
+    // change view to show next answer 
+    // currently, it focuses on the entire view, might want to move to just recently created node 
+    // need to use 'nodes' param in fitViewOptions, cf. https://reactflow.dev/docs/api/types/#fitviewsoptions
+    reactFlowInstance!.fitView({ duration: 900, padding: 0.3 }); 
   }, 0);
 }
