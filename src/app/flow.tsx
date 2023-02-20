@@ -13,6 +13,7 @@ import ReactFlow, {
   NodeTypes,
   XYPosition,
   OnSelectionChangeParams,
+  MiniMap,
   useStore,
 } from "reactflow";
 import { getTopics } from "../api/openai-api";
@@ -41,6 +42,25 @@ import WorkflowNode from "./nodes/workflow-node/WorkflowNode";
 import PlaceholderNode from "./nodes/workflow-node/PlaceholderNode";
 
 import edgeTypes from "./edges";
+
+const nodeColor = (node:Node) => {
+  switch (node.type) {
+    case 'chat':
+      return '#6ede87';
+    case 'concept':
+      return '#6865A5';
+    case 'topic':
+      return '#6865A5';
+    case 'subtopic':
+      return '#6865A5';
+    case 'suptopic':
+      return '#6865A5';
+    case 'memo':
+        return '#6865A5';
+    default:
+      return '#ff0072';
+  }
+};
 
 const initialNodes: Node[] = [
   // {
@@ -333,6 +353,7 @@ const ExploreFlow = () => {
             // maxZoom={Infinity} // otherwise, it might not be good to have this 
           >
             <Background />
+            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
           </ReactFlow>
           {selectedTopics.length > 0 ? (
             <GenerateConceptButton generateConceptNode={generateConceptNode} />
