@@ -1,7 +1,7 @@
 import { Component, useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
-import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, XYPosition } from 'reactflow';
-import { getGPT3Response } from '../../../api/openai-api';
+import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, useStore, XYPosition } from 'reactflow';
+import { getGPT3Keywords, getGPT3Response, getGPT3Stream, getGPT3Summary } from '../../../api/openai-api';
 import './chat-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { isHighlightable } from './highlighter';
@@ -12,6 +12,7 @@ import { ChatNodeData, TypeChatNode } from './chat-node.model';
 import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/gpt-input/gpt-input.model';
 import { createChatNode } from './chat-node.helper';
+import { ZoomState } from '../node.model';
 
 type ChatState = {
   input: string,
@@ -48,13 +49,21 @@ class Highlight extends HTMLElement {
   }
 }
 
+const zoomSelector = (s: any) => s.transform[2];
+
 customElements.define("highlight-text", Highlight);
 
 const ChatNode = (props: NodeProps) => {
   const [input, setInput] = useState('');
+
+  // TODO: Combine 3 responses into one object
   const [response, setResponse] = useState('');
+  const [summary, setSummary] = useState('');
+  const [keywords, setKeywords] = useState('');
+
   const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
   const [highlightIds, setHighlightIds] = useState<string[]>([]);
+  const zoom: number = useStore(zoomSelector);
 
   const reactFlowInstance = useReactFlow();
 
@@ -82,7 +91,24 @@ const ChatNode = (props: NodeProps) => {
 
     setResponse(response);
     setResponseInputState(ResponseState.COMPLETE);
+    generateSummaries(response);
     addChatFollowUpNode(prompt, response);
+  }
+
+  /**
+   * Semantic Zoom
+   * Generates the summary and keywords of response
+   */
+  const generateSummaries = (text: string) => {
+    if (!text) return;
+
+    getGPT3Summary(text).then(data => {
+      setSummary(data || 'Error: generate summary failed');
+    });
+    
+    getGPT3Keywords(text).then(data => {
+      setKeywords(data || 'Error: generate keywords failed');
+    });
   }
 
   useEffect(() => {
@@ -146,8 +172,27 @@ const ChatNode = (props: NodeProps) => {
     }
   }
 
+  // Depending on Zoom level, show response by length
+  const isZoomState = (zoomState: ZoomState) => {
+    // if summary and keywords both haven't loaded, show default
+    if (!(summary && keywords) || zoom > ZoomState.ALL) {
+      console.log('all');
+      return zoomState === ZoomState.ALL ? 'chat-text-show' : '';
+    } else if (zoom > ZoomState.SUMMARY) {
+      console.log('sum');
+      return zoomState === ZoomState.SUMMARY ? 'chat-text-show' : '';
+    } else {
+      console.log('key');
+      return zoomState === ZoomState.KEYWORDS ? 'chat-text-show' : '';
+    }
+  }
+
+  // Idea: summaryzoom >= ALL
+
   return (
-    <div className='chat-node'>
+    // Allow highlighting only for fully expanded text
+    // <div className='chat-node highlightable'>
+      <div className={`chat-node ${zoom >= ZoomState.ALL ? 'highlightable' : 'drag-handle'}`}>
       <TooltipProvider>
         <Handle type="target" position={Position.Top} id="b" className="node-handle-direct"/>
         <DragHandle className='drag-handle' />
@@ -166,9 +211,14 @@ const ChatNode = (props: NodeProps) => {
           {/* <div className='chat-response'>
             this is a temporary response block because GPT-3 is not working for me right now. Idk why but I hope it works soon so I can ask questions. I have a lot of questions that need to be answered.
           </div> */}
+          {/* {response ? (<ResponseByZoom />) : <></>} */}
           {response ? (
-            <div className='chat-response'>{response}</div>
-            ) : <></>}
+            <>
+              <div className={`chat-response all ${isZoomState(ZoomState.ALL)}`}>{response}</div>
+              <div className={`chat-response summary ${isZoomState(ZoomState.SUMMARY)}`}>{summary}</div>
+              <div className={`chat-response keywords ${isZoomState(ZoomState.KEYWORDS)}`}>{keywords}</div>
+            </>
+          ) : <></>}
         </div>
         <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct"/>
         <Tooltip

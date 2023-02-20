@@ -9,10 +9,13 @@
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
   background: #fff;
   font-size: 14px;
-  user-select: text;
-  cursor: default;
+
+  .highlight-box {
+    position: relative;
+  }
 
   .chat-response {
+    position: relative;
     margin-top: 20px;
     white-space: pre-wrap;
     line-height: 1.4em;
@@ -20,12 +23,45 @@
     // border: 2px solid #98D2C4;
     border-radius: 4px;
     padding: 6px;
-    cursor: text;
+    transition: opacity 0.5s;
   }
 
-  .highlight-box {
-
+  .all {
+    opacity: 0;
+    visibility: hidden;
   }
+
+  .summary {
+    position: absolute;
+    top: -16px;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .keywords {
+    position: absolute;
+    top: -16px;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .chat-text-show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+
 }
 
 highlight-text {
@@ -40,6 +76,10 @@ highlight-text:hover {
   background-color: #b2ecdd;
 }
 
-.chat-node:hover {
+.chat-node.highlightable {
   user-select: text;
+  cursor: default;
+  .chat-response {
+    cursor: text;
+  }
 }
