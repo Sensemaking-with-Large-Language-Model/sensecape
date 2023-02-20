@@ -1,0 +1,96 @@
+.concept-node {
+  position: relative;
+  width: 250px;
+  height: fit-content;
+  border: 2x solid grey;
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+  background: rgb(182 182 182 / 42%);
+  font-size: 14px;
+  user-select: text;
+  cursor: default;
+
+  .concept-response {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    line-height: 1.4em;
+    // border: 2px solid #98D2C4;
+    // border: 2px solid #98D2C4;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: text;
+  }
+
+  .highlight-box {
+
+  }
+
+  .concept-input {
+    border: 0px;
+  }
+  
+  .visible {
+    visibility: visible;
+  }
+  
+  .hidden {
+    visibility: hidden;
+  }
+  
+  .react-flow__handle-bottom {
+    bottom: -24px !important;
+    cursor: s-resize !important;
+  }
+  
+  .react-flow__handle-top {
+    top: -24px !important;
+    cursor: n-resize !important;
+  }
+
+  .react-flow__handle-top:hover, .react-flow__handle-bottom:hover {
+    background-color: #bfbfbf;
+  }
+}
+
+// .react-flow__node:focus {
+//   border: 1px solid black !important;
+//   border-radius: 12px;
+// }
+
+.concept-node-handle {
+  width: 60px;
+  height: 20px;
+  border-radius: 3px;
+  background-color: #e5e2e2;
+}
+
+.concept-node-handle .handle-top {
+  top: -21px !important;
+}
+
+.concept-node-handle .handle-bottom {
+  top: -21px !important;
+}
+// .react-flow .react-flow__handle {
+//   width: 20px;
+//   height: 20px;
+//   border-radius: 3px;
+//   background-color: #ff5c80;
+// }
+
+// .react-flow .react-flow__handle-top {
+//   top: -12px;
+// }
+
+// .react-flow .react-flow__handle-bottom {
+//   bottom: -12px;
+// }
+
+.react-flow .react-flow__edge path,
+.react-flow__connectionline path {
+  stroke-width: 2;
+}
+
