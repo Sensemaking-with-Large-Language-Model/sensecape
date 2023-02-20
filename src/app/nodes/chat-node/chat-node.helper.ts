@@ -42,8 +42,12 @@ export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: s
     // change view to show next answer 
     // currently, it focuses on the entire view, might want to move to just recently created node 
     // need to use 'nodes' param in fitViewOptions, cf. https://reactflow.dev/docs/api/types/#fitviewsoptions
-    const fitViewOptions = { duration: 900, padding: 0.3, nodes: [{ id: newNode.id}] }
+    const query = 'div[data-id="' + newNode.id + '"]';
+    // let activeElement = document.querySelector(query)!.getElementsByClassName('text-input')[0];
+    // (activeElement as HTMLElement)?.focus();
+    // const fitViewOptions = { duration: 900, padding: 0.3, nodes: [{ id: newNode.id}] }
     // reactFlowInstance!.fitView(fitViewOptions);
+    console.log(reactFlowInstance!.getViewport());
     // reactFlowInstance!.zoomOut( { duration: 1300 } );
     // setTimeout(() => {
     //   reactFlowInstance!.setCenter(position.x, position.y, { duration: 2000 });

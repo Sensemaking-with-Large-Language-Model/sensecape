@@ -48,8 +48,8 @@ const ConceptNode = (props: NodeProps) => {
   const [responseInputState, setResponseInputState] = useState<ResponseState>(
     ResponseState.INPUT
   );
-  // const [lowLevelTopics, setLowLevelTopics] = useState<string[]>([]);
-  // const [highLevelTopics, setHighLevelTopics] = useState<string[]>([]);
+  const [lowLevelTopics, setLowLevelTopics] = useState<string[]>([]);
+  const [highLevelTopics, setHighLevelTopics] = useState<string[]>([]);
   // const [lateralRightTopics, setlateralRightTopics] = useState<string[]>([]);
   // const [lateralLeftTopics, setlateralLeftTopics] = useState<string[]>([]);
 
