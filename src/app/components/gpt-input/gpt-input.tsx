@@ -1,14 +1,20 @@
 import { useState } from "react";
+import { useReactFlow } from "reactflow";
 import './gpt-input.scss';
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "./gpt-input.model";
 
 
 const GPTInput = (props: any) => {
+  const reactFlowInstance = useReactFlow();
 
   const handleInputChange = (event: any) => {
     props.setInput(event.target.value);
   }
+
+  const handleOnFocus = (event: any) => {
+    reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+  };
 
   if (props.responseState === ResponseState.INPUT) {
     return (
@@ -28,6 +34,7 @@ const GPTInput = (props: any) => {
           autoComplete='off'
           value={props.input}
           onChange={handleInputChange}
+          onFocus={handleOnFocus}
         />
         <button
           onClick={() => props.generateResponse(props.input.trim())}
