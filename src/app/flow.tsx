@@ -29,7 +29,6 @@ import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
 import { CreativeNode } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
-// import WorkflowNode  from "./nodes/concept-node/WorkflowNode";
 import useLayout from './hooks/useLayout';
 import SubTopicNode from "./nodes/concept-node/subtopic-node/subtopic-node";
 
@@ -61,7 +60,6 @@ const nodeTypes: NodeTypes = {
   chat: ChatNode,
   topic: TopicNode,
   subtopic: SubTopicNode,
-  // concept: WorkflowNode,
   concept: ConceptNode,
   memo: MemoNode,
 };
@@ -265,6 +263,8 @@ const ExploreFlow = () => {
             // onSelectionContextMenu={onSelectTopicNodes}
             panOnScroll={true}
             panOnDrag={false}
+            // minZoom={-Infinity}
+            // maxZoom={Infinity}
           >
             <Background />
           </ReactFlow>

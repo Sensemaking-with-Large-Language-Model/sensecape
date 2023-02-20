@@ -17,5 +17,5 @@ const SubTopicNode = (props: NodeProps) => {
       );
 
 }
-  
+
   export default SubTopicNode;
