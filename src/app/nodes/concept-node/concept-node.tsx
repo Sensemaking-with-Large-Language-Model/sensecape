@@ -13,10 +13,13 @@ import { TypeTopicNode } from "../topic-node/topic-node.model";
 import { ReactComponent as DragHandle } from "../../assets/drag-handle.svg";
 import ConceptInput from "../../components/concept-input/concept-input";
 
-import { extendConcepts } from "./concept-node.helper";
 import { uuid } from "../../utils";
 
+import useNodeClick from "../../hooks/useNodeClick";
+
 import "./concept-node.scss";
+
+import extendConcept from "../../hooks/useExtendConcept";
 
 // reference:
 // add node on edge drop
@@ -78,95 +81,7 @@ const ConceptNode = (props: NodeProps) => {
     }
   }, []);
 
-  // const generateTopic = (pos: string, concept: string) => {
-  //   let prompt = "";
-
-  //   if (pos === 'top') {
-  //     prompt = "Give me 5 higher level topics of " + concept;
-  //   } else if (pos === 'bottom') {
-  //     prompt = "Give me 5 lower level topics of " + concept;
-  //   } else if (pos === 'right' || pos === 'left') {
-  //     prompt = "Give me 5 related topics of " + concept + " at this level of abstraction";
-  //   }
-  //   const topics = getTopics(prompt, concept);
-
-  //   return topics;
-  // }
-
-  const extendConcept = async (id: string, pos: string, concept: string) => {
-        // we need the parent node object for positioning the new child node
-
-        let prompt = "";
-        let sourceHandleId = "";
-        let targetHandleId = "";
-        let newNodePosition: { x: number, y: number};
-        let nodeType = "";
-        const parentNode = reactFlowInstance.getNode(id);
-
-        if (!parentNode) {
-          return;
-        }
-
-        if (pos === 'top') {
-          prompt = "Give me 5 higher level topics of " + concept;
-          sourceHandleId ='a';
-          targetHandleId = 'b';
-          newNodePosition = { x: parentNode.position.x, y: parentNode.position.y - 150 };
-          nodeType = 'suptopic';
-        } else if (pos === 'bottom') {
-          prompt = "Give me 5 lower level topics of " + concept;
-          sourceHandleId='b';
-          targetHandleId = 'a';
-          newNodePosition = { x: parentNode.position.x, y: parentNode.position.y + 150 };
-          nodeType = 'subtopic';
-        } else if (pos === 'left') {
-          prompt = "Give me 5 related topics of " + concept + " at this level of abstraction";
-          sourceHandleId='c';
-          targetHandleId = 'd';
-          newNodePosition = { x: parentNode.position.x - 150, y: parentNode.position.y };
-          nodeType = 'related-topic';
-        } else if (pos === 'right') {
-          prompt = "Give me 5 related topics of " + concept + " at this level of abstraction";
-          sourceHandleId='d';
-          targetHandleId = 'c';
-          newNodePosition = { x: parentNode.position.x + 250, y: parentNode.position.y };
-          nodeType = 'related-topic';
-        }
-        
-        console.log('prompt', prompt);
-        const topics:string[] | any = await getTopics(prompt, concept);
-
-        // create a unique id for the child node
-        const childNodeId = uuid();
-
-        // const parentNodeLabel = parentNode.data['label'];
-
-        console.log('topics:', topics);
-
-        // create the child node
-        console.log('nodeType', nodeType);
-        const childNode = {
-          id: childNodeId,
-          // we try to place the child node close to the calculated position from the layout algorithm
-          // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
-          position: newNodePosition!,
-          type: nodeType,
-          // data: { label: randomLabel() },
-          data: { label: topics[Math.floor(Math.random() * 10 % 5)] },
-        };
-
-        const childEdge = {
-          id: `${parentNode.id}=>${childNodeId}`,
-          source: parentNode.id,
-          target: childNodeId,
-          sourceHandle: sourceHandleId,
-          targetHandle: targetHandleId,
-          type: 'placeholder',
-        };
-
-        reactFlowInstance.addNodes(childNode);
-        reactFlowInstance.addEdges(childEdge);
-  }
+  const calluseNodeClick = useNodeClick(props.id);
 
   if (responseState === ResponseState.INPUT) {
     return (
@@ -194,16 +109,19 @@ const ConceptNode = (props: NodeProps) => {
       <div className="concept-node">
         <Handle
           type="source"
-          className={input !== "" ? "concept-node-handle handle-top visible" : "concept-node-handle handle-top hidden"}
+          // className={input !== "" ? "concept-node-handle handle-top visible" : "concept-node-handle handle-top hidden"}
+          className="concept-node-handle handle-top visible"
           position={Position.Top}
-          onClick={()=>extendConcept(props.id, 'top', input)}
+          onClick={()=>extendConcept(reactFlowInstance, props.id, 'top', input, 'prod')}
           id="a"
         />
         <Handle
           type="source"
-          className={input !== "" ? "concept-node-handle visible" : "concept-node-handle hidden"}
+          // className={input !== "" ? "concept-node-handle visible" : "concept-node-handle hidden"}
+          className="concept-node-handle handle-top visible"
           position={Position.Bottom}
-          onClick={()=>extendConcept(props.id, 'bottom', input)}
+          onClick={()=>extendConcept(reactFlowInstance, props.id, 'bottom', input, 'prod')}
+          // onClick={calluseNodeClick}
           id="b"
         />
         {/* <Handle
@@ -222,7 +140,6 @@ const ConceptNode = (props: NodeProps) => {
         /> */}
         <DragHandle className="drag-handle" />
         <ConceptInput
-          extendConcepts={extendConcepts}
           responseState={responseInputState}
           placeholder={props.data.placeholder}
           setResponseInputState={setResponseInputState}

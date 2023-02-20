@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { NodeProps, useReactFlow, getOutgoers } from 'reactflow';
 import { Configuration, OpenAIApi } from 'openai';
 
-import { uuid } from '../utils';
+import { uuid, randomLabel } from '../utils';
 
 // this hook implements the logic for clicking a workflow node
 // on workflow node click: create a new child node of the clicked node
@@ -33,30 +33,25 @@ export function useNodeClick(id: NodeProps['id']) {
 
     // const text = response.data.choices[0].text.trim();
     const text = response.data.choices[0].text;
+    console.log(text);
 
-    if (typeof text === 'string') {
+    let re = /\d.*\n*/g; // regex pattern
 
-        let re = /\d.*\n*/g; // regex pattern
+    let subtopics: any
+    subtopics = text!.match(re); // put all subtopics into array
+    
+    // remove unnecessary characters
+    subtopics.forEach((elem:string, idx:number) => subtopics[idx] = elem.replace(/\d. /, ''));
+    subtopics.forEach((elem:string, idx:number) => subtopics[idx] = elem.replace(/ ?\n/, ''));
 
-        let subtopics : any;
-        subtopics = text.match(re);// put all subtopics into array
-        
-        if (Array.isArray(subtopics)) {        
-            // remove unnecessary characters
-            subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/\d. /, ''));
-            subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/ ?\n/, ''));
-            return subtopics;
-        }
-    }
-        return;
+    console.log('subtopics', subtopics);
+    
+    return subtopics;
   }
 
   const onClick = async () => {
     // we need the parent node object for positioning the new child node
-
-    console.log('id', id);
     const parentNode = getNode(id);
-    console.log('parentNode', parentNode);
 
     if (!parentNode) {
       return;
@@ -65,17 +60,17 @@ export function useNodeClick(id: NodeProps['id']) {
     // create a unique id for the child node
     const childNodeId = uuid();
 
-    const parentNodeLabel = parentNode.data['label'];
+    // create a unique id for the placeholder (the placeholder gets added to the new child node)
+    const childPlaceholderId = uuid();
 
-    console.log('parentNodeLabel', parentNodeLabel);
-    console.log('id', id);
+    const parentNodeLabel = parentNode.data['label'];
 
     const prompt = 'Give me six sub-topics for ' + '' + parentNodeLabel;
 
     console.log('prompt:', prompt);
 
-    let subtopics: any;
-    subtopics = await askGPT(prompt);
+    // const subtopics = await askGPT(prompt);
+    const subtopics = ['Interaction Design', 'Usability Engineering', 'Cognitive Psychology', 'Human Factors', 'Interface Design', 'Multimodal Interaction']
 
     console.log('subtopics:', subtopics);
 
@@ -85,23 +80,21 @@ export function useNodeClick(id: NodeProps['id']) {
       // we try to place the child node close to the calculated position from the layout algorithm
       // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
       position: { x: parentNode.position.x, y: parentNode.position.y + 150 },
-      type: 'something',
+      type: 'workflow',
       // data: { label: randomLabel() },
       data: { label: subtopics[Math.floor(Math.random() * 10 % 6)] },
     };
 
-    // console.log('childNode:', childNode);
-
     // create a placeholder for the new child node
     // we want to display a placeholder for all workflow nodes that do not have a child already
     // as the newly created node will not have a child, it gets this placeholder
-    // const childPlaceholderNode = {
-    //   id: childPlaceholderId,
-    //   // we place the placeholder 150 pixels below the child node, spacing can be adjusted in the useLayout hook
-    //   position: { x: childNode.position.x, y: childNode.position.y + 150 },
-    //   type: 'placeholder',
-    //   data: { label: '+' },
-    // };
+    const childPlaceholderNode = {
+      id: childPlaceholderId,
+      // we place the placeholder 150 pixels below the child node, spacing can be adjusted in the useLayout hook
+      position: { x: childNode.position.x, y: childNode.position.y + 150 },
+      type: 'placeholder',
+      data: { label: '+' },
+    };
 
     // we need to create a connection from parent to child
     const childEdge = {
@@ -111,15 +104,13 @@ export function useNodeClick(id: NodeProps['id']) {
       type: 'workflow',
     };
 
-    // console.log('childEdge:', childEdge);
-
     // we need to create a connection from child to our placeholder
-    // const childPlaceholderEdge = {
-    //   id: `${childNodeId}=>${childPlaceholderId}`,
-    //   source: childNodeId,
-    //   target: childPlaceholderId,
-    //   type: 'placeholder',
-    // };
+    const childPlaceholderEdge = {
+      id: `${childNodeId}=>${childPlaceholderId}`,
+      source: childNodeId,
+      target: childPlaceholderId,
+      type: 'placeholder',
+    };
 
     // if the clicked node has had any placeholders as children, we remove them because it will get a child now
     const existingPlaceholders = getOutgoers(parentNode, getNodes(), getEdges())
@@ -128,12 +119,12 @@ export function useNodeClick(id: NodeProps['id']) {
 
     // add the new nodes (child and placeholder), filter out the existing placeholder nodes of the clicked node
     setNodes((nodes) =>
-      nodes.filter((node) => !existingPlaceholders.includes(node.id)).concat([childNode])
+      nodes.filter((node) => !existingPlaceholders.includes(node.id)).concat([childNode, childPlaceholderNode])
     );
 
     // add the new edges (node -> child, child -> placeholder), filter out any placeholder edges
     setEdges((edges) =>
-      edges.filter((edge) => !existingPlaceholders.includes(edge.target)).concat([childEdge])
+      edges.filter((edge) => !existingPlaceholders.includes(edge.target)).concat([childEdge, childPlaceholderEdge])
     );
   };
 

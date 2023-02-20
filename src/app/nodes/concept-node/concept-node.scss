@@ -49,6 +49,10 @@
     top: -24px !important;
     cursor: n-resize !important;
   }
+
+  .react-flow__handle-top:hover, .react-flow__handle-bottom:hover {
+    background-color: #bfbfbf;
+  }
 }
 
 // .react-flow__node:focus {
@@ -60,7 +64,7 @@
   width: 60px;
   height: 20px;
   border-radius: 3px;
-  background-color: #bfbfbf;
+  background-color: #e5e2e2;
 }
 
 .concept-node-handle .handle-top {

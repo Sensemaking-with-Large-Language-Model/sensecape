@@ -13,6 +13,7 @@ import ReactFlow, {
   NodeTypes,
   XYPosition,
   OnSelectionChangeParams,
+  useStore,
 } from "reactflow";
 import { getTopics } from "../api/openai-api";
 
@@ -31,10 +32,13 @@ import { CreativeNode } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 import useLayout from "./hooks/useLayout";
+import useAutoLayout, { Direction } from './hooks/useAutoLayout';
 import SubTopicNode from "./nodes/concept-node/subtopic-node/subtopic-node";
 import { TypeSubTopicNode } from "./nodes/concept-node/subtopic-node/subtopic-node.model";
 import SupTopicNode from "./nodes/concept-node/suptopic-node/suptopic-node";
 import { TypeSupTopicNode } from "./nodes/concept-node/suptopic-node/suptopic-node.model";
+import WorkflowNode from "./nodes/workflow-node/WorkflowNode";
+import PlaceholderNode from "./nodes/workflow-node/PlaceholderNode";
 
 import edgeTypes from "./edges";
 
@@ -54,6 +58,31 @@ const initialNodes: Node[] = [
 
 const initialEdges: Edge[] = [];
 
+// const initialNodes: Node[] = [
+//   {
+//     id: '1',
+//     data: { label: 'Human Computer Interaction' },
+//     position: { x: 0, y: 0 },
+//     type: 'workflow',
+//   },
+//   {
+//     id: '2',
+//     data: { label: '+' },
+//     position: { x: 0, y: 150 },
+//     type: 'placeholder',
+//   },
+// ];
+
+// // initial setup: connect the workflow node to the placeholder node with a placeholder edge
+// const initialEdges: Edge[] = [
+//   {
+//     id: '1=>2',
+//     source: '1',
+//     target: '2',
+//     type: 'placeholder',
+//   },
+// ];
+
 const proOptions = { account: "paid-pro", hideAttribution: true };
 
 const fitViewOptions = {
@@ -67,6 +96,8 @@ const nodeTypes: NodeTypes = {
   suptopic: SupTopicNode,
   concept: ConceptNode,
   memo: MemoNode,
+  workflow: WorkflowNode,
+  placeholder: PlaceholderNode,
 };
 
 let id = 0;
@@ -80,6 +111,8 @@ const ExploreFlow = () => {
     useState<ReactFlowInstance | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const connectingNodeId = useRef("");
+
+  // useLayout();
 
   // const { fitView } = useReactFlow();
 
@@ -99,7 +132,6 @@ const ExploreFlow = () => {
     [setEdges]
   );
 
-  //
   const onConnectStart = useCallback((_: any, { nodeId }: any) => {
     // console.log('onConnectStart');
     connectingNodeId.current = nodeId;
@@ -114,8 +146,9 @@ const ExploreFlow = () => {
       console.log('event.target', event.target);
       // console.log('onConnectEnd');
       // get bounding box to find exact location of cursor
-      const reactFlowBounds =
+      const reactFlowBounds = 
         reactFlowWrapper?.current?.getBoundingClientRect();
+        
 
       if (reactFlowInstance) {
         // select concept node & get text box input value
@@ -243,9 +276,11 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
+  // this function is used for generating sub- or sup- topics 
+  // specifically, it determines prompt based on which handle is clicked
+  // and then it calls another function getTopics() to receive and return generated sub- or sup- topics
   const generateTopic = (pos: string, concept: string) => {
     let prompt = "";
-
     if (pos === "top") {
       prompt = "Give me 5 higher level topics of " + concept;
     } else if (pos === "bottom") {
@@ -261,6 +296,7 @@ const ExploreFlow = () => {
     return topics;
   };
 
+  // this function is called when generate concept button is clicked
   const generateConceptNode = useCallback(() => {
     console.log("generating concept from ", selectedTopics);
     if (reactFlowInstance) createConceptNode(reactFlowInstance, selectedTopics);
@@ -285,14 +321,14 @@ const ExploreFlow = () => {
             onDrop={onDrop}
             onDragOver={onDragOver}
             onConnectStart={onConnectStart}
-            // onConnectEnd={onConnectEnd}
+            // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
             onSelectionChange={onSelectionChange}
             // onSelectionEnd={onSelectTopicNodes}
             // onSelectionContextMenu={onSelectTopicNodes}
             panOnScroll={true}
             panOnDrag={false}
-            // minZoom={-Infinity}
-            // maxZoom={Infinity}
+            // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
+            // maxZoom={Infinity} // otherwise, it might not be good to have this 
           >
             <Background />
           </ReactFlow>
