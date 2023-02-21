@@ -22,7 +22,8 @@
 .toolkit-option {
   height: 45px;
   padding: 0 8px;
-  color: #AAA;
+  // color: #AAA;
+  color: #7f7f7f;
   font-size: 14px;
   display: flex;
   gap: 12px;
@@ -38,6 +39,17 @@
 .toolkit-option:active {
   cursor: grabbing;
 }
+
+.toolkit-option:hover {
+  color: #1c1b1b;
+}
+
+.toolkit-option {
+  svg {
+    color: #383838;
+  }
+}
+
 
 .add-node {
   /* width: 45px; */
