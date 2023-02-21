@@ -166,6 +166,7 @@ const ChatNode = (props: NodeProps) => {
         <Handle type="target" position={Position.Top} id="b" className="node-handle-direct "/>
         <DragHandle className='drag-handle' />
         <GPTInput
+          sourceId={props.id}
           responseState={responseInputState}
           generateResponse={generateResponse}
           placeholder={props.data.placeholder}

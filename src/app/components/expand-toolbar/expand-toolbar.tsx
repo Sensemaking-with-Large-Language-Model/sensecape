@@ -21,7 +21,8 @@ const ExpandToolbar = (props: any) => {
             Elaborate
           </button>
         </div>
-        <GPTInput 
+        <GPTInput
+          sourceId={props.sourceId}
           responseState={props.responseState}
           generateResponse={props.generateResponse}
           placeholder={placeholder}

@@ -98,6 +98,7 @@ function GroupNode(props: any) {
       <>
         <NodeToolbar isVisible={toolbarViewState !== InputHoverState.OUT} position={Position.Bottom}>
           <ExpandToolbar
+            sourceId={props.id}
             responseState={responseInputState}
             generateResponse={generateResponse}
             setInputState={setToolbarViewState}

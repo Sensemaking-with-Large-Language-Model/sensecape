@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useReactFlow } from "reactflow";
+import { useCallback, useState } from "react";
+import { getRectOfNodes, useReactFlow } from "reactflow";
 import './gpt-input.scss';
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "../input.model";
@@ -13,11 +13,17 @@ const GPTInput = (props: any) => {
     props.setInput(event.target.value);
   }
 
-  const handleOnFocus = (event: any) => {
+  const handleOnFocus = useCallback((event: any) => {
     props.setInputState(InputHoverState.CLICKED);
-    reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
-  };
-  
+    const sourceNode = reactFlowInstance.getNode(props.sourceId);
+    if (sourceNode) {
+      console.log('zooming');
+      const rect = getRectOfNodes([sourceNode]);
+      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 0.5 });
+    }
+  },
+  [reactFlowInstance]);
+
   const handleOnBlur = (event: any) => {
     props.setInputState(InputHoverState.OUT);
   }
