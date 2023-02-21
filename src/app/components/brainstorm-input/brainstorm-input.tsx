@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./brainstorm-input.scss";
 import { useStore, useReactFlow } from "reactflow";
 import loadingDots from "../../assets/loading.gif";
-import { ResponseState } from "./brainstorm-input.model";
+import { ResponseState } from "../input.model";
 import { uuid } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
 import { ZoomState } from "../../nodes/node.model";

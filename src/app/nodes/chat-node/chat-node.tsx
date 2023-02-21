@@ -10,9 +10,9 @@ import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { createRoot } from 'react-dom/client';
 import { ChatNodeData, TypeChatNode } from './chat-node.model';
 import GPTInput from '../../components/gpt-input/gpt-input';
-import { ResponseState } from '../../components/gpt-input/gpt-input.model';
+import { ResponseState } from '../../components/input.model';
 import { createChatNode } from './chat-node.helper';
-import { ZoomState } from '../node.model';
+import { InputHoverState, ZoomState } from '../node.model';
 
 type ChatState = {
   input: string,
@@ -23,35 +23,7 @@ type ChatState = {
   reactFlowInstance: ReactFlowInstance,
 };
 
-// interface HighlightHoverPosition {
-  
-// }
-
-class Highlight extends HTMLElement {
-  constructor() {
-    const curr = super();
-    // this.attachShadow({ mode: 'open' });
-    // console.log(curr)
-    // const ReactApp = () => {
-    //   return (
-    //     <span onMouseEnter={() => this.handleMouseEnter()}>
-    //       <TooltipWrapper content="This is a tooltip">
-    //         text
-    //       </TooltipWrapper>
-    //     </span>
-    //   );
-    // };
-    // createRoot(this.shadowRoot ?? new ShadowRoot).render(<ReactApp />);
-  }
-
-  handleMouseEnter() {
-    console.log('hovering in react!');
-  }
-}
-
 const zoomSelector = (s: any) => s.transform[2];
-
-customElements.define("highlight-text", Highlight);
 
 const ChatNode = (props: NodeProps) => {
   const [input, setInput] = useState('');
@@ -199,6 +171,7 @@ const ChatNode = (props: NodeProps) => {
           placeholder={props.data.placeholder}
           input={input}
           setInput={setInput}
+          setInputState={(s: InputHoverState) => {}}
         />
         <div
           id='highlight-box'

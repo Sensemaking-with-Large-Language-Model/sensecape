@@ -28,7 +28,7 @@ import {
   TypeBrainstormNode,
 } from "./brainstorm-node.model";
 import BrainstormInput from "../../components/brainstorm-input/brainstorm-input";
-import { ResponseState } from "../../components/gpt-input/gpt-input.model";
+import { ResponseState } from "../../components/input.model";
 import { createBrainstormNode } from "./brainstorm-node.helper";
 import { ZoomState } from "../node.model";
 

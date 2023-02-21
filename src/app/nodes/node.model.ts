@@ -22,3 +22,10 @@ export enum ZoomState {
   SUMMARY = 0.35,
   KEYWORDS = 0.2,
 }
+
+// enum for a 3 state input/click ui system
+export enum InputHoverState {
+  OUT = 0,
+  HOVER = 1,
+  CLICKED = 2,
+}

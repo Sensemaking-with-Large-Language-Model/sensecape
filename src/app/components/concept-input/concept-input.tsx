@@ -2,11 +2,11 @@ import { useState } from "react";
 import "./concept-input.scss";
 import { useStore, useReactFlow } from "reactflow";
 import loadingDots from "../../assets/loading.gif";
-import { ResponseState } from "./concept-input.model";
 import { uuid } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
 import { ZoomState } from "../../nodes/node.model";
 import extendConcept from "../../hooks/useExtendConcept";
+import { ResponseState } from "../input.model";
 
 const zoomSelector = (s: any) => s.transform[2];
 

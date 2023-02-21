@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useReactFlow } from "reactflow";
 import './gpt-input.scss';
 import loadingDots from "../../assets/loading.gif";
-import { ResponseState } from "./gpt-input.model";
+import { ResponseState } from "../input.model";
+import { InputHoverState } from "../../nodes/node.model";
 
 
 const GPTInput = (props: any) => {
@@ -13,8 +14,13 @@ const GPTInput = (props: any) => {
   }
 
   const handleOnFocus = (event: any) => {
+    props.setInputState(InputHoverState.CLICKED);
     reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
   };
+  
+  const handleOnBlur = (event: any) => {
+    props.setInputState(InputHoverState.OUT);
+  }
 
   if (props.responseState === ResponseState.INPUT) {
     return (
@@ -35,6 +41,7 @@ const GPTInput = (props: any) => {
           value={props.input}
           onChange={handleInputChange}
           onFocus={handleOnFocus}
+          onBlur={handleOnBlur}
         />
         <button
           onClick={() => props.generateResponse(props.input.trim())}
