@@ -7,7 +7,7 @@ import {
   useReactFlow,
 } from "reactflow";
 import { getGPT3Term, getTopics } from "../../../api/openai-api";
-import { ResponseState } from "../../components/gpt-input/gpt-input.model";
+import { ResponseState } from "../../components/input.model";
 import { TypeTopicNode } from "../topic-node/topic-node.model";
 
 import { ReactComponent as DragHandle } from "../../assets/drag-handle.svg";

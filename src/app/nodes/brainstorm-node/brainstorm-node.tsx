@@ -10,7 +10,7 @@ import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { createRoot } from 'react-dom/client';
 import { BrainstormNodeData, TypeBrainstormNode } from './brainstorm-node.model';
 import GPTInput from '../../components/gpt-input/gpt-input';
-import { ResponseState } from '../../components/gpt-input/gpt-input.model';
+import { ResponseState } from '../../components/input.model';
 import { createBrainstormNode } from './brainstorm-node.helper';
 import { InputHoverState, ZoomState } from '../node.model';
 

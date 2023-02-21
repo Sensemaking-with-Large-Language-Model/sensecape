@@ -2,7 +2,7 @@ import { Component, useCallback, useEffect, useState } from "react";
 import { Edge, Handle, NodeProps, NodeToolbar, Position, useReactFlow, useStore, useUpdateNodeInternals, XYPosition } from "reactflow";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import ExpandToolbar from "../../components/expand-toolbar/expand-toolbar";
-import { ResponseState } from "../../components/gpt-input/gpt-input.model";
+import { ResponseState } from "../../components/input.model";
 import useDetachNodes from '../../hooks/useDetachNodes';
 import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
@@ -44,11 +44,9 @@ const TopicNode = (props: NodeProps) => {
   );
 
   /**
-   * 
    * Idea: Create a chat node that connects from this topic, then
    * in that chat node make it so that the input is already generating
-   * 
-   * 
+   *
    * @param prompt 
    * @returns 
    */

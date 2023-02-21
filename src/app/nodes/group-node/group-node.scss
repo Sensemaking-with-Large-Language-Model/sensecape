@@ -1,0 +1,14 @@
+.group-node {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  .group-resize-line {
+    opacity: 0;
+    color: #aaa;
+    padding: 8px;
+    stroke: none;
+  }
+  .group-resize-handle {
+    background-color: #0073ff;
+  }
+}

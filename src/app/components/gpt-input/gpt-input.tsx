@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useReactFlow } from "reactflow";
 import './gpt-input.scss';
 import loadingDots from "../../assets/loading.gif";
-import { ResponseState } from "./gpt-input.model";
+import { ResponseState } from "../input.model";
 import { InputHoverState } from "../../nodes/node.model";
 
 
