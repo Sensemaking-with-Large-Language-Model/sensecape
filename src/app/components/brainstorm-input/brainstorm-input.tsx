@@ -82,12 +82,12 @@ const BrainstormInput = (props: any) => {
   } else if (props.responseState === ResponseState.LOADING) {
     return (
       <div className="brainstorm-input">
-        {props.input}
-        <img width="18px" height="18px" src={loadingDots} alt="loading..." />
+        <div className="brainstorm-keywords">Keyword(s): {props.input}</div>
+        <div className="brainstorm-loading"><img width="18px" height="18px" src={loadingDots} alt="loading..." /></div>
       </div>
     );
   } else {
-    return <>{props.input}</>;
+    return <><div className="brainstorm-keywords">Keyword(s): {props.input}</div></>;
   }
 };
 
