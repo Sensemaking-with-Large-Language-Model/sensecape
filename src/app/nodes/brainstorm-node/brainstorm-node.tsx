@@ -23,19 +23,7 @@ type BrainstormState = {
   reactFlowInstance: ReactFlowInstance,
 };
 
-class Highlight extends HTMLElement {
-  constructor() {
-    const curr = super();
-  }
-
-  handleMouseEnter() {
-    console.log('hovering in react!');
-  }
-}
-
 const zoomSelector = (s: any) => s.transform[2];
-
-customElements.define("highlight-text", Highlight);
 
 const BrainstormNode = (props: NodeProps) => {
   const [input, setInput] = useState('');

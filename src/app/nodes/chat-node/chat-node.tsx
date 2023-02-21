@@ -23,35 +23,7 @@ type ChatState = {
   reactFlowInstance: ReactFlowInstance,
 };
 
-// interface HighlightHoverPosition {
-  
-// }
-
-class Highlight extends HTMLElement {
-  constructor() {
-    const curr = super();
-    // this.attachShadow({ mode: 'open' });
-    // console.log(curr)
-    // const ReactApp = () => {
-    //   return (
-    //     <span onMouseEnter={() => this.handleMouseEnter()}>
-    //       <TooltipWrapper content="This is a tooltip">
-    //         text
-    //       </TooltipWrapper>
-    //     </span>
-    //   );
-    // };
-    // createRoot(this.shadowRoot ?? new ShadowRoot).render(<ReactApp />);
-  }
-
-  handleMouseEnter() {
-    console.log('hovering in react!');
-  }
-}
-
 const zoomSelector = (s: any) => s.transform[2];
-
-customElements.define("highlight-text", Highlight);
 
 const ChatNode = (props: NodeProps) => {
   const [input, setInput] = useState('');
