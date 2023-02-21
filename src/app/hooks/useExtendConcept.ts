@@ -1,13 +1,15 @@
 import { uuid } from "../utils";
 import { ReactFlowInstance, MarkerType } from "reactflow";
 import { getTopics } from "../../api/openai-api";
+import { ResponseState } from "./useResponseState";
 
 const extendConcept = async (
   reactFlowInstance: ReactFlowInstance,
   id: string,
   pos: string,
   concept: string,
-  conceptnode: boolean = true
+  conceptnode: boolean = true,
+  setResponseState?: Function,
 ) => {
   const parentNode = reactFlowInstance.getNode(id);
 
@@ -137,6 +139,9 @@ const extendConcept = async (
 
   reactFlowInstance.addNodes(childNode);
   reactFlowInstance.addEdges(childEdge);
+  if (setResponseState) {
+    setResponseState(ResponseState.COMPLETE);
+  }
 };
 
 export default extendConcept;
