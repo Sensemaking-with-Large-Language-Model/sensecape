@@ -1,0 +1,46 @@
+.expand-toolbar {
+  margin-top: -10px;
+  padding-top: 10px;
+  width: 575px;
+  // visibility: hidden;
+  // opacity: 0;
+  transition: ease 0.15s;
+
+  .expand-toolbar-box {
+    padding: 25px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+
+    .default-buttons {
+      padding: 0 0 10px 0;
+      button {
+        background: none;
+        border: #eee 2px solid;
+        border-radius: 6px;
+        padding: 8px;
+        font-size: 14px;
+        color: #aaa;
+        cursor: pointer;
+        transition: ease 0.15s;
+      }
+      button:hover {
+        color: #444;
+      }
+    }
+  }
+}
+
+// .topic-node-box:hover ~ .expand-toolbar {
+//   visibility: visible;
+//   opacity: 1;
+// }
+
+// .expand-toolbar:hover {
+//   visibility: visible;
+//   opacity: 1;
+// }
+
+// .selected > .topic-node-box {
+//   border: 2px solid rgb(85, 161, 238);
+// }
