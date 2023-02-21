@@ -43,8 +43,8 @@ export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: s
     // currently, it focuses on the entire view, might want to move to just recently created node 
     // need to use 'nodes' param in fitViewOptions, cf. https://reactflow.dev/docs/api/types/#fitviewsoptions
     // const query = 'div[data-id="' + newNode.id + '"]';
-    const rectOfNodes = getRectOfNodes([newNode]);
-    console.log(rectOfNodes);
+    // const rectOfNodes = getRectOfNodes([newNode]);
+    // console.log(rectOfNodes);
     // let activeElement = document.querySelector(query)!.getElementsByClassName('text-input')[0];
     // (activeElement as HTMLElement)?.focus();
     // const fitViewOptions = { duration: 900, padding: 0.3, nodes: [{ id: newNode.id}] }

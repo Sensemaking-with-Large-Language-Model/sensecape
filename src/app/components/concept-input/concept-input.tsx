@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./concept-input.scss";
-import { useStore, useReactFlow } from "reactflow";
+import { useStore, useReactFlow, getRectOfNodes } from "reactflow";
 import loadingDots from "../../assets/loading.gif";
 import { uuid } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
@@ -30,8 +30,14 @@ const ConceptInput = (props: any) => {
   };
 
   const handleOnFocus = (event: any) => {
-    console.log(props.id);
-    reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+    // console.log(props.id);
+    // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+    const sourceNode = reactFlowInstance.getNode(props.id);
+    if (sourceNode) {
+      console.log('zooming');
+      const rect = getRectOfNodes([sourceNode]);
+      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 3.5 });
+    }
   };
 
   if (props.responseState === ResponseState.INPUT) {

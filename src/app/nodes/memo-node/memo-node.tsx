@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { NodeProps, useStore, useReactFlow } from "reactflow";
+import { NodeProps, useStore, useReactFlow, getRectOfNodes } from "reactflow";
 import { getGPT3Keywords } from "../../../api/openai-api";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { ZoomState } from "../node.model";
@@ -31,7 +31,13 @@ const MemoNode = (props: NodeProps) => {
   [hasUpdated]);
 
   const handleOnFocus = () => {
-    reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+    // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+    const sourceNode = reactFlowInstance.getNode(props.id);
+    if (sourceNode) {
+      console.log('zooming');
+      const rect = getRectOfNodes([sourceNode]);
+      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 0.8 });
+    }
   }
 
   return (

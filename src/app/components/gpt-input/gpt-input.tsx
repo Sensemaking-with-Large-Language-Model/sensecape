@@ -19,7 +19,7 @@ const GPTInput = (props: any) => {
     if (sourceNode) {
       console.log('zooming');
       const rect = getRectOfNodes([sourceNode]);
-      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 0.5 });
+      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 2 });
     }
   },
   [reactFlowInstance]);

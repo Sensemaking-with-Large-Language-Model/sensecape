@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./brainstorm-input.scss";
-import { useStore, useReactFlow } from "reactflow";
+import { useStore, useReactFlow, getRectOfNodes } from "reactflow";
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "../input.model";
 import { uuid } from "../../utils";
@@ -26,11 +26,21 @@ const BrainstormInput = (props: any) => {
   }
 
   const handleInputChange = (event: any) => {
+    console.log('input');
     props.setInput(event.target.value);
   };
 
   const handleOnFocus = (event: any) => {
-    reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+    // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+    console.log('onfocus!');
+    console.log(props);
+    const sourceNode = reactFlowInstance.getNode(props.id);
+    console.log(sourceNode);
+    if (sourceNode) {
+      console.log('zooming');
+      const rect = getRectOfNodes([sourceNode]);
+      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 2 });
+    }
   };
 
   if (props.responseState === ResponseState.INPUT) {

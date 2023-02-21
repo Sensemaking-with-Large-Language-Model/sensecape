@@ -70,6 +70,7 @@ const BrainstormNode = (props: NodeProps) => {
         placeholder={props.data.placeholder}
         generateQuestions={generateQuestions}
         responseState={responseInputState}
+        id={props.id}
         input={input}
         setInput={setInput}
       />
