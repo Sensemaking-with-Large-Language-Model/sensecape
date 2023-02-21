@@ -2,8 +2,14 @@
   padding: 12px;
   background-color: rgba(251, 241, 196, 0.557);
   // border: 2px solid #a0a0a0;
+    max-width: 570px;
   border-radius: 8px;
   width: fit-content;
+
+  .header {
+    max-width: inherit;
+    word-wrap: normal;
+  }
 
   .drag-handle {
     position: relative;
@@ -13,6 +19,7 @@
 
   textarea {
     width: 480px;
+    max-width: 570px;
     height: 300px;
     padding: 8px;
     flex-grow: 2;

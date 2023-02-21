@@ -49,3 +49,30 @@
 .drag-handle:active {
   cursor: grabbing;
 }
+
+.node-toolbar {
+  height: fit-content;
+  width: fit-content;
+  padding: 12px;
+  background-color: #fff;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 5px 10px rgba(154, 154, 154, 0.2);
+  display: flex;
+  gap: 10px;
+
+  button {
+    border: none;
+    background: none;
+    padding: 8px;
+    font-size: 14px;
+    color: #AAA;
+    cursor: pointer;
+    transition: ease 0.15s;
+  }
+
+  button:hover {
+    color: #444;
+    // border: 2px solid #eee;
+  }
+}
