@@ -75,7 +75,7 @@ const TopicNode = (props: NodeProps) => {
     <div
       className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}
       onMouseEnter={() => setToolbarIsVisible(true)}
-      onMouseLeave={() => setToolbarIsVisible(false)}
+      // onMouseLeave={() => setToolbarIsVisible(false)}
       style={{
         transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
       }}
@@ -97,10 +97,11 @@ const TopicNode = (props: NodeProps) => {
           <ExpandToolbar
             responseState={responseInputState}
             generateResponse={generateResponse}
+            clickedInput={setToolbarIsVisible}
+            topic={topic}
           />
         </NodeToolbar></>
         : <></>
-      
       }
       <Handle type="source" position={Position.Bottom} className="node-handle-direct source-handle"/>
     </div>

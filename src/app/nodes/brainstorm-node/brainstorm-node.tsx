@@ -171,6 +171,7 @@ const BrainstormNode = (props: NodeProps) => {
           placeholder={props.data.placeholder}
           input={input}
           setInput={setInput}
+          clickedInput={(b: boolean) => {}}
         />
         <div
           id='highlight-box'

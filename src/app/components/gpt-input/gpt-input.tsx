@@ -13,8 +13,15 @@ const GPTInput = (props: any) => {
   }
 
   const handleOnFocus = (event: any) => {
+    console.log('focused');
+    props.clickedInput(true);
     reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
   };
+  
+  const handleOnBlur = (event: any) => {
+    console.log('blurred');
+    props.clickedInput(false);
+  }
 
   if (props.responseState === ResponseState.INPUT) {
     return (
@@ -35,6 +42,7 @@ const GPTInput = (props: any) => {
           value={props.input}
           onChange={handleInputChange}
           onFocus={handleOnFocus}
+          onBlur={handleOnBlur}
         />
         <button
           onClick={() => props.generateResponse(props.input.trim())}
