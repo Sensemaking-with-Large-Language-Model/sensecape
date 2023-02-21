@@ -1,13 +1,13 @@
 import { Component, useCallback, useEffect, useState } from "react";
 import { Edge, Handle, NodeProps, NodeToolbar, Position, useReactFlow, useStore, useUpdateNodeInternals, XYPosition } from "reactflow";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
+import ExpandToolbar from "../../components/expand-toolbar/expand-toolbar";
 import { ResponseState } from "../../components/gpt-input/gpt-input.model";
 import useDetachNodes from '../../hooks/useDetachNodes';
 import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
 import { ZoomState } from "../node.model";
 import './topic-node.scss';
-import TopicTooltip from "./topic-tooltip/topic-tooltip";
 
 const zoomSelector = (s: any) => s.transform[2];
 
@@ -15,6 +15,7 @@ const TopicNode = (props: NodeProps) => {
   const [topic, setTopic] = useState(props.data.topicName);
   const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
   const [tooltipAvailable, setTooltipAvailable] = useState(true);
+  const [toolbarIsVisible, setToolbarIsVisible] = useState(false);
   const [handleStyle, setHandleStyle] = useState<any>({ left: 0, top: 0 });
   const zoom: number = useStore(zoomSelector);
 
@@ -73,6 +74,8 @@ const TopicNode = (props: NodeProps) => {
   return (
     <div
       className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}
+      onMouseEnter={() => setToolbarIsVisible(true)}
+      onMouseLeave={() => setToolbarIsVisible(false)}
       style={{
         transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
       }}
@@ -89,11 +92,15 @@ const TopicNode = (props: NodeProps) => {
         <div>{topic}</div>
       </div>
       {tooltipAvailable ?
-        <TopicTooltip
-          topic={topic}
-          generateResponse={generateResponse}
-          responseState={responseInputState}
-        /> : <></>
+      <>
+        <NodeToolbar isVisible={toolbarIsVisible} position={Position.Bottom}>
+          <ExpandToolbar
+            responseState={responseInputState}
+            generateResponse={generateResponse}
+          />
+        </NodeToolbar></>
+        : <></>
+      
       }
       <Handle type="source" position={Position.Bottom} className="node-handle-direct source-handle"/>
     </div>
