@@ -48,9 +48,9 @@ import edgeTypes from "./edges";
 const nodeColor = (node:Node) => {
   switch (node.type) {
     case 'chat':
-      return '#6ede87';
+      return '#FF4500';
     case 'concept':
-      return '#6865A5';
+      return '#6ede87';
     case 'topic':
       return '#6865A5';
     case 'subtopic':
@@ -58,7 +58,7 @@ const nodeColor = (node:Node) => {
     case 'suptopic':
       return '#6865A5';
     case 'memo':
-        return '#6865A5';
+        return '#FFFF00';
     default:
       return '#ff0072';
   }
