@@ -50,7 +50,7 @@ const ConceptInput = (props: any) => {
           // className={`${currentZoomState()}`}
           name="text"
           type="text"
-          placeholder="Explore concept space"
+          placeholder="Explore concept hierarchy"
           autoComplete="off"
           value={props.input}
           onChange={handleInputChange}
