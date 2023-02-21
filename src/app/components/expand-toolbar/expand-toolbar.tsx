@@ -27,7 +27,7 @@ const ExpandToolbar = (props: any) => {
           placeholder={placeholder}
           input={input}
           setInput={setInput}
-          clickedInput={props.clickedInput}
+          setInputState={props.setInputState}
         />
       </div>
     </div>

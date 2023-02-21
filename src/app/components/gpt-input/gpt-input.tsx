@@ -3,6 +3,7 @@ import { useReactFlow } from "reactflow";
 import './gpt-input.scss';
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "./gpt-input.model";
+import { InputHoverState } from "../../nodes/node.model";
 
 
 const GPTInput = (props: any) => {
@@ -13,14 +14,12 @@ const GPTInput = (props: any) => {
   }
 
   const handleOnFocus = (event: any) => {
-    console.log('focused');
-    props.clickedInput(true);
+    props.setInputState(InputHoverState.CLICKED);
     reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
   };
   
   const handleOnBlur = (event: any) => {
-    console.log('blurred');
-    props.clickedInput(false);
+    props.setInputState(InputHoverState.OUT);
   }
 
   if (props.responseState === ResponseState.INPUT) {

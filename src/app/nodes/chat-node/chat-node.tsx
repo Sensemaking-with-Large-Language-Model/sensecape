@@ -12,7 +12,7 @@ import { ChatNodeData, TypeChatNode } from './chat-node.model';
 import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/gpt-input/gpt-input.model';
 import { createChatNode } from './chat-node.helper';
-import { ZoomState } from '../node.model';
+import { InputHoverState, ZoomState } from '../node.model';
 
 type ChatState = {
   input: string,
@@ -171,7 +171,7 @@ const ChatNode = (props: NodeProps) => {
           placeholder={props.data.placeholder}
           input={input}
           setInput={setInput}
-          clickedInput={(b: boolean) => {}}
+          setInputState={(s: InputHoverState) => {}}
         />
         <div
           id='highlight-box'

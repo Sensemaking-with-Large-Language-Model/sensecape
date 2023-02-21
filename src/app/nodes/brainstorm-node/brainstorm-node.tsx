@@ -12,7 +12,7 @@ import { BrainstormNodeData, TypeBrainstormNode } from './brainstorm-node.model'
 import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/gpt-input/gpt-input.model';
 import { createBrainstormNode } from './brainstorm-node.helper';
-import { ZoomState } from '../node.model';
+import { InputHoverState, ZoomState } from '../node.model';
 
 type BrainstormState = {
   input: string,
@@ -171,7 +171,7 @@ const BrainstormNode = (props: NodeProps) => {
           placeholder={props.data.placeholder}
           input={input}
           setInput={setInput}
-          clickedInput={(b: boolean) => {}}
+          setInputState={(s: InputHoverState) => {}}
         />
         <div
           id='highlight-box'

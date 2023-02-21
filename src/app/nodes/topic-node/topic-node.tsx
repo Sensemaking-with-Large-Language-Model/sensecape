@@ -6,7 +6,7 @@ import { ResponseState } from "../../components/gpt-input/gpt-input.model";
 import useDetachNodes from '../../hooks/useDetachNodes';
 import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
-import { ZoomState } from "../node.model";
+import { InputHoverState, ZoomState } from "../node.model";
 import './topic-node.scss';
 
 const zoomSelector = (s: any) => s.transform[2];
@@ -15,7 +15,7 @@ const TopicNode = (props: NodeProps) => {
   const [topic, setTopic] = useState(props.data.topicName);
   const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
   const [tooltipAvailable, setTooltipAvailable] = useState(true);
-  const [toolbarIsVisible, setToolbarIsVisible] = useState(false);
+  const [toolbarViewState, setToolbarViewState] = useState(InputHoverState.OUT);
   const [handleStyle, setHandleStyle] = useState<any>({ left: 0, top: 0 });
   const zoom: number = useStore(zoomSelector);
 
@@ -74,8 +74,8 @@ const TopicNode = (props: NodeProps) => {
   return (
     <div
       className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}
-      onMouseEnter={() => setToolbarIsVisible(true)}
-      // onMouseLeave={() => setToolbarIsVisible(false)}
+      onMouseEnter={() => toolbarViewState === InputHoverState.OUT && setToolbarViewState(InputHoverState.HOVER)}
+      onMouseLeave={() => toolbarViewState === InputHoverState.HOVER && setToolbarViewState(InputHoverState.OUT)}
       style={{
         transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
       }}
@@ -93,11 +93,11 @@ const TopicNode = (props: NodeProps) => {
       </div>
       {tooltipAvailable ?
       <>
-        <NodeToolbar isVisible={toolbarIsVisible} position={Position.Bottom}>
+        <NodeToolbar isVisible={toolbarViewState !== InputHoverState.OUT} position={Position.Bottom}>
           <ExpandToolbar
             responseState={responseInputState}
             generateResponse={generateResponse}
-            clickedInput={setToolbarIsVisible}
+            setInputState={setToolbarViewState}
             topic={topic}
           />
         </NodeToolbar></>
