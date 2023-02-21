@@ -1,8 +1,8 @@
-import { ReactFlowInstance, XYPosition } from "reactflow";
+import { Edge, MarkerType, ReactFlowInstance, XYPosition } from "reactflow";
 import { TypeTopicNode } from "../topic-node/topic-node.model";
 import { ConceptNodeData, TypeConceptNode, ExtendedConceptNodeData, TypeExtendedConceptNode } from "./concept-node.model";
 
-export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNodes: TypeTopicNode[]) => {
+export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNodes: TypeTopicNode[], travellerMode: boolean) => {
   if (topicNodes.length === 0) {
     return;
   }
@@ -24,8 +24,24 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
       data,
     }
     reactFlowInstance.addNodes(newNode);
+    // Create traveller edges from topics to concept
     topicNodes.forEach(node => {
-      node.data.conceptId = newNode.id
+      node.data.conceptId = newNode.id;
+      const newEdge: Edge = {
+        id: `edge-travel-${reactFlowInstance.getEdges().length}`,
+        source: node.id,
+        target: newNode.id,
+        hidden: !travellerMode,
+        animated: true,
+        markerEnd: {
+          type: MarkerType.Arrow,
+          width: 20,
+          height: 20,
+          color: '#3ab2ee',
+        },
+        type: 'traveller',
+      };
+      reactFlowInstance.addEdges(newEdge);
     });
   }, 0);
 }
