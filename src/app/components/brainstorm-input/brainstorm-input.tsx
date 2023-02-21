@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./concept-input.scss";
+import "./brainstorm-input.scss";
 import { useStore, useReactFlow } from "reactflow";
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "../input.model";
@@ -30,18 +30,17 @@ const BrainstormInput = (props: any) => {
   };
 
   const handleOnFocus = (event: any) => {
-    console.log(props.id);
     reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
   };
 
   if (props.responseState === ResponseState.INPUT) {
     return (
       <form
-        // className="concept-form"
-        className={`${currentZoomState()}`}
+        className="concept-form"
+        // className={`${currentZoomState()}`}
         onSubmit={(event) => {
           event.preventDefault();
-        //   extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim())
+          props.generateQuestions(props.input.trim());
         }}
       >
         <input
@@ -50,7 +49,7 @@ const BrainstormInput = (props: any) => {
           // className={`${currentZoomState()}`}
           name="text"
           type="text"
-          placeholder="Generate concept hierarchy"
+          placeholder="Add keyword(s): e.g., San Diego, NYC"
           autoComplete="off"
           value={props.input}
           onChange={handleInputChange}
@@ -58,7 +57,7 @@ const BrainstormInput = (props: any) => {
         />
         <button
           onClick={() => {
-            extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim())
+            props.generateQuestions(props.input);
           }}
           type="button"
         >
@@ -83,12 +82,12 @@ const BrainstormInput = (props: any) => {
   } else if (props.responseState === ResponseState.LOADING) {
     return (
       <div className="brainstorm-input">
-        {props.input}
-        <img width="18px" height="18px" src={loadingDots} alt="loading..." />
+        <div className="brainstorm-keywords">Keyword(s): {props.input}</div>
+        <div className="brainstorm-loading"><img width="18px" height="18px" src={loadingDots} alt="loading..." /></div>
       </div>
     );
   } else {
-    return <>{props.input}</>;
+    return <><div className="brainstorm-keywords">Keyword(s): {props.input}</div></>;
   }
 };
 

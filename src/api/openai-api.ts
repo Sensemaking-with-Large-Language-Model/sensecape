@@ -1,7 +1,9 @@
 import { Configuration, OpenAIApi } from 'openai';
 
 const configuration = new Configuration({
-  apiKey: process.env.REACT_APP_OPEN_AI_KEY,
+  // apiKey: process.env.REACT_APP_OPEN_AI_KEY,
+  // apiKey: "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",
+  apiKey: "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",
 });
 
 const openai = new OpenAIApi(configuration);
@@ -120,7 +122,7 @@ export const getGPT3Term = async (history: string, prompt: string) => {
 
 
 export const getTopics = async (prompt: string, concept: string) => {
-  const gptPrompt: string = `${prompt} ${prompt}`;
+  const gptPrompt: string = `${prompt}`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -152,3 +154,43 @@ export const getTopics = async (prompt: string, concept: string) => {
     }
   });
 }
+
+export const getGPT3Questions = async (concept: string) => {
+  const prompt = 'I need to learn about ' + concept + `. Give me a total of 25 questions, 
+  with questions starting with "why", 5 questions starting with "when", 
+  5 questions starting with "where", 5 questions starting with "how", 
+  and 5 questions starting with "what".`;
+  const gptPrompt: string = `${prompt}`;
+
+  return await openai.createCompletion({
+    'model': 'text-davinci-003',
+    'prompt': gptPrompt,
+    'max_tokens': 700,
+    'temperature': 0.7,
+    'top_p': 1,
+    'n': 1,
+    'stream': false,
+    'logprobs': null,
+    'stop': ''
+  }).then((data) => {
+
+    const text = data.data.choices[0].text;
+
+    return text;
+    // if (typeof text === 'string') {
+
+    //     let re = /\d.*\n*/g; // regex pattern
+
+    //     let subtopics : any;
+    //     subtopics = text.match(re);// put all subtopics into array
+        
+    //     if (Array.isArray(subtopics)) {        
+    //         // remove unnecessary characters
+    //         subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/\d. /, ''));
+    //         subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/ ?\n/, ''));
+    //         return subtopics;
+    //     }
+    // }
+  });
+}
+

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Component, useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
 import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, useStore, XYPosition } from 'reactflow';
@@ -13,152 +14,75 @@ import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/input.model';
 import { createBrainstormNode } from './brainstorm-node.helper';
 import { InputHoverState, ZoomState } from '../node.model';
+=======
+import { Component, useEffect, useRef, useState } from "react";
+import { useCallback } from "react";
+import {
+  Edge,
+  Handle,
+  NodeProps,
+  Position,
+  ReactFlowInstance,
+  useReactFlow,
+  useStore,
+  XYPosition,
+} from "reactflow";
+import {
+  getGPT3Keywords,
+  getGPT3Questions,
+  getGPT3Response,
+  getGPT3Stream,
+  getGPT3Summary,
+} from "../../../api/openai-api";
+import "./brainstorm-node.scss";
+import { ReactComponent as DragHandle } from "../../assets/drag-handle.svg";
+import { isHighlightable } from "../chat-node/highlighter";
+import HighlightTooltip from "../chat-node/highlight-tooplip/highlight-toolip";
+import { Tooltip, TooltipProvider, TooltipWrapper } from "react-tooltip";
+import { createRoot } from "react-dom/client";
+import {
+  BrainstormNodeData,
+  TypeBrainstormNode,
+} from "./brainstorm-node.model";
+import BrainstormInput from "../../components/brainstorm-input/brainstorm-input";
+import { ResponseState } from "../../components/gpt-input/gpt-input.model";
+import { createBrainstormNode } from "./brainstorm-node.helper";
+import { ZoomState } from "../node.model";
+>>>>>>> 8916383672beb55790b58660e777689e3b6aba95
 
 type BrainstormState = {
-  input: string,
-  response: string, // Singular response. more follow ups/responses belong in another chatnode
-  responseIsLoading: boolean,
-  highlightIds: string[],
-  currentHighlightId: string,
-  reactFlowInstance: ReactFlowInstance,
+  input: string;
+  response: string; // Singular response. more follow ups/responses belong in another chatnode
+  responseIsLoading: boolean;
+  reactFlowInstance: ReactFlowInstance;
 };
 
 const zoomSelector = (s: any) => s.transform[2];
 
 const BrainstormNode = (props: NodeProps) => {
-  const [input, setInput] = useState('');
-
-  // TODO: Combine 3 responses into one object
+  const [input, setInput] = useState("");
   const [response, setResponse] = useState('');
-  const [summary, setSummary] = useState('');
-  const [keywords, setKeywords] = useState('');
-
-  const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
-  const [highlightIds, setHighlightIds] = useState<string[]>([]);
+  const [responseInputState, setResponseInputState] = useState<ResponseState>(
+    ResponseState.INPUT
+  );
   const zoom: number = useStore(zoomSelector);
 
   const reactFlowInstance = useReactFlow();
 
-  const addChatFollowUpNode = useCallback(
-    (input: string, response: string) => {
-      const data: BrainstormNodeData = {
-        parentChatId: props.id,
-        chatReference: `${props.data.chatReference}\n\n${input}\n\n${response}\n\n`,
-        // We want chat node to have no response yet, since the user will ask for a response
-        placeholder: 'Ask a follow up question',
-      };
-      createBrainstormNode(reactFlowInstance, props.id, data);
-    },
-    [reactFlowInstance]
-  )
-
-  const generateResponse = async (prompt: string) => {
-    if (!prompt) return;
-
+  const generateQuestions = async (keyword: string) => {
+    if (!keyword) return;
+    console.log('generateQuestions called');
     setResponseInputState(ResponseState.LOADING);
 
-    const response = await getGPT3Response(
-      props.data.chatReference, prompt
-    ) || 'Error: no response received';
+    const response = await getGPT3Questions(keyword) || 'Error: no response received';
 
     setResponse(response);
     setResponseInputState(ResponseState.COMPLETE);
-    generateSummaries(response);
-    addChatFollowUpNode(prompt, response);
+    console.log('generateQuestions', response);
   }
-
-  /**
-   * Semantic Zoom
-   * Generates the summary and keywords of response
-   */
-  const generateSummaries = (text: string) => {
-    if (!text) return;
-
-    getGPT3Summary(text).then(data => {
-      setSummary(data || 'Error: generate summary failed');
-    });
-
-    getGPT3Keywords(text).then(data => {
-      setKeywords(data || 'Error: generate keywords failed');
-    });
-  }
-
-  useEffect(() => {
-    // If a response is already given, don't take in any input.
-    if (props.data.instantInput) {
-      console.log('ready to create follow up!');
-      setInput(props.data.instantInput);
-      generateResponse(props.data.instantInput);
-    }
-  }, []);
-
-  // When a highlight is dragged out of text
-  const onDragStart = (event: any, nodeType: string, topicName: string) => {
-    event.dataTransfer.setData('dragNodeType', nodeType);
-    event.dataTransfer.effectAllowed = 'move';
-    const currNode: TypeBrainstormNode | undefined = reactFlowInstance.getNode(props.id);
-    if (!currNode) {
-      return;
-    }
-    const data = JSON.stringify({
-      parentId: props.id,
-      chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
-      topicName,
-    });
-    console.log(data);
-    event.dataTransfer.setData('dragNodeData', data);
-  };
-
-  const highlightSelection = () => {
-    const selection = document.getSelection();
-    if ((selection?.rangeCount ?? 0) <= 0) {
-      return;
-    }
-    const range: Range = selection?.getRangeAt(0) ?? new Range;
-    const selectedText = range.toString();
-    if (isHighlightable(range)) {
-      const highlight = document.createElement('highlight-text', {is: selectedText});
-      highlight.draggable = true;
-      highlight.innerHTML = selectedText;
-      range.surroundContents(highlight);
-      highlight.classList.add('highlight-elm');
-      highlight.id = `highlight-${highlightIds.length}`;
-      setHighlightIds(highlightIds.concat([highlight.id]));
-
-      // Event Listeners
-      // highlight.addEventListener('mouseenter', (event) => {
-      //   setCurrentHighlightId(highlight.id);
-      // })
-      // highlight.addEventListener('mouseleave', (event) => {
-      //   setCurrentHighlightId('');
-      // })
-      highlight.addEventListener('click', (event) => {
-        range.extractContents();
-        range.insertNode(document.createTextNode(selectedText));
-        range.commonAncestorContainer.normalize();
-      })
-      highlight.addEventListener('dragstart', (event) => {
-        onDragStart(event, 'topic', selectedText);
-      })
-      window.getSelection()?.removeAllRanges();
-    }
-  }
-
-  // Depending on Zoom level, show response by length
-  const isZoomState = (zoomState: ZoomState) => {
-    // if summary and keywords both haven't loaded, show default
-    if (!(summary && keywords) || zoom > ZoomState.ALL) {
-      return zoomState === ZoomState.ALL ? 'chat-text-show' : '';
-    } else if (zoom > ZoomState.SUMMARY) {
-      return zoomState === ZoomState.SUMMARY ? 'chat-text-show' : '';
-    } else {
-      return zoomState === ZoomState.KEYWORDS ? 'chat-text-show' : '';
-    }
-  }
-
-  // Idea: summaryzoom >= ALL
 
   return (
+<<<<<<< HEAD
     // Allow highlighting only for fully expanded text
     // <div className='chat-node highlightable'>
       <div className={`chat-node ${zoom >= ZoomState.ALL ? 'highlightable' : 'drag-handle'}`}>
@@ -198,9 +122,27 @@ const BrainstormNode = (props: NodeProps) => {
         {/* <div className="highlight-tooltip">tooltip?</div> */}
         {/* <HighlightTooltip /> */}
       </TooltipProvider>
+=======
+    <div className="brainstorm-node">
+      <DragHandle className="drag-handle" />
+      <BrainstormInput
+        placeholder={props.data.placeholder}
+        generateQuestions={generateQuestions}
+        responseState={responseInputState}
+        input={input}
+        setInput={setInput}
+      />
+        {response ? (
+          <>
+          <div className='brainstorm-response'>{ response }</div>
+            {/* <div className={`chat-response all ${isZoomState(ZoomState.ALL)}`}>{response}</div>
+            <div className={`chat-response summary ${isZoomState(ZoomState.SUMMARY)}`}>{summary}</div>
+            <div className={`chat-response keywords ${isZoomState(ZoomState.KEYWORDS)}`}>{keywords}</div> */}
+          </>
+        ) : <></>}
+>>>>>>> 8916383672beb55790b58660e777689e3b6aba95
     </div>
-  )
-
-}
+  );
+};
 
 export default BrainstormNode;

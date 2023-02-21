@@ -60,11 +60,12 @@ import { getNodePositionInsideParent, sortNodes } from "./nodes/group-node/group
 const nodeColor = (node:Node) => {
   switch (node.type) {
     case 'brainstorm':
-      return '#FF4500';
+      // return '#4193F5';
+      return '#6ede87';
     case 'chat':
       return '#FF4500';
     case 'concept':
-      return '#6ede87';
+      return '#0984e326';
     case 'topic':
       return '#6865A5';
     case 'subtopic':
