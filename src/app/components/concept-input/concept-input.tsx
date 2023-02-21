@@ -41,7 +41,7 @@ const ConceptInput = (props: any) => {
         className={`${currentZoomState()}`}
         onSubmit={(event) => {
           event.preventDefault();
-          extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim(), 'prod')
+          extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim())
         }}
       >
         <input
@@ -58,7 +58,7 @@ const ConceptInput = (props: any) => {
         />
         <button
           onClick={() => {
-            extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim(), 'prod')
+            extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim())
           }}
           type="button"
         >

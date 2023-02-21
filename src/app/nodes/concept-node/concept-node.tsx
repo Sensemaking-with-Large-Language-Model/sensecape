@@ -112,7 +112,7 @@ const ConceptNode = (props: NodeProps) => {
           className={input !== "" ? "concept-node-handle handle-top visible" : "concept-node-handle handle-top hidden"}
           // className="concept-node-handle handle-top visible"
           position={Position.Top}
-          onClick={()=>extendConcept(reactFlowInstance, props.id, 'top', input, 'prod')}
+          onClick={()=>extendConcept(reactFlowInstance, props.id, 'top', input)}
           id="a"
         />
         <Handle
@@ -120,7 +120,7 @@ const ConceptNode = (props: NodeProps) => {
           className={input !== "" ? "concept-node-handle visible" : "concept-node-handle hidden"}
           // className="concept-node-handle handle-top visible"
           position={Position.Bottom}
-          onClick={()=>extendConcept(reactFlowInstance, props.id, 'bottom', input, 'prod')}
+          onClick={()=>extendConcept(reactFlowInstance, props.id, 'bottom', input)}
           // onClick={calluseNodeClick}
           id="b"
         />

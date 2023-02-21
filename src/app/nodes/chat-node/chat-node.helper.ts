@@ -37,7 +37,7 @@ export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: s
     }
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);
-    // console.log(reactFlowInstance.getNodes());
+    console.log(reactFlowInstance.getNodes());
 
     // change view to show next answer 
     // currently, it focuses on the entire view, might want to move to just recently created node 
@@ -47,10 +47,13 @@ export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: s
     // (activeElement as HTMLElement)?.focus();
     // const fitViewOptions = { duration: 900, padding: 0.3, nodes: [{ id: newNode.id}] }
     // reactFlowInstance!.fitView(fitViewOptions);
-    console.log(reactFlowInstance!.getViewport());
+    // console.log(reactFlowInstance!.getViewport());
+    // const viewport = reactFlowInstance!.getViewport();
+
     // reactFlowInstance!.zoomOut( { duration: 1300 } );
     // setTimeout(() => {
-    //   reactFlowInstance!.setCenter(position.x, position.y, { duration: 2000 });
-    // },1000);
+      // reactFlowInstance!.setCenter(viewport.x, viewport.y + 150, { duration: 2000 });
+      // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+    // },5000);
   }, 0);
 }

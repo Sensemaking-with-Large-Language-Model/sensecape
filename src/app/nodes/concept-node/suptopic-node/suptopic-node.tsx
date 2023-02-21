@@ -32,7 +32,7 @@ const SupTopicNode = (props: NodeProps) => {
         type="source"
         position={Position.Top}
         isConnectable={true}
-        onClick={() => extendConcept(reactFlowInstance, props.id, 'top', props.data.label, 'prod')}
+        onClick={() => extendConcept(reactFlowInstance, props.id, 'top', props.data.label, false)}
       />
       {props.data.label}
       <Handle

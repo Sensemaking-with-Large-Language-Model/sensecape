@@ -46,8 +46,8 @@ const SubTopicNode = (props: NodeProps) => {
             reactFlowInstance,
             props.id,
             "bottom",
-            props.data.label,
-            "prod"
+            props.data.label, 
+            false
           )
         }
       />

@@ -1,5 +1,5 @@
 import { uuid } from "../utils";
-import { useReactFlow, ReactFlowInstance } from "reactflow";
+import { useReactFlow, ReactFlowInstance, MarkerType } from "reactflow";
 import { getTopics } from "../../api/openai-api";
 
 const extendConcept = async (
@@ -7,7 +7,7 @@ const extendConcept = async (
   id: string,
   pos: string,
   concept: string,
-  mode: string = "dev"
+  conceptnode: boolean = true
 ) => {
   const parentNode = reactFlowInstance.getNode(id);
 
@@ -20,6 +20,8 @@ const extendConcept = async (
   let targetHandleId = "";
   let newNodePosition: { x: number; y: number };
   let nodeType = "";
+  let edgeLabel = "";
+  let mode = "dev";
 
   if (!parentNode) {
     return;
@@ -29,19 +31,37 @@ const extendConcept = async (
     prompt = "Give me 5 higher level topics of " + concept;
     sourceHandleId = "a";
     targetHandleId = "b";
-    newNodePosition = {
-      x: parentNode.position.x,
-      y: parentNode.position.y - 150,
-    };
+    edgeLabel = "upper-level topic";
+    if (conceptnode) {
+      newNodePosition = {
+        x: parentNode.position.x - 50,
+        y: parentNode.position.y - 200,
+      };
+    } else {
+      // if suptopic, create it above
+      newNodePosition = {
+        x: parentNode.position.x,
+        y: parentNode.position.y - 200,
+      };
+    }
     nodeType = "suptopic";
   } else if (pos === "bottom") {
     prompt = "Give me 5 lower level topics of " + concept;
     sourceHandleId = "b";
     targetHandleId = "a";
-    newNodePosition = {
-      x: parentNode.position.x,
-      y: parentNode.position.y + 150,
-    };
+    edgeLabel = "lower-level topic";
+    if (conceptnode) {
+      newNodePosition = {
+        x: parentNode.position.x - 50,
+        y: parentNode.position.y + 200,
+      };
+    } else {
+      newNodePosition = {
+        // if subtopic, create it below
+        x: parentNode.position.x,
+        y: parentNode.position.y + 200,
+      };
+    }
     nodeType = "subtopic";
   } else if (pos === "left") {
     prompt =
@@ -106,9 +126,13 @@ const extendConcept = async (
     id: `${parentNode.id}=>${childNodeId}`,
     source: parentNode.id,
     target: childNodeId,
+    label: edgeLabel,
     sourceHandle: sourceHandleId,
     targetHandle: targetHandleId,
-    type: "placeholder",
+    type: "step",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+    },
   };
 
   reactFlowInstance.addNodes(childNode);
