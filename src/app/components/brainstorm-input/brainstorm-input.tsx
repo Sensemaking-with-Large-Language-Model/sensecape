@@ -49,7 +49,7 @@ const BrainstormInput = (props: any) => {
           // className={`${currentZoomState()}`}
           name="text"
           type="text"
-          placeholder="Add keyword"
+          placeholder="Add keyword(s): e.g., San Diego, NYC"
           autoComplete="off"
           value={props.input}
           onChange={handleInputChange}
