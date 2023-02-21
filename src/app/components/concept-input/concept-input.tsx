@@ -17,13 +17,13 @@ const ConceptInput = (props: any) => {
   // Depending on Zoom level, vary concept font size
   const currentZoomState = () => {
     if (zoom > ZoomState.ALL) {
-      return 'concept-form all';
+      return "concept-form all";
     } else if (zoom > ZoomState.SUMMARY) {
-      return 'concept-form summary';
+      return "concept-form summary";
     } else {
-      return 'concept-form keywords';
+      return "concept-form keywords";
     }
-  }
+  };
 
   const handleInputChange = (event: any) => {
     props.setInput(event.target.value);
@@ -41,7 +41,15 @@ const ConceptInput = (props: any) => {
         className={`${currentZoomState()}`}
         onSubmit={(event) => {
           event.preventDefault();
-          extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim())
+          // props.setResponseInputState(ResponseState.LOADING);
+          extendConcept(
+            reactFlowInstance,
+            props.id,
+            "bottom",
+            props.input.trim(),
+            true,
+            // props.setResponseInputState
+          );
         }}
       >
         <input
@@ -50,7 +58,7 @@ const ConceptInput = (props: any) => {
           // className={`${currentZoomState()}`}
           name="text"
           type="text"
-          placeholder="Generate concept hierarchy"
+          placeholder="Add concept"
           autoComplete="off"
           value={props.input}
           onChange={handleInputChange}
@@ -58,7 +66,15 @@ const ConceptInput = (props: any) => {
         />
         <button
           onClick={() => {
-            extendConcept(reactFlowInstance, props.id, 'bottom', props.input.trim())
+            // props.setResponseInputState(ResponseState.LOADING);
+            extendConcept(
+              reactFlowInstance,
+              props.id,
+              "bottom",
+              props.input.trim(),
+              true,
+              // props.setResponseInputState
+            );
           }}
           type="button"
         >
@@ -82,13 +98,13 @@ const ConceptInput = (props: any) => {
     );
   } else if (props.responseState === ResponseState.LOADING) {
     return (
-      <div className="chat-input">
+      <div className="concept-input">
         {props.input}
         <img width="18px" height="18px" src={loadingDots} alt="loading..." />
       </div>
     );
   } else {
-    return <>{props.input}</>;
+    return <div className="concept-input">{props.input}</div>;
   }
 };
 

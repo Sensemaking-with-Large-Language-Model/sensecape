@@ -10,6 +10,7 @@
   input {
     flex-grow: 2;
     border: none;
+    text-align: center;
     background-color: #fff;
     font-size: 14px;
     height: 24px;
@@ -44,6 +45,7 @@
       // stroke: #fefefe;
       stroke: #aaa;
     }
+
   }
 
   button:hover {
