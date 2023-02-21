@@ -123,7 +123,6 @@ export const getGPT3Term = async (history: string, prompt: string) => {
 
 export const getTopics = async (prompt: string, concept: string) => {
   const gptPrompt: string = `${prompt}`;
-  console.log('gptPrompt', gptPrompt);
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -162,7 +161,6 @@ export const getGPT3Questions = async (concept: string) => {
   5 questions starting with "where", 5 questions starting with "how", 
   and 5 questions starting with "what".`;
   const gptPrompt: string = `${prompt}`;
-  console.log('gptPrompt', gptPrompt);
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -177,8 +175,6 @@ export const getGPT3Questions = async (concept: string) => {
   }).then((data) => {
 
     const text = data.data.choices[0].text;
-
-    console.log('openai', text);
 
     return text;
     // if (typeof text === 'string') {
