@@ -1,7 +1,8 @@
 import { Component, useCallback, useEffect, useState } from "react";
-import { Edge, Handle, NodeProps, Position, useReactFlow, useStore, useUpdateNodeInternals, XYPosition } from "reactflow";
+import { Edge, Handle, NodeProps, NodeToolbar, Position, useReactFlow, useStore, useUpdateNodeInternals, XYPosition } from "reactflow";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { ResponseState } from "../../components/gpt-input/gpt-input.model";
+import useDetachNodes from '../../hooks/useDetachNodes';
 import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
 import { ZoomState } from "../node.model";
@@ -19,6 +20,13 @@ const TopicNode = (props: NodeProps) => {
 
   const updateNodeInternals = useUpdateNodeInternals();
   const reactFlowInstance = useReactFlow();
+
+  // parent node is the group node
+  const isInGroup = useStore((store) => !!store.nodeInternals.get(props.id)?.parentNode);
+  const detachNodes = useDetachNodes();
+
+  const onDelete = () => reactFlowInstance.deleteElements({ nodes: [{ id: props.id }] });
+  const onDetach = () => detachNodes([props.id]);
 
   const addInstantChatNode = useCallback(
     (input: string) => {
@@ -70,6 +78,12 @@ const TopicNode = (props: NodeProps) => {
       }}
     >
       <Handle type="target" position={Position.Left} className="node-handle-direct target-handle"/>
+      {
+        isInGroup &&
+        <NodeToolbar className="nodrag">
+          <button onClick={onDetach}>Detach</button>
+        </NodeToolbar>
+      }
       <div className={`topic-node-box ${props.selected ? 'topic-selected' : ''}`}>
         <DragHandle className='drag-handle' />
         <div>{topic}</div>

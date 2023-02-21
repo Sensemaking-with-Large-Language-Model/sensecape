@@ -124,6 +124,8 @@ const ConceptNode = (props: NodeProps) => {
           // onClick={calluseNodeClick}
           id="b"
         />
+        {/* target node for traveller edges */}
+        <Handle type="target" position={Position.Left} className="node-handle-direct"/>
         {/* <Handle
           type="source"
           className={input !== "" ? "concept-node-handle visible" : "concept-node-handle hidden"}

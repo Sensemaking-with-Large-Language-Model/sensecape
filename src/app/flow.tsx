@@ -16,15 +16,22 @@ import ReactFlow, {
   MarkerType,
   MiniMap,
   useStore,
+  SelectionMode,
+  NodeDragHandler,
 } from "reactflow";
 import { getTopics } from "../api/openai-api";
 
 import "reactflow/dist/style.css";
+import '@reactflow/node-resizer/dist/style.css';
+import './flow.scss';
+
+// Components
 import GenerateConceptButton from "./components/button-generate-concept/button-generate-concept";
 import NodeToolkit from "./components/node-toolkit/node-toolkit";
-import FloatingConnectionLine from "./edges/traveller-edge/traveller-connection";
-import FloatingEdge from "./edges/traveller-edge/traveller-edge";
-import './flow.scss';
+import SelectedTopicsToolbar from "./components/selected-topics-toolbar/selected-topics-toolbar";
+import TravellerConnectionLine from "./edges/traveller-edge/traveller-connection";
+
+// Nodes
 import ChatNode from "./nodes/chat-node/chat-node";
 import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
 import ConceptNode from "./nodes/concept-node/concept-node";
@@ -43,7 +50,10 @@ import SupTopicNode from "./nodes/concept-node/suptopic-node/suptopic-node";
 import { TypeSupTopicNode } from "./nodes/concept-node/suptopic-node/suptopic-node.model";
 import WorkflowNode from "./nodes/workflow-node/WorkflowNode";
 import PlaceholderNode from "./nodes/workflow-node/PlaceholderNode";
+import GroupNode from "./nodes/group-node/group-node";
+
 import edgeTypes from "./edges";
+import { getNodePositionInsideParent, sortNodes } from "./nodes/group-node/group-node.helper";
 
 const nodeColor = (node:Node) => {
   switch (node.type) {
@@ -111,6 +121,8 @@ const fitViewOptions = {
   padding: 0.75,
 };
 
+const panOnDrag = [1, 2];
+
 const nodeTypes: NodeTypes = {
   chat: ChatNode,
   topic: TopicNode,
@@ -120,6 +132,7 @@ const nodeTypes: NodeTypes = {
   memo: MemoNode,
   workflow: WorkflowNode,
   placeholder: PlaceholderNode,
+  group: GroupNode,
 };
 
 let id = 0;
@@ -234,34 +247,14 @@ const ExploreFlow = () => {
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
         });
-        let newNode: CreativeNode;
-        if (type === "chat" || type === "topic") {
-          newNode = {
-            id: getId(),
-            dragHandle: ".drag-handle",
-            type,
-            position,
-            data,
-          };
-        } else if (type === "concept") {
-          newNode = {
-            id: "conccept-" + getId(),
-            dragHandle: ".drag-handle",
-            type,
-            position,
-            data,
-          };
-        } else if (type === "memo") {
-          newNode = {
-            id: "memo-" + getId(),
-            dragHandle: ".drag-handle",
-            type,
-            position,
-            data,
-          };
-        } else {
-          return;
-        }
+        // Type of node denoted in id
+        const newNode: CreativeNode = {
+          id: `${type}-${getId()}`,
+          dragHandle: ".drag-handle",
+          type,
+          position,
+          data,
+        };
         setNodes((nodes) => nodes.concat(newNode));
         if (data.parentId) {
           // Add traveller edge
@@ -284,6 +277,82 @@ const ExploreFlow = () => {
       }
     },
     [reactFlowInstance, travellerMode]
+  );
+
+  const onNodeDrag = useCallback(
+    (_: any, node: Node) => {
+      if (node.type !== 'node' && !node.parentNode) {
+        return;
+      }
+
+      if (reactFlowInstance) {
+        const intersections = reactFlowInstance.getIntersectingNodes(node).filter((n) => n.type === 'group');
+        const groupClassName = intersections.length && node.parentNode !== intersections[0]?.id ? 'active' : '';
+
+        setNodes((nds) => {
+          return nds.map((n) => {
+            if (n.type === 'group') {
+              return {
+                ...n,
+                className: groupClassName,
+              };
+            } else if (n.id === node.id) {
+              return {
+                ...n,
+                position: node.position,
+              };
+            }
+
+            return { ...n };
+          });
+        });
+      }
+    },
+    [reactFlowInstance, setNodes]
+  );
+
+  const onNodeDragStop = useCallback(
+    (_: any, node: Node) => {
+      if (node.type !== 'node') {
+        return;
+      }
+
+      if (reactFlowInstance) {
+        const intersections = reactFlowInstance.getIntersectingNodes(node).filter((n) => n.type === 'group');
+        const groupNode = intersections[0];
+
+        // when there is an intersection on drag stop, we want to attach the node to its new parent
+        if (intersections.length && node.parentNode !== groupNode?.id) {
+          const nextNodes: Node[] = reactFlowInstance
+            .getNodes()
+            .filter((node): node is Node => !!node)
+            .map((n) => {
+              if (n.id === groupNode.id) {
+                return {
+                  ...n,
+                  className: '',
+                };
+              } else if (n.id === node.id) {
+                const position = getNodePositionInsideParent(n, groupNode);
+                if (position) {
+                  return {
+                    ...n,
+                    position,
+                    parentNode: groupNode.id,
+                    extent: 'parent' as 'parent',
+                  };
+                }
+              }
+
+              return n;
+            })
+            .sort(sortNodes);
+
+          setNodes(nextNodes);
+        }
+      }
+    },
+    [reactFlowInstance, setNodes]
   );
 
   const onSelectionChange = useCallback(
@@ -341,10 +410,14 @@ const ExploreFlow = () => {
   };
 
   // this function is called when generate concept button is clicked
-  const generateConceptNode = useCallback(() => {
-    console.log("generating concept from ", selectedTopics);
-    if (reactFlowInstance) createConceptNode(reactFlowInstance, selectedTopics);
-  }, [reactFlowInstance, selectedTopics]);
+  const generateConceptNode = useCallback((selectedTopicIds: string[]) => {
+    if (reactFlowInstance) {
+      const topicNodes: TypeTopicNode[] = selectedTopicIds
+        .map(topicId => reactFlowInstance.getNode(topicId))
+        .filter((node): node is TypeTopicNode => !!node);
+      createConceptNode(reactFlowInstance, topicNodes, travellerMode);
+    };
+  }, [reactFlowInstance]);
 
   return (
     <div className="explore-flow">
@@ -358,11 +431,13 @@ const ExploreFlow = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            connectionLineComponent={FloatingConnectionLine}
+            connectionLineComponent={TravellerConnectionLine}
             // fitViewOptions={fitViewOptions}
             onInit={setReactFlowInstance}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
+            onNodeDrag={onNodeDrag}
+            onNodeDragStop={onNodeDragStop}
             onDrop={onDrop}
             onDragOver={onDragOver}
             onConnectStart={onConnectStart}
@@ -370,8 +445,10 @@ const ExploreFlow = () => {
             onSelectionChange={onSelectionChange}
             // onSelectionEnd={onSelectTopicNodes}
             // onSelectionContextMenu={onSelectTopicNodes}
-            panOnScroll={true}
-            panOnDrag={false}
+            panOnScroll
+            selectionOnDrag
+            panOnDrag={panOnDrag}
+            selectionMode={SelectionMode.Partial}
             minZoom={0.3}
             maxZoom={3}
             // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
@@ -379,12 +456,8 @@ const ExploreFlow = () => {
           >
             <Background />
             <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
+            <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
           </ReactFlow>
-          {selectedTopics.length > 0 ? 
-            <GenerateConceptButton
-              generateConceptNode={generateConceptNode}
-            /> : <></>
-          }
           <NodeToolkit 
             travellerMode={travellerMode}
             toggleTravellerMode={toggleTravellerMode}

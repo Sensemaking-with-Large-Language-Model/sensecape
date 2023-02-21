@@ -33,7 +33,7 @@ const MemoNode = (props: NodeProps) => {
       {
         zoom >= ZoomState.SUMMARY ?
           (<>
-            <div className="drag-handle">
+            <div className="header drag-handle">
               <DragHandle className='drag-handle' />
               <h3>{title}</h3>
             </div>

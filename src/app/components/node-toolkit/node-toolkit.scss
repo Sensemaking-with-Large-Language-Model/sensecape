@@ -4,7 +4,7 @@
   bottom: 0;
   width: fit-content;
   height: fit-content;
-  padding: 6px 12px;
+  padding: 12px;
   margin: 20px;
   display: flex;
   flex-direction: column;
@@ -21,12 +21,13 @@
 
 .toolkit-option {
   height: 45px;
+  width: 90%;
   padding: 0 8px;
   color: #AAA;
   font-size: 14px;
   display: flex;
   gap: 12px;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   background: none;
   border: none;
@@ -41,6 +42,16 @@
 
 .add-node {
   /* width: 45px; */
+  transition: ease 0.15s;
+}
+
+.add-node:hover {
+  color: #444;
+  box-shadow: 0 5px 10px rgba(154, 154, 154, 0.3);
+  path {
+    transition: ease 0.15s;
+    stroke: #444;
+  }
 }
 
 .add-gpt-node:hover {

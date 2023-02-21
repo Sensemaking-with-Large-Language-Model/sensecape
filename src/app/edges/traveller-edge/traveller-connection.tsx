@@ -4,7 +4,7 @@ import { getEdgeParams } from './traveller-edge.helper';
 
 import './traveller-edge.scss';
 
-function FloatingConnectionLine({ targetX, targetY, sourcePosition, targetPosition, sourceNode }: any) {
+function TravellerConnectionLine({ targetX, targetY, sourcePosition, targetPosition, sourceNode }: any) {
   if (!sourceNode) {
     return null;
   }
@@ -34,4 +34,4 @@ function FloatingConnectionLine({ targetX, targetY, sourcePosition, targetPositi
   );
 }
 
-export default FloatingConnectionLine;
+export default TravellerConnectionLine;
