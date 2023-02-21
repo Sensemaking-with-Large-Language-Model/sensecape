@@ -108,7 +108,7 @@ const ConceptNode = (props: NodeProps) => {
 
       <div
         className="concept-node"
-        onBlur={() => setResponseState(ResponseState.COMPLETE)}
+        // onBlur={() => setResponseState(ResponseState.COMPLETE)}
       >
         <Handle
           type="source"
