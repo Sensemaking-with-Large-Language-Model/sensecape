@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { NodeProps, useStore } from "reactflow";
+import { NodeProps, useStore, useReactFlow } from "reactflow";
 import { getGPT3Keywords } from "../../../api/openai-api";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { ZoomState } from "../node.model";
@@ -12,6 +12,8 @@ const MemoNode = (props: NodeProps) => {
   const [memo, setMemo] = useState('');
   const [hasUpdated, setHasUpdated] = useState(false);
   const zoom: number = useStore(zoomSelector);
+
+  const reactFlowInstance = useReactFlow();
 
   const handleChange = (event: any) => {
     setMemo(event.target.value);
@@ -28,6 +30,10 @@ const MemoNode = (props: NodeProps) => {
   },
   [hasUpdated]);
 
+  const handleOnFocus = () => {
+    reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
+  }
+
   return (
     <div className="memo-node">
       {
@@ -40,7 +46,8 @@ const MemoNode = (props: NodeProps) => {
             <textarea
               value={memo}
               onChange={handleChange}
-              onBlur={generateTitle}
+              // onBlur={generateTitle}
+              onFocus={handleOnFocus}
               placeholder="Type notes here"
             ></textarea>
           </>) :
