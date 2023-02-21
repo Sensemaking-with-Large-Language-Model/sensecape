@@ -1,4 +1,4 @@
-import { Edge, ReactFlowInstance, XYPosition } from "reactflow";
+import { Edge, ReactFlowInstance, XYPosition, getRectOfNodes } from "reactflow";
 import { ChatNodeData, TypeChatNode } from "./chat-node.model";
 
 export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: string, data: ChatNodeData) => {
@@ -42,7 +42,9 @@ export const createChatNode = (reactFlowInstance: ReactFlowInstance, sourceId: s
     // change view to show next answer 
     // currently, it focuses on the entire view, might want to move to just recently created node 
     // need to use 'nodes' param in fitViewOptions, cf. https://reactflow.dev/docs/api/types/#fitviewsoptions
-    const query = 'div[data-id="' + newNode.id + '"]';
+    // const query = 'div[data-id="' + newNode.id + '"]';
+    const rectOfNodes = getRectOfNodes([newNode]);
+    console.log(rectOfNodes);
     // let activeElement = document.querySelector(query)!.getElementsByClassName('text-input')[0];
     // (activeElement as HTMLElement)?.focus();
     // const fitViewOptions = { duration: 900, padding: 0.3, nodes: [{ id: newNode.id}] }

@@ -1,5 +1,5 @@
 import { uuid } from "../utils";
-import { useReactFlow, ReactFlowInstance, MarkerType } from "reactflow";
+import { ReactFlowInstance, MarkerType } from "reactflow";
 import { getTopics } from "../../api/openai-api";
 
 const extendConcept = async (

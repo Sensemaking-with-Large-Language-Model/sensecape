@@ -16,6 +16,7 @@ import ReactFlow, {
   MarkerType,
   MiniMap,
   useStore,
+  getRectOfNodes,
 } from "reactflow";
 import { getTopics } from "../api/openai-api";
 
@@ -43,10 +44,14 @@ import SupTopicNode from "./nodes/concept-node/suptopic-node/suptopic-node";
 import { TypeSupTopicNode } from "./nodes/concept-node/suptopic-node/suptopic-node.model";
 import WorkflowNode from "./nodes/workflow-node/WorkflowNode";
 import PlaceholderNode from "./nodes/workflow-node/PlaceholderNode";
+import BrainstormNode from "./nodes/brainstorm-node/brainstorm-node";
+import { TypeBrainstormNode } from "./nodes/brainstorm-node/brainstorm-node.model";
 import edgeTypes from "./edges";
 
 const nodeColor = (node:Node) => {
   switch (node.type) {
+    case 'brainstorm':
+      return '#FF4500';
     case 'chat':
       return '#FF4500';
     case 'concept':
@@ -112,6 +117,7 @@ const fitViewOptions = {
 };
 
 const nodeTypes: NodeTypes = {
+  brainstorm: BrainstormNode,
   chat: ChatNode,
   topic: TopicNode,
   subtopic: SubTopicNode,
@@ -136,6 +142,9 @@ const ExploreFlow = () => {
   const connectingNodeId = useRef("");
 
   // useLayout();
+  // useEffect(() => {
+  //   console.log('getRectOfNodes',getRectOfNodes(nodes));
+  // }, [nodes])
 
   // const { fitView } = useReactFlow();
 

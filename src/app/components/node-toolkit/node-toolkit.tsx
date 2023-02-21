@@ -26,8 +26,15 @@ const NodeToolkit = (props: any) => {
   const onDragStart = (event: any, nodeType: string) => {
     event.dataTransfer.setData('dragNodeType', nodeType);
     event.dataTransfer.effectAllowed = 'move';
+    console.log(nodeType);
     let data: CreativeNodeData;
-    if (nodeType === 'chat') {
+    if (nodeType === 'brainstorm') {
+      data = {
+        parentId: '',
+        chatReference: '',
+        placeholder: 'Brainstorm',
+      };
+    } else if (nodeType === 'chat') {
       data = {
         parentId: '',
         chatReference: '',
@@ -60,7 +67,7 @@ const NodeToolkit = (props: any) => {
         <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />
         Traveller Mode
       </div>
-      <div className='toolkit-option add-node' draggable onDragStart={(e) => onDragStart(e, 'chat')}>
+      <div className='toolkit-option add-node' draggable onDragStart={(e) => onDragStart(e, 'brainstorm')}>
         {/* <svg width="16" height="30" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M1 8L15 8M8 15L8 1" stroke="#AAA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg> */}
