@@ -44,7 +44,6 @@ const zoomSelector = (s: any) => s.transform[2];
 const BrainstormNode = (props: NodeProps) => {
   const [input, setInput] = useState("");
   const [response, setResponse] = useState('');
-
   const [responseInputState, setResponseInputState] = useState<ResponseState>(
     ResponseState.INPUT
   );
@@ -55,11 +54,12 @@ const BrainstormNode = (props: NodeProps) => {
   const generateQuestions = async (keyword: string) => {
     if (!keyword) return;
     console.log('generateQuestions called');
+    setResponseInputState(ResponseState.LOADING);
 
     const response = await getGPT3Questions(keyword) || 'Error: no response received';
 
     setResponse(response);
-    // setResponseInputState(ResponseState.COMPLETE);
+    setResponseInputState(ResponseState.COMPLETE);
     console.log('generateQuestions', response);
   }
 
