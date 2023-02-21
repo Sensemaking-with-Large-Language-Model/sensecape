@@ -106,7 +106,10 @@ const ConceptNode = (props: NodeProps) => {
       //   </form>
       // </div>
 
-      <div className="concept-node">
+      <div
+        className="concept-node"
+        onBlur={() => setResponseState(ResponseState.COMPLETE)}
+      >
         <Handle
           type="source"
           className={input !== "" ? "concept-node-handle handle-top visible" : "concept-node-handle handle-top hidden"}
@@ -152,13 +155,17 @@ const ConceptNode = (props: NodeProps) => {
       </div>
     );
   } else if (responseState === ResponseState.LOADING) {
-    return <div className="concept-node">Generating concept...</div>;
+    return (<div className="concept-node">
+      <Handle type="target" position={Position.Left} className="node-handle-direct"/>
+      Generating concept...
+      </div>);
   } else {
     return (
       <div
         className="concept-node"
         onClick={() => setResponseState(ResponseState.INPUT)}
       >
+        <Handle type="target" position={Position.Left} className="node-handle-direct"/>
         {concept || "Enter concept"}
       </div>
     );
