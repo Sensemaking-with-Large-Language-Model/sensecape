@@ -23,7 +23,7 @@ const extendConcept = async (
   let newNodePosition: { x: number; y: number };
   let nodeType = "";
   let edgeLabel = "";
-  let mode = "dev";
+  let mode = "prod"; // decides whether to call api or use stored example
 
   if (!parentNode) {
     return;
