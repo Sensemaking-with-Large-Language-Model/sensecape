@@ -112,41 +112,23 @@ const ConceptNode = (props: NodeProps) => {
       >
         <Handle
           type="source"
-          className={
-            input !== ""
-              ? "concept-node-handle handle-top visible"
-              : "concept-node-handle handle-top hidden"
-          }
+          className={input !== "" ? "concept-node-handle handle-top visible" : "concept-node-handle handle-top hidden"}
           // className="concept-node-handle handle-top visible"
           position={Position.Top}
-          onClick={() => {
-            // setResponseState(ResponseState.LOADING);
-            extendConcept(reactFlowInstance, props.id, "top", input, true);
-          }}
+          onClick={()=>extendConcept(reactFlowInstance, props.id, 'top', input)}
           id="a"
         />
         <Handle
           type="source"
-          className={
-            input !== ""
-              ? "concept-node-handle visible"
-              : "concept-node-handle hidden"
-          }
+          className={input !== "" ? "concept-node-handle visible" : "concept-node-handle hidden"}
           // className="concept-node-handle handle-top visible"
           position={Position.Bottom}
-          onClick={() => {
-            // setResponseState(ResponseState.LOADING);
-            extendConcept(reactFlowInstance, props.id, "bottom", input, true);
-          }}
+          onClick={()=>extendConcept(reactFlowInstance, props.id, 'bottom', input)}
           // onClick={calluseNodeClick}
           id="b"
         />
         {/* target node for traveller edges */}
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="node-handle-direct"
-        />
+        <Handle type="target" position={Position.Left} className="node-handle-direct"/>
         {/* <Handle
           type="source"
           className={input !== "" ? "concept-node-handle visible" : "concept-node-handle hidden"}
@@ -173,27 +155,17 @@ const ConceptNode = (props: NodeProps) => {
       </div>
     );
   } else if (responseState === ResponseState.LOADING) {
-    return (
-      <div className="concept-node">
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="node-handle-direct"
-        />
-        Generating concept...
-      </div>
-    );
+    return (<div className="concept-node">
+      <Handle type="target" position={Position.Left} className="node-handle-direct"/>
+      Generating concept...
+      </div>);
   } else {
     return (
       <div
         className="concept-node"
         onClick={() => setResponseState(ResponseState.INPUT)}
       >
-        <Handle
-          type="target"
-          position={Position.Left}
-          className="node-handle-direct"
-        />
+        <Handle type="target" position={Position.Left} className="node-handle-direct"/>
         {concept || "Enter concept"}
       </div>
     );

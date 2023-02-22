@@ -17,29 +17,29 @@ const BrainstormInput = (props: any) => {
   // Depending on Zoom level, vary concept font size
   const currentZoomState = () => {
     if (zoom > ZoomState.ALL) {
-      return 'brainstorm-form all';
+      return "all";
     } else if (zoom > ZoomState.SUMMARY) {
-      return 'brainstorm-form summary';
+      return "summary";
     } else {
-      return 'brainstorm-form keywords';
+      return "keywords";
     }
-  }
+  };
 
   const handleInputChange = (event: any) => {
-    console.log('input');
+    console.log("input");
     props.setInput(event.target.value);
   };
 
   const handleOnFocus = (event: any) => {
     // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
-    console.log('onfocus!');
+    console.log("onfocus!");
     console.log(props);
     const sourceNode = reactFlowInstance.getNode(props.id);
     console.log(sourceNode);
     if (sourceNode) {
-      console.log('zooming');
+      console.log("zooming");
       const rect = getRectOfNodes([sourceNode]);
-      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 2 });
+      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 1 });
     }
   };
 
@@ -92,12 +92,20 @@ const BrainstormInput = (props: any) => {
   } else if (props.responseState === ResponseState.LOADING) {
     return (
       <div className="brainstorm-input">
-        <div className="brainstorm-keywords">Keyword(s): {props.input}</div>
-        <div className="brainstorm-loading"><img width="18px" height="18px" src={loadingDots} alt="loading..." /></div>
+        {/* <div className="brainstorm-keywords">Keyword(s): {props.input}</div> */}
+        <div className={`brainstorm-keywords ${currentZoomState()}`}>Keyword(s): {props.input}</div>
+        <div className="brainstorm-loading">
+          <img width="18px" height="18px" src={loadingDots} alt="loading..." />
+        </div>
       </div>
     );
   } else {
-    return <><div className="brainstorm-keywords">Keyword(s): {props.input}</div></>;
+    return (
+      <>
+        {/* <div className="brainstorm-keywords">Keyword(s): {props.input}</div> */}
+        <div className={`brainstorm-keywords ${currentZoomState()}`}>Keyword(s): {props.input}</div>
+      </>
+    );
   }
 };
 

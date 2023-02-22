@@ -43,25 +43,50 @@ const zoomSelector = (s: any) => s.transform[2];
 
 const BrainstormNode = (props: NodeProps) => {
   const [input, setInput] = useState("");
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState("");
   const [responseInputState, setResponseInputState] = useState<ResponseState>(
     ResponseState.INPUT
   );
   const zoom: number = useStore(zoomSelector);
 
+  const showContent = zoom >= 0.35;
+
   const reactFlowInstance = useReactFlow();
 
   const generateQuestions = async (keyword: string) => {
     if (!keyword) return;
-    console.log('generateQuestions called');
     setResponseInputState(ResponseState.LOADING);
 
-    const response = await getGPT3Questions(keyword) || 'Error: no response received';
+    const response =
+      (await getGPT3Questions(keyword)) || "Error: no response received";
 
     setResponse(response);
     setResponseInputState(ResponseState.COMPLETE);
-    console.log('generateQuestions', response);
-  }
+  };
+
+  const Placeholder = () => (
+    <div className="placeholder">
+      <div />
+      <div />
+      <div />
+      <br></br>
+      <div />
+      <div />
+      <div />
+      <br></br>
+      <div />
+      <div />
+      <div />
+      <br></br>
+      <div />
+      <div />
+      <div />
+      <br></br>
+      <div />
+      <div />
+      <div />
+    </div>
+  );
 
   return (
     <div className="brainstorm-node">
@@ -74,14 +99,17 @@ const BrainstormNode = (props: NodeProps) => {
         input={input}
         setInput={setInput}
       />
-        {response ? (
-          <>
-          <div className='brainstorm-response'>{ response }</div>
-            {/* <div className={`chat-response all ${isZoomState(ZoomState.ALL)}`}>{response}</div>
-            <div className={`chat-response summary ${isZoomState(ZoomState.SUMMARY)}`}>{summary}</div>
-            <div className={`chat-response keywords ${isZoomState(ZoomState.KEYWORDS)}`}>{keywords}</div> */}
-          </>
-        ) : <></>}
+      {response ? (
+        <>
+          {showContent ? (
+            <div className="brainstorm-response">{response}</div>
+          ) : (
+            <Placeholder />
+          )}
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
