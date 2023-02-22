@@ -174,9 +174,20 @@ export const getGPT3Questions = async (concept: string) => {
     'stop': ''
   }).then((data) => {
 
-    const text = data.data.choices[0].text;
+    const text: any = data.data.choices[0].text;
 
-    return text;
+    let question_set: any;
+    if (text !== null) {
+      question_set = {
+        'why': text.match(/Why .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
+        'when': text.match(/When .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
+        'where': text.match(/Where .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
+        'how': text.match(/How .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
+        'what': text.match(/What .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?'))
+      }
+    }
+
+    return [text, question_set];
     // if (typeof text === 'string') {
 
     //     let re = /\d.*\n*/g; // regex pattern

@@ -44,6 +44,7 @@ const zoomSelector = (s: any) => s.transform[2];
 const BrainstormNode = (props: NodeProps) => {
   const [input, setInput] = useState("");
   const [response, setResponse] = useState("");
+  const [questions, setQuestions] = useState({});
   const [responseInputState, setResponseInputState] = useState<ResponseState>(
     ResponseState.INPUT
   );
@@ -60,7 +61,8 @@ const BrainstormNode = (props: NodeProps) => {
     const response =
       (await getGPT3Questions(keyword)) || "Error: no response received";
 
-    setResponse(response);
+    setResponse(response[0]);
+    setQuestions(response[1]);
     setResponseInputState(ResponseState.COMPLETE);
   };
 
@@ -88,6 +90,19 @@ const BrainstormNode = (props: NodeProps) => {
     </div>
   );
 
+  // const GeneratedQuestions = () => {
+  //   let text = '';
+  //   let keys_ = Object.keys(questions);
+  //   for (let k of keys_) {
+  //     for (let i = 0; i < 5; i++) {
+  //       console.log(questions[k][i]);
+  //       text += <span id="question-{index}">question[k][i]</span>;
+  //     }
+  //   }
+  //   console.log(text);
+  //   return text;
+  // };
+
   return (
     <div className="brainstorm-node">
       <DragHandle className="drag-handle" />
@@ -102,7 +117,31 @@ const BrainstormNode = (props: NodeProps) => {
       {response ? (
         <>
           {showContent ? (
-            <div className="brainstorm-response">{response}</div>
+            // <div className="brainstorm-response">{response}</div>
+
+            <>
+            {
+              Object.entries(questions).map((elem:any, index:number) =>
+                  <div className="brainstorm-response-block">
+                    {
+                      // values.map((y:any) => <span className="brainstorm-questions">{ y }</span>)
+                      elem[1].map((e:any) => <div className="brainstorm-response-question">{ e }</div>)
+                    }
+                  </div>
+                )
+            }
+            </>
+            // <>
+            // {
+            //   Object.values(questions).map((values:any) =>
+            //       <div>
+            //         {
+            //           values.map((y:any) => <span className="brainstorm-questions">{ y }</span>)
+            //         }
+            //       </div>
+            //     )
+            // }
+            // </>
           ) : (
             <Placeholder />
           )}
