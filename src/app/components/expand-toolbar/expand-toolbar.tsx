@@ -20,6 +20,13 @@ const ExpandToolbar = (props: any) => {
           >
             Elaborate
           </button>
+          <button
+            onClick={() => props.generateQuestions(`Brainstorm on ${props.topic}`)}
+            onMouseEnter={() => setPlaceholder(`Brainstorm on ${props.topic}`)}
+            onMouseLeave={() => setPlaceholder(defaultPlaceholder)}
+          >
+            Brainstorm
+          </button>
         </div>
         <GPTInput
           sourceId={props.sourceId}
