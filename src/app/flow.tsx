@@ -157,9 +157,21 @@ const ExploreFlow = () => {
   const connectingNodeId = useRef("");
 
   // useLayout();
-  // useEffect(() => {
-  //   console.log('getRectOfNodes',getRectOfNodes(nodes));
-  // }, [nodes])
+  
+  
+  // show minimap only when there is more than one node
+  // showing minimap when there is no node or only one node is perceived as clutter (NOTE: user feedback)
+  useEffect(() => {
+    // console.log('getRectOfNodes',getRectOfNodes(nodes));
+    if (nodes.length < 2) {
+      // document.getElementsByClassName('minimap')[0].style.visibility = 'hidden';
+      const minimap = document.getElementsByClassName('minimap')[0] as HTMLElement;
+      minimap.style.visibility = 'hidden';
+    } else {
+      const minimap = document.getElementsByClassName('minimap')[0] as HTMLElement;
+      minimap.style.visibility = 'visible';
+    }
+  }, [nodes])
 
   // const { fitView } = useReactFlow();
 
@@ -520,7 +532,7 @@ const ExploreFlow = () => {
           >
           <div className="semantic-route">{semanticRoute.join(' / ')}</div>
             <Background />
-            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
+            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
             <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
           </ReactFlow>
           <NodeToolkit 
