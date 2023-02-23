@@ -8,6 +8,7 @@ import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
 import { InputHoverState, ZoomState } from "../node.model";
 import './topic-node.scss';
+import { getGPT3Questions } from "../../../api/openai-api"
 
 const zoomSelector = (s: any) => s.transform[2];
 
@@ -58,6 +59,15 @@ const TopicNode = (props: NodeProps) => {
     setTooltipAvailable(false);
   }
 
+  // generate questions like in brainstorm node
+  const generateQuestions = async (prompt: string) => {
+    if (!prompt) {
+      return;
+    }
+    addInstantChatNode(prompt);
+    setTooltipAvailable(false);
+  }
+
   // Depending on Zoom level, show response by length
   const currentZoomState = () => {
     if (zoom > ZoomState.ALL) {
@@ -96,6 +106,7 @@ const TopicNode = (props: NodeProps) => {
             sourceId={props.id}
             responseState={responseInputState}
             generateResponse={generateResponse}
+            generateQuestions={generateQuestions}
             setInputState={setToolbarViewState}
             topic={topic}
           />

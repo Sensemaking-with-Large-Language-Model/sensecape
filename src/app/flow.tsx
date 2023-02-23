@@ -56,6 +56,8 @@ import { TypeBrainstormNode } from "./nodes/brainstorm-node/brainstorm-node.mode
 import GroupNode from "./nodes/group-node/group-node";
 import edgeTypes from "./edges";
 import { getNodePositionInsideParent, sortNodes } from "./nodes/group-node/group-node.helper";
+import QuestionNode from "./nodes/brainstorm-node/question-node";
+import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/question-node.model";
 
 const nodeColor = (node:Node) => {
   switch (node.type) {

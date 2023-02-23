@@ -10,13 +10,7 @@ import {
   useStore,
   XYPosition,
 } from "reactflow";
-import {
-  getGPT3Keywords,
-  getGPT3Questions,
-  getGPT3Response,
-  getGPT3Stream,
-  getGPT3Summary,
-} from "../../../api/openai-api";
+import { getGPT3Questions } from "../../../api/openai-api";
 import "./brainstorm-node.scss";
 import { ReactComponent as DragHandle } from "../../assets/drag-handle.svg";
 import { isHighlightable } from "../chat-node/highlighter";
@@ -31,6 +25,11 @@ import BrainstormInput from "../../components/brainstorm-input/brainstorm-input"
 import { ResponseState } from "../../components/input.model";
 import { createBrainstormNode } from "./brainstorm-node.helper";
 import { ZoomState } from "../node.model";
+import { createChatNode } from "../chat-node/chat-node.helper";
+
+import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
+import QuestionNode from "./question-node";
+import { QuestionNodeData, TypeQuestionNode } from "./question-node.model";
 
 type BrainstormState = {
   input: string;
@@ -90,18 +89,11 @@ const BrainstormNode = (props: NodeProps) => {
     </div>
   );
 
-  // const GeneratedQuestions = () => {
-  //   let text = '';
-  //   let keys_ = Object.keys(questions);
-  //   for (let k of keys_) {
-  //     for (let i = 0; i < 5; i++) {
-  //       console.log(questions[k][i]);
-  //       text += <span id="question-{index}">question[k][i]</span>;
-  //     }
-  //   }
-  //   console.log(text);
-  //   return text;
-  // };
+  const handleClick = (event: any) => {
+    // get question
+
+    // create chat node
+  };
 
   return (
     <div className="brainstorm-node">
@@ -118,19 +110,18 @@ const BrainstormNode = (props: NodeProps) => {
         <>
           {showContent ? (
             // <div className="brainstorm-response">{response}</div>
-
             <>
-            {
-              Object.entries(questions).map((elem:any, index:number) =>
-                  <div className="brainstorm-response-block">
-                    {
-                      // values.map((y:any) => <span className="brainstorm-questions">{ y }</span>)
-                      elem[1].map((e:any) => <div className="brainstorm-response-question">{ e }</div>)
-                    }
-                  </div>
-                )
-            }
+              {Object.entries(questions).map((elem: any, index: number) => (
+                <div className="brainstorm-response-block">
+                  {
+                    // elem[1].map((question: any, index:number) => <QuestionNode id={`${input}` + "-" + {index} + "-" + elem[0]} selected={false} type={question} data={''} zIndex={100} isConnectable={true} xPos={0} yPos={0} dragging={false} keyword={input} index={index} fiveWsType={elem[0]} question={question} />)
+                    elem[1].map((question: any, index:number) => <QuestionNode keyword={input} index={index} fiveWsType={elem[0]} question={question} />)
+                  }
+                </div>
+              ))
+              }
             </>
+          ) : (
             // <>
             // {
             //   Object.values(questions).map((values:any) =>
@@ -142,7 +133,6 @@ const BrainstormNode = (props: NodeProps) => {
             //     )
             // }
             // </>
-          ) : (
             <Placeholder />
           )}
         </>
