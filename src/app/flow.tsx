@@ -430,10 +430,61 @@ const ExploreFlow = () => {
     };
   }, [reactFlowInstance]);
 
+  const zoomSelector = (s: any) => s.transform[2];
+  const zoom: number = useStore(zoomSelector);
+  const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
+  // Semantic Dive: store 
+  const [instanceParents, setInstanceParents] = useState<any>({});
+  const [currInstance, setCurrInstance] = useState('home');
+  const [semanticRoute, setSemanticRoute] = useState(['home']);
+
+  useEffect(() => {
+    // console.log('checking');
+    if (
+      nodeMouseOver &&
+      nodeMouseOver.type === 'topic' &&
+      !nodeMouseOver.data.semanticDive &&
+      reactFlowInstance &&
+      zoom >= 3
+    ) {
+
+      const parentFlowState = {
+        name: 'home',
+        instance: reactFlowInstance.toObject(),
+        zoom: reactFlowInstance.getZoom(),
+      }
+      // Topic name is instance name
+      nodeMouseOver.data.semanticDive = true;
+      setCurrInstance(nodeMouseOver.data.topicName);
+      setSemanticRoute(semanticRoute.concat(nodeMouseOver.data.topicName));
+      instanceParents[nodeMouseOver.data.topicName] = parentFlowState;
+      setInstanceParents(instanceParents);
+      reactFlowInstance.setNodes([nodeMouseOver]);
+      reactFlowInstance.setEdges([]);
+      reactFlowInstance.fitBounds(getRectOfNodes([nodeMouseOver]), { duration: 200, padding: 7 });
+      console.log('dive into ', nodeMouseOver.data.topicName);
+    }
+    // else if (
+    //   nodeMouseOver &&
+    //   nodeMouseOver.data.semanticDive &&
+    //   reactFlowInstance &&
+    //   zoom >= 0.3
+    // ) {
+
+    //   const parentFlowState = instanceParents[nodeMouseOver.data.topicName];
+    //   nodeMouseOver.data.semanticDive = false;
+    //   setCurrInstance('home');
+    //   reactFlowInstance.setNodes(parentFlowState.instance.nodes);
+    //   reactFlowInstance.setEdges(parentFlowState.instance.edges);
+    //   reactFlowInstance.fitView({ duration: 200, padding: 2 });
+    //   console.log('back home!');
+    // }
+  }, [zoom, reactFlowInstance, nodeMouseOver, instanceParents, semanticRoute]);
+
   return (
     <div className="explore-flow">
-      <ReactFlowProvider>
         <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+          {/* <button onClick={semanticDive}>Semantic Dive</button> */}
           <ReactFlow
             proOptions={proOptions}
             nodes={nodes}
@@ -449,6 +500,8 @@ const ExploreFlow = () => {
             edgeTypes={edgeTypes}
             onNodeDrag={onNodeDrag}
             onNodeDragStop={onNodeDragStop}
+            onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
+            onNodeMouseLeave={() => setNodeMouseOver(null)}
             onDrop={onDrop}
             onDragOver={onDragOver}
             onConnectStart={onConnectStart}
@@ -465,6 +518,7 @@ const ExploreFlow = () => {
             // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
             // maxZoom={Infinity} // otherwise, it might not be good to have this 
           >
+          <div className="semantic-route">{semanticRoute.join(' / ')}</div>
             <Background />
             <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
             <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
@@ -474,7 +528,6 @@ const ExploreFlow = () => {
             toggleTravellerMode={toggleTravellerMode}
           />
         </div>
-      </ReactFlowProvider>
     </div>
   );
 };

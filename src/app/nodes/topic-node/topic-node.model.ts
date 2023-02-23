@@ -5,6 +5,7 @@ export interface TopicNodeData {
   chatReference: string;
   topicName: string;
   conceptId?: string;
+  semanticDive?: boolean;
 };
 
 export type TypeTopicNode = Node<TopicNodeData>;
