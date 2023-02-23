@@ -23,6 +23,10 @@
     transition: ease 0.15s;
   }
 
+  .topic-node-box:hover {
+    border: 2px solid #bbec68;
+  }
+
   .topic-selected {
     border: 2px solid #3ab2ee;
   }
