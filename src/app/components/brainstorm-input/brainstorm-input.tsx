@@ -26,16 +26,11 @@ const BrainstormInput = (props: any) => {
   };
 
   const handleInputChange = (event: any) => {
-    console.log("input");
     props.setInput(event.target.value);
   };
 
   const handleOnFocus = (event: any) => {
-    // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
-    console.log("onfocus!");
-    console.log(props);
     const sourceNode = reactFlowInstance.getNode(props.id);
-    console.log(sourceNode);
     if (sourceNode) {
       reactFlowInstance.fitView({
         duration: 900,

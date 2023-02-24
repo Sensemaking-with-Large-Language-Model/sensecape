@@ -9,6 +9,7 @@ const extendConcept = async (
   pos: string,
   concept: string,
   conceptnode: boolean = true,
+  testing: boolean = true, 
   setResponseState?: Function,
 ) => {
   const parentNode = reactFlowInstance.getNode(id);
@@ -23,7 +24,6 @@ const extendConcept = async (
   let newNodePosition: { x: number; y: number };
   let nodeType = "";
   let edgeLabel = "";
-  let mode = "prod"; // decides whether to call api or use stored example
 
   if (!parentNode) {
     return;
@@ -93,7 +93,7 @@ const extendConcept = async (
 
   let topics: string[] | any;
   console.log("prompt", prompt);
-  if (mode === "dev") {
+  if (testing) {
     topics = [
       "Human Resources Management",
       "Financial Management",

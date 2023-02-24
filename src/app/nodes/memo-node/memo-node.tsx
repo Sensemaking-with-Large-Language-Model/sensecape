@@ -45,7 +45,7 @@ const MemoNode = (props: NodeProps) => {
   }
 
   return (
-    <div className="memo-node">
+    <div className={`node memo-node`}>
       {
         zoom >= ZoomState.SUMMARY ?
           (<>

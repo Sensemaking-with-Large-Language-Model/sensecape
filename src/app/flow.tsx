@@ -57,6 +57,9 @@ import { TypeBrainstormNode } from "./nodes/brainstorm-node/brainstorm-node.mode
 import GroupNode from "./nodes/group-node/group-node";
 import edgeTypes from "./edges";
 import { getNodePositionInsideParent, sortNodes } from "./nodes/group-node/group-node.helper";
+import QuestionNode from "./nodes/brainstorm-node/question-node";
+import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/question-node.model";
+
 import { uuid } from "./utils";
 import { Instance, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
 
@@ -156,9 +159,21 @@ const ExploreFlow = () => {
   // const [zoomLimits, setZoomLimits] = useState({);
 
   // useLayout();
-  // useEffect(() => {
-  //   console.log('getRectOfNodes',getRectOfNodes(nodes));
-  // }, [nodes])
+  
+  
+  // show minimap only when there is more than one node
+  // showing minimap when there is no node or only one node is perceived as clutter (NOTE: user feedback)
+  useEffect(() => {
+    // console.log('getRectOfNodes',getRectOfNodes(nodes));
+    if (nodes.length < 2) {
+      // document.getElementsByClassName('minimap')[0].style.visibility = 'hidden';
+      const minimap = document.getElementsByClassName('minimap')[0] as HTMLElement;
+      minimap.style.visibility = 'hidden';
+    } else {
+      const minimap = document.getElementsByClassName('minimap')[0] as HTMLElement;
+      minimap.style.visibility = 'visible';
+    }
+  }, [nodes])
 
   // const { fitView } = useReactFlow();
 
@@ -516,7 +531,7 @@ const ExploreFlow = () => {
           >
           <div className="semantic-route">{semanticRoute.join(' / ')}</div>
             <Background />
-            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable />
+            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
             <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
           </ReactFlow>
           <NodeToolkit 

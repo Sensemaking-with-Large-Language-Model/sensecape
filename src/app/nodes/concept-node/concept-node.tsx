@@ -107,7 +107,7 @@ const ConceptNode = (props: NodeProps) => {
       // </div>
 
       <div
-        className="concept-node"
+        className={`node concept-node`}
         // onBlur={() => setResponseState(ResponseState.COMPLETE)}
       >
         <Handle

@@ -10,6 +10,7 @@ import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
 import { InputHoverState, ZoomState } from "../node.model";
 import { TypeTopicNode } from "./topic-node.model";
 import './topic-node.scss';
+import { getGPT3Questions } from "../../../api/openai-api"
 
 const zoomSelector = (s: any) => s.transform[2];
 
@@ -60,6 +61,15 @@ const TopicNode = (props: NodeProps) => {
     setTooltipAvailable(false);
   }
 
+  // generate questions like in brainstorm node
+  const generateQuestions = async (prompt: string) => {
+    if (!prompt) {
+      return;
+    }
+    addInstantChatNode(prompt);
+    setTooltipAvailable(false);
+  }
+
   // Depending on Zoom level, show response by length
   const currentZoomState = () => {
     if (zoom > ZoomState.ALL) {
@@ -87,7 +97,7 @@ const TopicNode = (props: NodeProps) => {
           <button onClick={onDetach}>Detach</button>
         </NodeToolbar>
       }
-      <div className={`topic-node-box ${props.data.instanceState === InstanceState.current ? 'current-instance' : ''} ${props.selected ? 'topic-selected' : ''}`}>
+      <div className={`node topic-node-box ${props.data.instanceState === InstanceState.current ? 'current-instance' : ''} `}>
         <DragHandle className='drag-handle' />
         <div>{topic}</div>
       </div>
@@ -98,6 +108,7 @@ const TopicNode = (props: NodeProps) => {
             sourceId={props.id}
             responseState={responseInputState}
             generateResponse={generateResponse}
+            generateQuestions={generateQuestions}
             setInputState={setToolbarViewState}
             topic={topic}
           />

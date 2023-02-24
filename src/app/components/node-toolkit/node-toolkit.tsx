@@ -26,7 +26,6 @@ const NodeToolkit = (props: any) => {
   const onDragStart = (event: any, nodeType: string) => {
     event.dataTransfer.setData('dragNodeType', nodeType);
     event.dataTransfer.effectAllowed = 'move';
-    console.log(nodeType);
     let data: CreativeNodeData;
     if (nodeType === 'brainstorm') {
       data = {

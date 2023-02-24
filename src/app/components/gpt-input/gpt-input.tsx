@@ -18,9 +18,6 @@ const GPTInput = (props: any) => {
     props.setInputState(InputHoverState.CLICKED);
     const sourceNode = reactFlowInstance.getNode(props.sourceId);
     if (sourceNode) {
-      console.log('zooming');
-      // @ts-ignore
-      // reactFlowInstance.fitView({ duration: 900, padding: 2, nodes: [sourceNode]})
       reactFlowInstance.fitView({
         duration: 900,
         padding: 2,
