@@ -60,7 +60,7 @@
 .concept-form.summary {
   .concept-input {
     width: 90%;
-    font-size: 28px;
+    // font-size: 28px;
     text-align: center;
     // background-color: rgb(219, 219, 219);
     background-color: #fff;
@@ -71,15 +71,15 @@
     color: transparent;
   }
 
-  button {
-    display: none;
-  }
+  // button {
+  //   display: none;
+  // }
 }
 
 .concept-form.keywords {
   .concept-input {
     width: 90%;
-    font-size: 36px;
+    // font-size: 36px;
     text-align: center;
     // background-color: rgb(219, 219, 219);
     background-color: #fff;
@@ -90,9 +90,9 @@
     color: transparent;
   }
 
-  button {
-    display: none;
-  }
+  // button {
+  //   display: none;
+  // }
 }
 
 .concept-form:focus-within { 
