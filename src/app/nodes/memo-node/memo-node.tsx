@@ -41,7 +41,7 @@ const MemoNode = (props: NodeProps) => {
   }
 
   return (
-    <div className="memo-node">
+    <div className={`memo-node ${props.selected ? 'selected' : ''}`}>
       {
         zoom >= ZoomState.SUMMARY ?
           (<>

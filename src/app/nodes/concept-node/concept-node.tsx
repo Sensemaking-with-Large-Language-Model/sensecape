@@ -107,7 +107,7 @@ const ConceptNode = (props: NodeProps) => {
       // </div>
 
       <div
-        className="concept-node"
+        className={`concept-node ${props.selected ? 'selected' : ''}`}
         // onBlur={() => setResponseState(ResponseState.COMPLETE)}
       >
         <Handle
