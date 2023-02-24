@@ -30,11 +30,8 @@ const ConceptInput = (props: any) => {
   };
 
   const handleOnFocus = (event: any) => {
-    // console.log(props.id);
-    // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
     const sourceNode = reactFlowInstance.getNode(props.id);
     if (sourceNode) {
-      console.log('zooming');
       const rect = getRectOfNodes([sourceNode]);
       reactFlowInstance.fitBounds(rect, { duration: 900, padding: 3.5 });
     }
