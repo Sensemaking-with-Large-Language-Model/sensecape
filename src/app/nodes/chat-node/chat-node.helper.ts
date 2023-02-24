@@ -48,8 +48,7 @@ export const createChatNode = (
 
 export const createChatNodeFromDiv = (
   reactFlowInstance: ReactFlowInstance,
-  sourceId: string,
-  position: any,
+  event: any,
   data: ChatNodeData
 ) => {
   // const currNode: TypeChatNode | undefined = reactFlowInstance.getNode(sourceId);
@@ -59,22 +58,22 @@ export const createChatNodeFromDiv = (
   // }
 
   setTimeout(() => {
-    const nodeElement = document.getElementById(`${sourceId}`);
-    // let position: XYPosition;
+    const nodeElement = document.getElementById(event?.target.id);
+    let position: XYPosition;
     // console.log('event.pageX', event.pageX);
     // console.log('event.pageY', event.pageY);
-    // position = {
+    position = {
     //   // x: (width / 2) - (575 / 2),
     //   // y: (height ?? 0) + 20,
-    //   x: event.pageX + 150,
-    //   y: event.pageY,
-    // };
+      x: event.clientLeft + event.clientWidth + 150,
+      y: event.clientTop + event.clientHeight,
+    };
     const newNode: TypeChatNode = {
       id: `chat-${reactFlowInstance.getNodes().length}`,
       type: "chat",
       dragHandle: ".drag-handle",
       position,
-      parentNode: sourceId,
+      parentNode: event.target.id,
       data,
     };
     console.log(newNode);

@@ -12,16 +12,17 @@ export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeDat
   const reactFlowInstance = useReactFlow();
 
   const handleClick = (event: any) => {
-    console.log(event.target);
-    const position = { x: 0, y: 0 };
+
+    console.log(event);
+    console.log(event.target.id);
     const data:ChatNodeData = {  
       parentChatId: '',
       chatReference: '',
       placeholder: '',        // If no response yet, use placeholder
-      // instantInput: props.question,
+      instantInput: props.question,
     }
-    createChatNode(reactFlowInstance, '', data);
-    // createChatNodeFromDiv(reactFlowInstance, data.parentChatId, position, data);
+    // createChatNode(reactFlowInstance, '', data);
+    createChatNodeFromDiv(reactFlowInstance, event, data);
   }
 
   return <div onClick={ handleClick } id={`${ props.keyword}` + "-" + `${ props.fiveWsType}` + "-" +  props.index} className="brainstorm-response-question">{ props.question }</div>
