@@ -19,6 +19,7 @@ import ReactFlow, {
   getRectOfNodes,
   SelectionMode,
   NodeDragHandler,
+  ReactFlowJsonObject,
 } from "reactflow";
 import { getTopics } from "../api/openai-api";
 
@@ -56,6 +57,8 @@ import { TypeBrainstormNode } from "./nodes/brainstorm-node/brainstorm-node.mode
 import GroupNode from "./nodes/group-node/group-node";
 import edgeTypes from "./edges";
 import { getNodePositionInsideParent, sortNodes } from "./nodes/group-node/group-node.helper";
+import { uuid } from "./utils";
+import { Instance, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
 
 const nodeColor = (node:Node) => {
   switch (node.type) {
@@ -141,9 +144,6 @@ const nodeTypes: NodeTypes = {
   group: GroupNode,
 };
 
-let id = 0;
-const getId = () => `${id++}`;
-
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -153,6 +153,7 @@ const ExploreFlow = () => {
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const [travellerMode, setTravellerMode] = useState(false);
   const connectingNodeId = useRef("");
+  // const [zoomLimits, setZoomLimits] = useState({);
 
   // useLayout();
   // useEffect(() => {
@@ -210,7 +211,7 @@ const ExploreFlow = () => {
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
         });
-        const id = "generated-topic-" + getId();
+        const id = "generated-topic-" + uuid();
         console.log(id);
         const newNode: any = {
           id,
@@ -220,7 +221,7 @@ const ExploreFlow = () => {
         };
 
         const newEdge: Edge = {
-          id: `edge-${reactFlowInstance.getEdges().length}`,
+          id: `edge-${uuid()}`,
           source: connectingNodeId.current,
           sourceHandle: "c",
           target: newNode.id,
@@ -258,7 +259,7 @@ const ExploreFlow = () => {
         });
         // Type of node denoted in id
         const newNode: CreativeNode = {
-          id: `${type}-${getId()}`,
+          id: `${type}-${uuid()}`,
           dragHandle: ".drag-handle",
           type,
           position,
@@ -268,7 +269,7 @@ const ExploreFlow = () => {
         if (data.parentId) {
           // Add traveller edge
           let newEdge: Edge = {
-            id: `edge-travel-${reactFlowInstance.getEdges().length}`,
+            id: `edge-travel-${uuid()}`,
             source: data.parentId,
             target: newNode.id,
             hidden: !travellerMode,
@@ -431,53 +432,50 @@ const ExploreFlow = () => {
   const zoomSelector = (s: any) => s.transform[2];
   const zoom: number = useStore(zoomSelector);
   const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
-  // Semantic Dive: store 
-  const [instanceParents, setInstanceParents] = useState<any>({});
-  const [currInstance, setCurrInstance] = useState('home');
+
+  // String name of the current instance
+  const [currentTopic, setCurrentTopic] = useState<string>('home');
+
+  // Map of list of instances with the same topic name
+  const [similarInstances, setSimilarInstances] = useState<Map<string, string[]>>(new Map());
+  const [instanceMap, setInstanceMap] = useState<Map<string, Instance>>(new Map([[currentTopic, {
+    name: currentTopic,
+    parent: '',
+    children: [],
+    topicNode: null,
+    instance: null,
+    level: 0,
+  }]]));
   const [semanticRoute, setSemanticRoute] = useState(['home']);
 
   useEffect(() => {
-    // console.log('checking');
     if (
       nodeMouseOver &&
       nodeMouseOver.type === 'topic' &&
-      !nodeMouseOver.data.semanticDive &&
+      nodeMouseOver.data.instanceState !== InstanceState.current &&
       reactFlowInstance &&
       zoom >= 3
     ) {
-
-      const parentFlowState = {
-        name: 'home',
-        instance: reactFlowInstance.toObject(),
-        zoom: reactFlowInstance.getZoom(),
-      }
-      // Topic name is instance name
-      nodeMouseOver.data.semanticDive = true;
-      setCurrInstance(nodeMouseOver.data.topicName);
-      setSemanticRoute(semanticRoute.concat(nodeMouseOver.data.topicName));
-      instanceParents[nodeMouseOver.data.topicName] = parentFlowState;
-      setInstanceParents(instanceParents);
-      reactFlowInstance.setNodes([nodeMouseOver]);
-      reactFlowInstance.setEdges([]);
-      reactFlowInstance.fitBounds(getRectOfNodes([nodeMouseOver]), { duration: 200, padding: 7 });
-      console.log('dive into ', nodeMouseOver.data.topicName);
+      semanticDiveIn(
+        nodeMouseOver,
+        similarInstances,
+        [instanceMap, setInstanceMap],
+        [currentTopic, setCurrentTopic],
+        [semanticRoute, setSemanticRoute],
+        reactFlowInstance
+      );
+    } else if (
+      reactFlowInstance &&
+      zoom <= 0.3
+    ) {
+      semanticDiveOut(
+        instanceMap,
+        [currentTopic, setCurrentTopic],
+        [semanticRoute, setSemanticRoute],
+        reactFlowInstance
+      );
     }
-    // else if (
-    //   nodeMouseOver &&
-    //   nodeMouseOver.data.semanticDive &&
-    //   reactFlowInstance &&
-    //   zoom >= 0.3
-    // ) {
-
-    //   const parentFlowState = instanceParents[nodeMouseOver.data.topicName];
-    //   nodeMouseOver.data.semanticDive = false;
-    //   setCurrInstance('home');
-    //   reactFlowInstance.setNodes(parentFlowState.instance.nodes);
-    //   reactFlowInstance.setEdges(parentFlowState.instance.edges);
-    //   reactFlowInstance.fitView({ duration: 200, padding: 2 });
-    //   console.log('back home!');
-    // }
-  }, [zoom, reactFlowInstance, nodeMouseOver, instanceParents, semanticRoute]);
+  }, [zoom, reactFlowInstance, nodeMouseOver, currentTopic, instanceMap, semanticRoute]);
 
   return (
     <div className="explore-flow">

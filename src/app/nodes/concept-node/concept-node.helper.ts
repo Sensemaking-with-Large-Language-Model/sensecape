@@ -1,4 +1,5 @@
 import { Edge, MarkerType, ReactFlowInstance, XYPosition } from "reactflow";
+import { uuid } from "../../utils";
 import { TypeTopicNode } from "../topic-node/topic-node.model";
 import { ConceptNodeData, TypeConceptNode, ExtendedConceptNodeData, TypeExtendedConceptNode } from "./concept-node.model";
 
@@ -18,7 +19,7 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
       topicNodes,
     }
     const newNode: TypeConceptNode = {
-      id: `chat-${reactFlowInstance.getNodes().length}`,
+      id: `chat-${uuid()}`,
       type: 'concept',
       position,
       data,
@@ -28,7 +29,7 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
     topicNodes.forEach(node => {
       node.data.conceptId = newNode.id;
       const newEdge: Edge = {
-        id: `edge-travel-${reactFlowInstance.getEdges().length}`,
+        id: `edge-travel-${uuid()}`,
         source: node.id,
         target: newNode.id,
         hidden: !travellerMode,

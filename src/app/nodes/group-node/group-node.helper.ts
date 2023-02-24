@@ -1,4 +1,5 @@
 import { getRectOfNodes, Node, ReactFlowInstance, XYPosition } from 'reactflow';
+import { uuid } from '../../utils';
 
 // we have to make sure that parent nodes are rendered before their children
 export const sortNodes = (a: Node, b: Node) => {
@@ -31,7 +32,7 @@ export const createGroupNode = (reactFlowInstance: ReactFlowInstance, childNodes
   const top = Math.min(...childY);
 
   const newGroupNode: Node = {
-    id: `group-${reactFlowInstance.getNodes().length}`,
+    id: `group-${uuid()}`,
     position,
     type: 'group',
     data: {},
