@@ -17,7 +17,7 @@ export const tokens = {
 }
 
 export const getGPT3Response = async (history: string, prompt: string) => {
-  const gptPrompt: string = `${history}\n\n${prompt}`;
+  const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -35,7 +35,7 @@ export const getGPT3Response = async (history: string, prompt: string) => {
 }
 
 export const getGPT3Stream = async (history: string, prompt: string) => {
-  const gptPrompt: string = `${history}\n\n${prompt}`;
+  const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -61,7 +61,7 @@ export const getGPT3Summary = async (text: string) => {
     return Promise.resolve(text);
   };
 
-  const gptPrompt: string = `Summarize this text in a 1-2 phrases:\n\n${text}`;
+  const gptPrompt: string = `Summarize this text in a 1-2 phrases:\n\n${text}\n\n`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -85,7 +85,7 @@ export const getGPT3Keywords = async (text: string) => {
     return Promise.resolve(text);
   };
 
-  const gptPrompt: string = `Extract 3-5 key phrases from this text in CSV format\n\n${text}`;
+  const gptPrompt: string = `Extract 3-5 key phrases from this text in CSV format\n\n${text}\n\n`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -103,7 +103,7 @@ export const getGPT3Keywords = async (text: string) => {
 }
 
 export const getGPT3Term = async (history: string, prompt: string) => {
-  const gptPrompt: string = `${history}\n\n${prompt}`;
+  const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -122,7 +122,7 @@ export const getGPT3Term = async (history: string, prompt: string) => {
 
 
 export const getTopics = async (prompt: string, concept: string) => {
-  const gptPrompt: string = `${prompt}`;
+  const gptPrompt: string = `${prompt}\n\n`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
@@ -160,7 +160,7 @@ export const getGPT3Questions = async (concept: string) => {
   with questions starting with "why", 5 questions starting with "when", 
   5 questions starting with "where", 5 questions starting with "how", 
   and 5 questions starting with "what".`;
-  const gptPrompt: string = `${prompt}`;
+  const gptPrompt: string = `${prompt}\n\n`;
 
   return await openai.createCompletion({
     'model': 'text-davinci-003',
