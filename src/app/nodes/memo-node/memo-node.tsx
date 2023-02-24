@@ -34,13 +34,18 @@ const MemoNode = (props: NodeProps) => {
     // reactFlowInstance!.fitView({ duration: 900, padding: 0.3 });
     const sourceNode = reactFlowInstance.getNode(props.id);
     if (sourceNode) {
-      const rect = getRectOfNodes([sourceNode]);
-      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 0.8 });
+      reactFlowInstance.fitView({
+        duration: 900,
+        padding: 0.8,
+        maxZoom: 2,
+        minZoom: 0.5,
+        nodes: [sourceNode]
+      });
     }
   }
 
   return (
-    <div className={`memo-node ${props.selected ? 'selected' : ''}`}>
+    <div className={`node memo-node`}>
       {
         zoom >= ZoomState.SUMMARY ?
           (<>

@@ -13,6 +13,8 @@ import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/input.model';
 import { createChatNode } from './chat-node.helper';
 import { InputHoverState, ZoomState } from '../node.model';
+import { InstanceState } from '../../triggers/semantic-dive';
+import { TopicNodeData } from '../topic-node/topic-node.model';
 
 type ChatState = {
   input: string,
@@ -101,10 +103,11 @@ const ChatNode = (props: NodeProps) => {
       return;
     }
     const data = JSON.stringify({
-      parentId: props.id,
+      chatNodeId: props.id,
       chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
       topicName,
-    });
+      instanceState: InstanceState.none,
+    } as TopicNodeData);
     console.log(data);
     event.dataTransfer.setData('dragNodeData', data);
   };
@@ -161,7 +164,7 @@ const ChatNode = (props: NodeProps) => {
   return (
     // Allow highlighting only for fully expanded text
     // <div className='chat-node highlightable'>
-      <div className={`chat-node ${zoom >= ZoomState.ALL ? 'highlightable' : 'drag-handle'} ${props.selected ? 'selected' : ''}`}>
+      <div className={`node chat-node ${zoom >= ZoomState.ALL ? 'highlightable' : 'drag-handle'}`}>
       <TooltipProvider>
         <Handle type="target" position={Position.Top} id="b" className="node-handle-direct "/>
         <DragHandle className='drag-handle' />

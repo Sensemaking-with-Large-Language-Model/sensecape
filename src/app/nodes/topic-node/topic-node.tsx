@@ -4,9 +4,11 @@ import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import ExpandToolbar from "../../components/expand-toolbar/expand-toolbar";
 import { ResponseState } from "../../components/input.model";
 import useDetachNodes from '../../hooks/useDetachNodes';
+import { InstanceState } from "../../triggers/semantic-dive";
 import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
 import { InputHoverState, ZoomState } from "../node.model";
+import { TypeTopicNode } from "./topic-node.model";
 import './topic-node.scss';
 import { getGPT3Questions } from "../../../api/openai-api"
 
@@ -84,9 +86,9 @@ const TopicNode = (props: NodeProps) => {
       className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}
       onMouseEnter={() => toolbarViewState === InputHoverState.OUT && setToolbarViewState(InputHoverState.HOVER)}
       onMouseLeave={() => toolbarViewState === InputHoverState.HOVER && setToolbarViewState(InputHoverState.OUT)}
-      style={{
-        transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
-      }}
+      // style={{
+      //   transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
+      // }}
     >
       <Handle type="target" position={Position.Left} className="node-handle-direct target-handle"/>
       {
@@ -95,7 +97,7 @@ const TopicNode = (props: NodeProps) => {
           <button onClick={onDetach}>Detach</button>
         </NodeToolbar>
       }
-      <div className={`topic-node-box ${props.selected ? 'topic-selected' : ''}`}>
+      <div className={`node topic-node-box ${props.data.instanceState === InstanceState.current ? 'current-instance' : ''} `}>
         <DragHandle className='drag-handle' />
         <div>{topic}</div>
       </div>

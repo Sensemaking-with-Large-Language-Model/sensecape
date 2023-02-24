@@ -3,7 +3,7 @@ import "./brainstorm-input.scss";
 import { useStore, useReactFlow, getRectOfNodes } from "reactflow";
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "../input.model";
-import { uuid } from "../../utils";
+import { uuid, zoomLimits } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
 import { ZoomState } from "../../nodes/node.model";
 import extendConcept from "../../hooks/useExtendConcept";
@@ -32,8 +32,13 @@ const BrainstormInput = (props: any) => {
   const handleOnFocus = (event: any) => {
     const sourceNode = reactFlowInstance.getNode(props.id);
     if (sourceNode) {
-      const rect = getRectOfNodes([sourceNode]);
-      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 1 });
+      reactFlowInstance.fitView({
+        duration: 900,
+        padding: 1,
+        maxZoom: zoomLimits.max,
+        minZoom: zoomLimits.min,
+        nodes: [sourceNode]
+      });
     }
   };
 

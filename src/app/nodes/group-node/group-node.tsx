@@ -79,7 +79,7 @@ function GroupNode(props: any) {
 
   return (
     <div
-      className='group-node'
+      className='node group-node'
       onMouseEnter={() => toolbarViewState === InputHoverState.OUT && setToolbarViewState(InputHoverState.HOVER)}
       onMouseLeave={() => toolbarViewState === InputHoverState.HOVER && setToolbarViewState(InputHoverState.OUT)}
     >

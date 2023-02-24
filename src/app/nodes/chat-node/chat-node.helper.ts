@@ -1,4 +1,5 @@
 import { Edge, ReactFlowInstance, XYPosition, getRectOfNodes } from "reactflow";
+import { uuid } from "../../utils";
 import { ChatNodeData, TypeChatNode } from "./chat-node.model";
 
 export const createChatNode = (
@@ -28,15 +29,15 @@ export const createChatNode = (
       };
     }
     const newNode: TypeChatNode = {
-      id: `chat-${reactFlowInstance.getNodes().length}`,
-      type: "chat",
-      dragHandle: ".drag-handle",
+      id: `chat-${uuid()}`,
+      type: 'chat',
+      dragHandle: '.drag-handle',
       position,
       parentNode: sourceId,
       data,
     };
-    const edge: Edge = {
-      id: `e-${reactFlowInstance.getEdges().length}`,
+    const edge: Edge =  {
+      id: `e-${uuid()}`,
       source: sourceId,
       target: newNode.id,
     };

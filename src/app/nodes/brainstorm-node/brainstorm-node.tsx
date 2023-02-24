@@ -96,7 +96,7 @@ const BrainstormNode = (props: NodeProps) => {
   };
 
   return (
-    <div className={`brainstorm-node ${props.selected ? 'selected' : ''}`}>
+    <div className={`node brainstorm-node`}>
       <DragHandle className="drag-handle" />
       <BrainstormInput
         placeholder={props.data.placeholder}

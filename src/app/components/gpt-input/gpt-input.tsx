@@ -4,6 +4,7 @@ import './gpt-input.scss';
 import loadingDots from "../../assets/loading.gif";
 import { ResponseState } from "../input.model";
 import { InputHoverState } from "../../nodes/node.model";
+import { zoomLimits } from "../../utils";
 
 
 const GPTInput = (props: any) => {
@@ -17,8 +18,13 @@ const GPTInput = (props: any) => {
     props.setInputState(InputHoverState.CLICKED);
     const sourceNode = reactFlowInstance.getNode(props.sourceId);
     if (sourceNode) {
-      const rect = getRectOfNodes([sourceNode]);
-      reactFlowInstance.fitBounds(rect, { duration: 900, padding: 2 });
+      reactFlowInstance.fitView({
+        duration: 900,
+        padding: 2,
+        maxZoom: zoomLimits.max,
+        minZoom: zoomLimits.min,
+        nodes: [sourceNode]
+      });
     }
   },
   [reactFlowInstance]);
