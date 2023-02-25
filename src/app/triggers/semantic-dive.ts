@@ -136,3 +136,15 @@ export const semanticDiveOut = (
     }
   }, 0);
 }
+
+/**
+ * Jumps to a particular topic
+ */
+export const semanticJumpTo = (
+  instanceMap: Map<string, Instance>,
+  [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
+  [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
+  reactFlowInstance: ReactFlowInstance,
+) => {
+
+};

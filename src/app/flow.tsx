@@ -62,6 +62,7 @@ import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/ques
 
 import { uuid } from "./utils";
 import { Instance, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
+import SemanticRoute from "./components/semantic-route/semantic-route";
 
 const nodeColor = (node:Node) => {
   switch (node.type) {
@@ -513,7 +514,8 @@ const ExploreFlow = () => {
             <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
             <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
           </ReactFlow>
-          <div className="semantic-route">{semanticRoute.join(' / ')}</div>
+          <SemanticRoute route={semanticRoute} />
+          {/* <div className="semantic-route">{semanticRoute.join(' / ')}</div> */}
           <NodeToolkit 
             travellerMode={travellerMode}
             toggleTravellerMode={toggleTravellerMode}

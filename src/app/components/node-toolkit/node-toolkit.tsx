@@ -1,6 +1,6 @@
-import { Switch } from '@mui/material';
 import { useCallback } from 'react';
 import { useReactFlow } from 'reactflow';
+import { Switch } from 'antd';
 import { createChatNode } from '../../nodes/chat-node/chat-node.helper';
 import { ChatNodeData } from '../../nodes/chat-node/chat-node.model';
 import { ConceptNodeData } from '../../nodes/concept-node/concept-node.model';
