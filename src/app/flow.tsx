@@ -118,7 +118,7 @@ const ExploreFlow = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
-  const [travellerMode, setTravellerMode] = useState(false);
+  const [travellerMode, setTravellerMode] = useState(true);
   const connectingNodeId = useRef("");
 
   const zoomSelector = (s: any) => s.transform[2];
