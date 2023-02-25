@@ -1,3 +1,4 @@
+import { ConfigProvider } from 'antd';
 import { Component } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import './App.scss';
@@ -32,9 +33,17 @@ export default class App extends Component {
   render() {
     return (
       <div className='App'>
-        <ReactFlowProvider>
-          <ExploreFlow />
-        </ReactFlowProvider>
+        <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: '#3facff',
+            },
+          }}
+        >
+          <ReactFlowProvider>
+            <ExploreFlow />
+          </ReactFlowProvider>
+        </ConfigProvider>
       </div>
     )
   }

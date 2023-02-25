@@ -148,13 +148,6 @@ const ChatNode = (props: NodeProps) => {
       highlight.id = `highlight-${highlightIds.length}`;
       setHighlightIds(highlightIds.concat([highlight.id]));
 
-      // Event Listeners
-      // highlight.addEventListener('mouseenter', (event) => {
-      //   setCurrentHighlightId(highlight.id);
-      // })
-      // highlight.addEventListener('mouseleave', (event) => {
-      //   setCurrentHighlightId('');
-      // })
       highlight.addEventListener('click', (event) => {
         range.extractContents();
         range.insertNode(document.createTextNode(selectedText));

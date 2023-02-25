@@ -24,20 +24,21 @@
   }
 
   .topic-node-box:hover {
-    border: 2px solid #bbec68;
+    border: 2px solid #3c6792;
+    transform: scale(0.95);
   }
 
-  .current-instance {
-    background-color: #f3fae8;
-    border: 2px solid #bbec68;
+  .current-semantic-instance {
+    background-color: #ebeff2;
+    border: 2px solid #3c6792;
+  }
+
+  .was-semantic-instance {
+    border: 2px solid #a7bbce;
   }
 
 }
 
-// .topic-node.selected {
-//   border: 2px solid #3ab2ee;
+// .topic-node:hover {
+//   user-select: text;
 // }
-
-.topic-node:hover {
-  user-select: text;
-}

@@ -95,6 +95,14 @@ const TopicNode = (props: NodeProps) => {
     }
   }
 
+  const getInstanceStateClassName = (instanceState: InstanceState) => {
+    if (instanceState === InstanceState.CURRENT) {
+      return 'current-semantic-instance';
+    } else if (instanceState === InstanceState.WAS) {
+      return 'was-semantic-instance';
+    }
+  }
+
   return (
     <div
       className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}
@@ -111,7 +119,7 @@ const TopicNode = (props: NodeProps) => {
           <button onClick={onDetach}>Detach</button>
         </NodeToolbar>
       }
-      <div className={`node topic-node-box ${props.data.instanceState === InstanceState.CURRENT ? 'current-instance' : ''} `}>
+      <div className={`node topic-node-box ${getInstanceStateClassName(props.data.instanceState)} `}>
         <DragHandle className='drag-handle' />
         <div>{topic}</div>
       </div>

@@ -291,7 +291,7 @@ const ExploreFlow = () => {
               type: MarkerType.Arrow,
               width: 20,
               height: 20,
-              color: '#3ab2ee',
+              color: '#3facff',
             },
             type: 'traveller',
           }
