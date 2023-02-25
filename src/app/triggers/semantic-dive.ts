@@ -1,8 +1,12 @@
-import { Dispatch, SetStateAction } from "react";
-import { getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject } from "reactflow";
+import React, { Dispatch, SetStateAction } from "react";
+import { Node, Edge, getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject } from "reactflow";
 import { TypeTopicNode } from "../nodes/topic-node/topic-node.model";
 import { zoomLimits } from "../utils";
 
+export interface NodeEdgeSet {
+  nodeIds: Set<string>;
+  edgeIds: Set<string>;
+}
 
 export interface Instance {
   name: string;
@@ -10,7 +14,6 @@ export interface Instance {
   parent: string;
   children: string[];
   topicNode: TypeTopicNode | null;
-  instance: ReactFlowJsonObject | null;
   level: number;
 };
 
@@ -18,6 +21,47 @@ export enum InstanceState {
   none = 'NONE',          // Never was an instance state
   current = 'CURRENT',    // Is currently the instance state
   was = 'WAS',            // Has been the instance state
+}
+
+export const getInstanceFromTopicName = (reactFlowInstance: ReactFlowInstance, topicName: string): NodeEdgeSet => {
+  return {
+    nodeIds: new Set(reactFlowInstance.getNodes().filter(node => node.data.instanceTopicName === topicName).map(node => node.id)),
+    edgeIds: new Set(reactFlowInstance.getEdges().filter(edge => edge.data.instanceTopicName === topicName).map(edge => edge.id)),
+  }
+}
+
+export const storeShownNodesAndEdges = (reactFlowInstance: ReactFlowInstance, topicName: string) => {
+  // Save topic name into the node and hide it
+  reactFlowInstance.setNodes(nodes => nodes.map(node => {
+    if (!node.hidden) {
+      node.data.instanceTopicName = topicName;
+      node.hidden = true;
+    }
+    return node;
+  }));
+  reactFlowInstance.setEdges(edges => edges.map(edge => {
+    if (!edge.hidden) {
+      edge.data.instanceTopicName = topicName;
+      edge.hidden = true;
+    }
+    return edge;
+  }));
+}
+
+export const recoverNodesAndEdges = (reactFlowInstance: ReactFlowInstance, instance: NodeEdgeSet) => {
+  // Recover parent instance
+  reactFlowInstance.setNodes(nodes => nodes.map(node => {
+    if (instance.nodeIds.has(node.id)) {
+      node.hidden = false;
+    }
+    return node;
+  }));
+  reactFlowInstance.setEdges(edges => edges.map(edge => {
+    if (instance.nodeIds.has(edge.id)) {
+      edge.hidden = false;
+    }
+    return edge;
+  }));
 }
 
 /**
@@ -57,10 +101,9 @@ export const semanticDiveIn = (
       parent: currentTopic,
       children: [],
       topicNode: nodeMouseOver,
-      instance: null,
       level: instanceMap.get(currentTopic)?.level ?? 0 + 1,
     }
-  
+
     // Set original name
     if (topicName !== nodeMouseOver.data.topicName) {
       newInstance.originalName = nodeMouseOver.data.topicName;
@@ -70,16 +113,24 @@ export const semanticDiveIn = (
 
   // Save current instance state to the parent instance
   const currentInstance = instanceMap.get(currentTopic)!;
-  currentInstance.instance = reactFlowInstance.toObject();
+  currentInstance.children.push(topicName);
+
+  // TODO: Save the topic name when any node or edge gets created, instead of once dive is triggered
+  storeShownNodesAndEdges(reactFlowInstance, currentTopic);
+
+  // Topic node we carry in will be assigned the currentTopic (to become tied to parent)
+  reactFlowInstance.setNodes(nodes => nodes.map(node => {
+    if (node.id == nodeMouseOver.id) {
+      node.hidden = false;
+      node.data.instanceTopicName = currentTopic;
+    }
+    return node;
+  }));
 
   // Set topic as current instance
   nodeMouseOver.data.instanceState = InstanceState.current;
   setCurrentTopic(topicName);
   setSemanticRoute(semanticRoute.concat(topicName));
-
-  // Store all parent nodes and show new canvas
-  reactFlowInstance.setNodes([nodeMouseOver]);
-  reactFlowInstance.setEdges([]);
 
   // Transition into new canvas
   reactFlowInstance.zoomTo(0.8);
@@ -109,17 +160,28 @@ export const semanticDiveOut = (
   const parentInstance = instanceMap.get(currentInstance.parent);
 
   if (parentInstance) {
+
     // store current reactFlowInstance
-    currentInstance.instance = reactFlowInstance.toObject();
+    storeShownNodesAndEdges(reactFlowInstance, currentInstance.name);
+
+    // Topic node we carry in will be assigned the currentTopic (to become tied to parent)
+    reactFlowInstance.setNodes(nodes => nodes.map(node => {
+      if (node.id == currentInstance.topicNode?.id) {
+        node.hidden = false;
+        node.data.instanceTopicName = parentInstance.name;
+      }
+      return node;
+    }));
 
     // Set topic as parent topic
     currentInstance.topicNode!.data.instanceState = InstanceState.was;
     setCurrentTopic(parentInstance.name);
     setSemanticRoute(semanticRoute.slice(0, -1));
 
-    // recover parent reactFlowInstance
-    reactFlowInstance.setNodes(parentInstance.instance!.nodes);
-    reactFlowInstance.setEdges(parentInstance.instance!.edges);
+    // Recover parent instance
+    const instanceSet: NodeEdgeSet = getInstanceFromTopicName(reactFlowInstance, parentInstance.name);
+    console.log(instanceSet);
+    recoverNodesAndEdges(reactFlowInstance, instanceSet);
 
     // Transition
     reactFlowInstance.zoomTo(2);

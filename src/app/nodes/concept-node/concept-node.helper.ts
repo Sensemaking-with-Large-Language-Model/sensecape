@@ -32,6 +32,7 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
         id: `edge-travel-${uuid()}`,
         source: node.id,
         target: newNode.id,
+        data: {},
         hidden: !travellerMode,
         animated: true,
         markerEnd: {

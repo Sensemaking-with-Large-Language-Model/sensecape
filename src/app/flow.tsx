@@ -240,6 +240,7 @@ const ExploreFlow = () => {
           source: connectingNodeId.current,
           sourceHandle: "c",
           target: newNode.id,
+          data: {},
         };
 
         setNodes((nds) => nds.concat(newNode));
@@ -280,13 +281,14 @@ const ExploreFlow = () => {
           position,
           data,
         };
-        setNodes((nodes) => nodes.concat(newNode));
-        if (data.parentId) {
+        reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
+        if (data.chatNodeId) {
           // Add traveller edge
           let newEdge: Edge = {
             id: `edge-travel-${uuid()}`,
-            source: data.parentId,
+            source: data.chatNodeId,
             target: newNode.id,
+            data: {},
             hidden: !travellerMode,
             animated: true,
             markerEnd: {
@@ -297,7 +299,7 @@ const ExploreFlow = () => {
             },
             type: 'traveller',
           }
-          setEdges((edges) => edges.concat(newEdge));
+          reactFlowInstance.setEdges((edges) => edges.concat(newEdge));
         }
       }
     },
@@ -403,14 +405,16 @@ const ExploreFlow = () => {
     () => {
       setTravellerMode(!travellerMode);
       console.log(travellerMode);
-      if (!reactFlowInstance) return;
-      setEdges((edges) => edges.map(edge => {
-        // if edge is traveller, toggle hidden
-        if (edge.id.includes('edge-travel')) {
-          edge.hidden = travellerMode;
-        }
-        return edge;
-      }));
+      if (reactFlowInstance){
+        console.log(reactFlowInstance.getEdges());
+        reactFlowInstance.setEdges((edges) => edges.map(edge => {
+          // if edge is traveller, toggle hidden
+          if (edge.id.includes('edge-travel')) {
+            edge.hidden = travellerMode;
+          }
+          return edge;
+        }));
+      }
     },
     [reactFlowInstance, travellerMode]
   ) 
@@ -469,7 +473,7 @@ const ExploreFlow = () => {
       nodeMouseOver.type === 'topic' &&
       nodeMouseOver.data.instanceState !== InstanceState.current &&
       reactFlowInstance &&
-      zoom >= 3
+      zoom >= 6
     ) {
       semanticDiveIn(
         nodeMouseOver,
@@ -525,7 +529,7 @@ const ExploreFlow = () => {
             panOnDrag={panOnDrag}
             selectionMode={SelectionMode.Partial}
             minZoom={0.3}
-            maxZoom={3}
+            maxZoom={6}
             // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
             // maxZoom={Infinity} // otherwise, it might not be good to have this 
           >

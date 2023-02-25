@@ -6,6 +6,8 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
+const devMode: boolean = true;
+
 // Object that specifies max token length by response type
 export const tokens = {
   full: 256,
@@ -15,6 +17,10 @@ export const tokens = {
 }
 
 export const getGPT3Response = async (history: string, prompt: string) => {
+  if (devMode) {
+    return Promise.resolve("OpenAI can't take all my money");
+  }
+
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
   return await openai.createCompletion({
@@ -33,6 +39,9 @@ export const getGPT3Response = async (history: string, prompt: string) => {
 }
 
 export const getGPT3Stream = async (history: string, prompt: string) => {
+  if (devMode) {
+    return Promise.resolve("OpenAI can't take all my money");
+  }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
   return await openai.createCompletion({
@@ -54,6 +63,9 @@ export const getGPT3Stream = async (history: string, prompt: string) => {
 
 // Semantic Zoom: Summarize text if zoomed out medium amount
 export const getGPT3Summary = async (text: string) => {
+  if (devMode) {
+    return Promise.resolve("Boba for 1 dollar");
+  }
   // If text is as short as what we're asking, just return the text
   if (text.length <= tokens.summary) {
     return Promise.resolve(text);
@@ -78,6 +90,9 @@ export const getGPT3Summary = async (text: string) => {
 
 // Semantic Zoom: Summarize text if zoomed out large amount
 export const getGPT3Keywords = async (text: string) => {
+  if (devMode) {
+    return Promise.resolve("OpenAI rich enough");
+  }
   // If text is as short as what we're asking, just return the text
   if (text.length <= tokens.keywords) {
     return Promise.resolve(text);
@@ -101,6 +116,9 @@ export const getGPT3Keywords = async (text: string) => {
 }
 
 export const getGPT3Term = async (history: string, prompt: string) => {
+  if (devMode) {
+    return Promise.resolve("#save1dollar");
+  }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
   return await openai.createCompletion({
@@ -120,6 +138,9 @@ export const getGPT3Term = async (history: string, prompt: string) => {
 
 
 export const getTopics = async (prompt: string, concept: string) => {
+  if (devMode) {
+    return Promise.resolve("free text");
+  }
   const gptPrompt: string = `${prompt}\n\n`;
 
   return await openai.createCompletion({

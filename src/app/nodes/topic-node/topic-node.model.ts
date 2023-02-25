@@ -6,6 +6,7 @@ export interface TopicNodeData {
   chatReference: string;
   topicName: string;
   conceptId?: string;
+  instanceTopicName?: string;
   instanceState: InstanceState;
 };
 
