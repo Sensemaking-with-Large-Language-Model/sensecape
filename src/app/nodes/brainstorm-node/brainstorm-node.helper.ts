@@ -34,6 +34,7 @@ export const createBrainstormNode = (reactFlowInstance: ReactFlowInstance, sourc
       id: `e-${reactFlowInstance.getEdges().length}`,
       source: sourceId,
       target: newNode.id,
+      data: {},
     }
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);

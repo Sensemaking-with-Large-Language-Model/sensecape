@@ -28,26 +28,53 @@ type ChatState = {
 const zoomSelector = (s: any) => s.transform[2];
 
 const ChatNode = (props: NodeProps) => {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(props.data.state.input ?? '');
 
   // TODO: Combine 3 responses into one object
-  const [response, setResponse] = useState('');
-  const [summary, setSummary] = useState('');
-  const [keywords, setKeywords] = useState('');
+  const [response, setResponse] = useState(props.data.state.response ?? '');
+  const [summary, setSummary] = useState(props.data.state.summary ?? '');
+  const [keywords, setKeywords] = useState(props.data.state.keywords ?? '');
 
-  const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
-  const [highlightIds, setHighlightIds] = useState<string[]>([]);
+  const [responseInputState, setResponseInputState] = useState<ResponseState>(props.data.state.responseInputState ?? ResponseState.INPUT);
+  const [highlightIds, setHighlightIds] = useState<string[]>(props.data.state.highlightIds ?? []);
+
   const zoom: number = useStore(zoomSelector);
 
   const reactFlowInstance = useReactFlow();
 
+  useEffect(() => {
+    reactFlowInstance.setNodes((nodes) => nodes.map(node => {
+      if (node.id === props.id) {
+        node.data.state = {
+          input,
+          response,
+          summary,
+          keywords,
+          responseInputState,
+          highlightIds
+        };
+      }
+      return node;
+    }));
+  }, [reactFlowInstance, input, response, summary, keywords, responseInputState, highlightIds]);
+
+  useEffect(() => {
+    console.log(props.data.state.input, props.data.state.responseInputState)
+    // If a response is already given, don't take in any input.
+    if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
+      console.log('ready to create follow up!');
+      generateResponse(input);
+    }
+  }, []);
+
   const addChatFollowUpNode = useCallback(
     (input: string, response: string) => {
       const data: ChatNodeData = {
-        parentChatId: props.id,
+        parentId: props.id,
         chatReference: `${props.data.chatReference}\n\n${input}\n\n${response}\n\n`,
         // We want chat node to have no response yet, since the user will ask for a response
         placeholder: 'Ask a follow up question',
+        state: {},
       };
       createChatNode(reactFlowInstance, props.id, data);
     },
@@ -85,15 +112,6 @@ const ChatNode = (props: NodeProps) => {
     });
   }
 
-  useEffect(() => {
-    // If a response is already given, don't take in any input.
-    if (props.data.instantInput) {
-      console.log('ready to create follow up!');
-      setInput(props.data.instantInput);
-      generateResponse(props.data.instantInput);
-    }
-  }, []);
-
   // When a highlight is dragged out of text
   const onDragStart = (event: any, nodeType: string, topicName: string) => {
     event.dataTransfer.setData('dragNodeType', nodeType);
@@ -103,10 +121,12 @@ const ChatNode = (props: NodeProps) => {
       return;
     }
     const data = JSON.stringify({
-      chatNodeId: props.id,
+      parentId: props.id,
       chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
-      topicName,
-      instanceState: InstanceState.none,
+      instanceState: InstanceState.NONE,
+      state: {
+        topic: topicName
+      }
     } as TopicNodeData);
     console.log(data);
     event.dataTransfer.setData('dragNodeData', data);

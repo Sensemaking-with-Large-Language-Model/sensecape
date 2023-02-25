@@ -156,11 +156,29 @@ const ExploreFlow = () => {
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const [travellerMode, setTravellerMode] = useState(false);
   const connectingNodeId = useRef("");
-  // const [zoomLimits, setZoomLimits] = useState({);
 
-  // useLayout();
-  
-  
+  const zoomSelector = (s: any) => s.transform[2];
+  const zoom: number = useStore(zoomSelector);
+  const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
+
+  // String name of the current instance
+  const [currentTopic, setCurrentTopic] = useState<string>('home');
+
+  // Map of list of instances with the same topic name
+  const [similarInstances, setSimilarInstances] = useState<Map<string, string[]>>(new Map());
+  const [instanceMap, setInstanceMap] = useState<Map<string, Instance>>(new Map([[currentTopic, {
+    name: currentTopic,
+    parent: '',
+    children: [],
+    topicNode: null,
+    jsonObject: {
+      nodes: [],
+      edges: [],
+    },
+    level: 0,
+  }]]));
+  const [semanticRoute, setSemanticRoute] = useState(['home']);
+
   // show minimap only when there is more than one node
   // showing minimap when there is no node or only one node is perceived as clutter (NOTE: user feedback)
   useEffect(() => {
@@ -282,11 +300,11 @@ const ExploreFlow = () => {
           data,
         };
         reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
-        if (data.chatNodeId) {
+        if (data.parentId) {
           // Add traveller edge
           let newEdge: Edge = {
             id: `edge-travel-${uuid()}`,
-            source: data.chatNodeId,
+            source: data.parentId,
             target: newNode.id,
             data: {},
             hidden: !travellerMode,
@@ -409,7 +427,7 @@ const ExploreFlow = () => {
         console.log(reactFlowInstance.getEdges());
         reactFlowInstance.setEdges((edges) => edges.map(edge => {
           // if edge is traveller, toggle hidden
-          if (edge.id.includes('edge-travel')) {
+          if (edge.id.includes('edge-travel') && edge.data?.instanceTopicName === currentTopic) {
             edge.hidden = travellerMode;
           }
           return edge;
@@ -448,30 +466,11 @@ const ExploreFlow = () => {
     };
   }, [reactFlowInstance]);
 
-  const zoomSelector = (s: any) => s.transform[2];
-  const zoom: number = useStore(zoomSelector);
-  const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
-
-  // String name of the current instance
-  const [currentTopic, setCurrentTopic] = useState<string>('home');
-
-  // Map of list of instances with the same topic name
-  const [similarInstances, setSimilarInstances] = useState<Map<string, string[]>>(new Map());
-  const [instanceMap, setInstanceMap] = useState<Map<string, Instance>>(new Map([[currentTopic, {
-    name: currentTopic,
-    parent: '',
-    children: [],
-    topicNode: null,
-    instance: null,
-    level: 0,
-  }]]));
-  const [semanticRoute, setSemanticRoute] = useState(['home']);
-
   useEffect(() => {
     if (
       nodeMouseOver &&
       nodeMouseOver.type === 'topic' &&
-      nodeMouseOver.data.instanceState !== InstanceState.current &&
+      nodeMouseOver.data.instanceState !== InstanceState.CURRENT &&
       reactFlowInstance &&
       zoom >= 6
     ) {

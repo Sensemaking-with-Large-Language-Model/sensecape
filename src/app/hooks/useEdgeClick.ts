@@ -40,6 +40,7 @@ function useEdgeClick(id: EdgeProps['id']) {
       source: edge.source,
       target: insertNodeId,
       type: 'workflow',
+      data: {},
     };
 
     // new connection from new node to target
@@ -48,6 +49,7 @@ function useEdgeClick(id: EdgeProps['id']) {
       source: insertNodeId,
       target: edge.target,
       type: 'workflow',
+      data: {},
     };
 
     // remove the edge that was clicked as we have a new connection with a node inbetween

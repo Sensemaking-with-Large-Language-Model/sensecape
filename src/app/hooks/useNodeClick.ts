@@ -102,6 +102,7 @@ export function useNodeClick(id: NodeProps['id']) {
       source: parentNode.id,
       target: childNodeId,
       type: 'workflow',
+      data: {},
     };
 
     // we need to create a connection from child to our placeholder
@@ -110,6 +111,7 @@ export function useNodeClick(id: NodeProps['id']) {
       source: childNodeId,
       target: childPlaceholderId,
       type: 'placeholder',
+      data: {},
     };
 
     // if the clicked node has had any placeholders as children, we remove them because it will get a child now

@@ -1,10 +1,18 @@
 import { Node } from 'reactflow';
+import { ResponseState } from '../../components/input.model';
 
 export interface ChatNodeData {
-  parentChatId: string;
+  parentId: string;
   chatReference: string;
   placeholder: string;        // If no response yet, use placeholder
-  instantInput?: string;       // If instant input exists, instantly generate response
+  state: {
+    input?: string;
+    response?: string;
+    summary?: string;
+    keywords?: string;
+    responseInputState?: ResponseState;
+    highlightIds?: string[];
+  }
 };
 
 // Reference to a ChatNode's input and response

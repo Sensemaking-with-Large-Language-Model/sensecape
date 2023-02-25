@@ -17,6 +17,7 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
     };
     const data: ConceptNodeData = {
       topicNodes,
+      state: {},
     }
     const newNode: TypeConceptNode = {
       id: `chat-${uuid()}`,

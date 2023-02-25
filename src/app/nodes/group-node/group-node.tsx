@@ -52,11 +52,14 @@ function GroupNode(props: any) {
   const addInstantChatNode = useCallback(
     (input: string) => {
       const data: ChatNodeData = {
-        parentChatId: props.id,
+        parentId: props.id,
         chatReference: `${props.data.chatReference}\n\nFocusing on ${topics}:\n\n`,
         // We want chat node to already show a response
         placeholder: '',
-        instantInput: input,
+        state: {
+          input,
+          responseInputState: ResponseState.LOADING
+        }
       };
       createChatNode(reactFlowInstance, props.id, data);
     },
