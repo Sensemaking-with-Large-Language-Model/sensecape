@@ -4,7 +4,7 @@ import { getEdgeParams } from './traveller-edge.helper';
 
 import './traveller-edge.scss';
 
-function TravellerEdge({ id, source, target, markerEnd, style }: any) {
+function TravellerEdge({ id, source, target, markerEnd, style, data }: any) {
   const sourceNode = useStore(useCallback((store) => store.nodeInternals.get(source), [source]));
   const targetNode = useStore(useCallback((store) => store.nodeInternals.get(target), [target]));
 

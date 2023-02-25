@@ -20,7 +20,7 @@ const GPTInput = (props: any) => {
     if (sourceNode) {
       reactFlowInstance.fitView({
         duration: 900,
-        padding: 2,
+        padding: 1,
         maxZoom: zoomLimits.max,
         minZoom: zoomLimits.min,
         nodes: [sourceNode]

@@ -42,29 +42,39 @@ type ConceptNodeState = {
 };
 
 const ConceptNode = (props: NodeProps) => {
-  const [responseState, setResponseState] = useState(ResponseState.INPUT);
-  const [concept, setConcept] = useState("");
-  const [input, setInput] = useState("");
-  const [responseInputState, setResponseInputState] = useState<ResponseState>(
-    ResponseState.INPUT
-  );
+  const [responseSelfState, setResponseSelfState] = useState(props.data.state.responseSelfState ?? ResponseState.INPUT);
+  const [responseInputState, setResponseInputState] = useState(props.data.state.responseInputState ?? ResponseState.INPUT);
+  const [concept, setConcept] = useState(props.data.state.concept ?? "");
+  const [input, setInput] = useState(props.data.state.input ?? "");
   const [lowLevelTopics, setLowLevelTopics] = useState<string[]>([]);
   const [highLevelTopics, setHighLevelTopics] = useState<string[]>([]);
-  // const [lateralRightTopics, setlateralRightTopics] = useState<string[]>([]);
-  // const [lateralLeftTopics, setlateralLeftTopics] = useState<string[]>([]);
 
   const reactFlowInstance = useReactFlow();
+
+  useEffect(() => {
+    reactFlowInstance.setNodes(nodes => nodes.map(node => {
+      if (node.id === props.id) {
+        node.data.state = {
+          responseSelfState,
+          responseInputState,
+          concept,
+          input
+        }
+      }
+      return node;
+    }))
+  }, [reactFlowInstance])
 
   const generateConceptFromTopics = async (context: string, prompt: string) => {
     if (!prompt) return;
 
-    setResponseState(ResponseState.LOADING);
+    setResponseSelfState(ResponseState.LOADING);
 
     const response =
       (await getGPT3Term(context, prompt)) || "Error: no response received";
 
     setConcept(response);
-    setResponseState(ResponseState.COMPLETE);
+    setResponseSelfState(ResponseState.COMPLETE);
   };
 
   // When concept node renders, gpt3 is called
@@ -74,7 +84,7 @@ const ConceptNode = (props: NodeProps) => {
       const conceptContext = "";
       // const conceptContext = props.data.topicNodes.join('\n\n')
       const prompt = `${props.data.topicNodes
-        .map((node: TypeTopicNode) => node.data.topicName)
+        .map((node: TypeTopicNode) => node.data.state.topic)
         .join(", ")}\n\n
         What is the overarching concept? (1-3 words)`;
       generateConceptFromTopics(conceptContext, prompt);
@@ -83,7 +93,7 @@ const ConceptNode = (props: NodeProps) => {
 
   const calluseNodeClick = useNodeClick(props.id);
 
-  if (responseState === ResponseState.INPUT) {
+  if (responseSelfState === ResponseState.INPUT) {
     return (
       // <div className="concept-node"
       //   onBlur={() => setResponseState(ResponseState.COMPLETE)}
@@ -154,7 +164,7 @@ const ConceptNode = (props: NodeProps) => {
         />
       </div>
     );
-  } else if (responseState === ResponseState.LOADING) {
+  } else if (responseSelfState === ResponseState.LOADING) {
     return (<div className="concept-node">
       <Handle type="target" position={Position.Left} className="node-handle-direct"/>
       Generating concept...
@@ -163,7 +173,7 @@ const ConceptNode = (props: NodeProps) => {
     return (
       <div
         className="concept-node"
-        onClick={() => setResponseState(ResponseState.INPUT)}
+        onClick={() => setResponseSelfState(ResponseState.INPUT)}
       >
         <Handle type="target" position={Position.Left} className="node-handle-direct"/>
         {concept || "Enter concept"}

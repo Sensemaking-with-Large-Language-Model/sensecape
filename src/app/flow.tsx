@@ -43,7 +43,7 @@ import MemoNode from "./nodes/memo-node/memo-node";
 import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
 import { CreativeNode } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
-import { TypeTopicNode } from "./nodes/topic-node/topic-node.model";
+import { TopicNodeData, TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 import useLayout from "./hooks/useLayout";
 import useAutoLayout, { Direction } from './hooks/useAutoLayout';
 import SubTopicNode from "./nodes/concept-node/subtopic-node/subtopic-node";
@@ -85,46 +85,9 @@ const nodeColor = (node:Node) => {
   }
 };
 
-const initialNodes: Node[] = [
-  // {
-  //   id: "chat-0",
-  //   type: "chat",
-  //   dragHandle: '.drag-handle',
-  //   data: {
-  //     parentChatId: '',
-  //     chatReference: '',
-  //     placeholder: 'Ask GPT-3'
-  //   },
-  //   position: { x: 250, y: 200 }
-  // }
-];
+const initialNodes: Node[] = [];
 
 const initialEdges: Edge[] = [];
-
-// const initialNodes: Node[] = [
-//   {
-//     id: '1',
-//     data: { label: 'Human Computer Interaction' },
-//     position: { x: 0, y: 0 },
-//     type: 'workflow',
-//   },
-//   {
-//     id: '2',
-//     data: { label: '+' },
-//     position: { x: 0, y: 150 },
-//     type: 'placeholder',
-//   },
-// ];
-
-// // initial setup: connect the workflow node to the placeholder node with a placeholder edge
-// const initialEdges: Edge[] = [
-//   {
-//     id: '1=>2',
-//     source: '1',
-//     target: '2',
-//     type: 'placeholder',
-//   },
-// ];
 
 const proOptions = { account: "paid-pro", hideAttribution: true };
 
@@ -156,11 +119,43 @@ const ExploreFlow = () => {
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const [travellerMode, setTravellerMode] = useState(false);
   const connectingNodeId = useRef("");
-  // const [zoomLimits, setZoomLimits] = useState({);
 
-  // useLayout();
-  
-  
+  const zoomSelector = (s: any) => s.transform[2];
+  const zoom: number = useStore(zoomSelector);
+  const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
+
+  const homeTopicNode: TypeTopicNode = {
+    id: 'topic-home',
+    type: 'topic',
+    dragHandle: '.drag-handle',
+    data: {
+      parentId: '',
+      chatReference: '',
+      instanceState: InstanceState.NONE, // To temporarily disable dive out of home
+      state: {
+        topic: 'home'
+      }
+    } as TopicNodeData,
+    position: { x: 0, y: 0 }
+  }
+
+  // Topic Node Id of the current instance
+  const [currentTopicId, setCurrentTopicId] = useState<string>(homeTopicNode.id);
+
+  // Maps topicNodeId to Instance
+  const [instanceMap, setInstanceMap] = useState<Map<string, Instance>>(new Map([[currentTopicId, {
+    name: 'home',
+    parentId: '',
+    children: [],
+    topicNode: homeTopicNode,
+    jsonObject: {
+      nodes: [],
+      edges: [],
+    },
+    level: -1,
+  }]]));
+  const [semanticRoute, setSemanticRoute] = useState(['home']);
+
   // show minimap only when there is more than one node
   // showing minimap when there is no node or only one node is perceived as clutter (NOTE: user feedback)
   useEffect(() => {
@@ -240,6 +235,7 @@ const ExploreFlow = () => {
           source: connectingNodeId.current,
           sourceHandle: "c",
           target: newNode.id,
+          data: {},
         };
 
         setNodes((nds) => nds.concat(newNode));
@@ -280,13 +276,14 @@ const ExploreFlow = () => {
           position,
           data,
         };
-        setNodes((nodes) => nodes.concat(newNode));
+        reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
         if (data.parentId) {
           // Add traveller edge
           let newEdge: Edge = {
             id: `edge-travel-${uuid()}`,
             source: data.parentId,
             target: newNode.id,
+            data: {},
             hidden: !travellerMode,
             animated: true,
             markerEnd: {
@@ -297,7 +294,7 @@ const ExploreFlow = () => {
             },
             type: 'traveller',
           }
-          setEdges((edges) => edges.concat(newEdge));
+          reactFlowInstance.setEdges((edges) => edges.concat(newEdge));
         }
       }
     },
@@ -403,14 +400,16 @@ const ExploreFlow = () => {
     () => {
       setTravellerMode(!travellerMode);
       console.log(travellerMode);
-      if (!reactFlowInstance) return;
-      setEdges((edges) => edges.map(edge => {
-        // if edge is traveller, toggle hidden
-        if (edge.id.includes('edge-travel')) {
-          edge.hidden = travellerMode;
-        }
-        return edge;
-      }));
+      if (reactFlowInstance){
+        console.log(reactFlowInstance.getEdges());
+        reactFlowInstance.setEdges((edges) => edges.map(edge => {
+          // if edge is traveller, toggle hidden
+          if (edge.id.includes('edge-travel')) {
+            edge.hidden = travellerMode;
+          }
+          return edge;
+        }));
+      }
     },
     [reactFlowInstance, travellerMode]
   ) 
@@ -444,38 +443,18 @@ const ExploreFlow = () => {
     };
   }, [reactFlowInstance]);
 
-  const zoomSelector = (s: any) => s.transform[2];
-  const zoom: number = useStore(zoomSelector);
-  const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
-
-  // String name of the current instance
-  const [currentTopic, setCurrentTopic] = useState<string>('home');
-
-  // Map of list of instances with the same topic name
-  const [similarInstances, setSimilarInstances] = useState<Map<string, string[]>>(new Map());
-  const [instanceMap, setInstanceMap] = useState<Map<string, Instance>>(new Map([[currentTopic, {
-    name: currentTopic,
-    parent: '',
-    children: [],
-    topicNode: null,
-    instance: null,
-    level: 0,
-  }]]));
-  const [semanticRoute, setSemanticRoute] = useState(['home']);
-
   useEffect(() => {
     if (
       nodeMouseOver &&
       nodeMouseOver.type === 'topic' &&
-      nodeMouseOver.data.instanceState !== InstanceState.current &&
+      nodeMouseOver.data.instanceState !== InstanceState.CURRENT &&
       reactFlowInstance &&
-      zoom >= 3
+      zoom >= 6
     ) {
       semanticDiveIn(
         nodeMouseOver,
-        similarInstances,
         [instanceMap, setInstanceMap],
-        [currentTopic, setCurrentTopic],
+        [currentTopicId, setCurrentTopicId],
         [semanticRoute, setSemanticRoute],
         reactFlowInstance
       );
@@ -485,12 +464,12 @@ const ExploreFlow = () => {
     ) {
       semanticDiveOut(
         instanceMap,
-        [currentTopic, setCurrentTopic],
+        [currentTopicId, setCurrentTopicId],
         [semanticRoute, setSemanticRoute],
         reactFlowInstance
       );
     }
-  }, [zoom, reactFlowInstance, nodeMouseOver, currentTopic, instanceMap, semanticRoute]);
+  }, [zoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
 
   return (
     <div className="explore-flow">
@@ -525,15 +504,16 @@ const ExploreFlow = () => {
             panOnDrag={panOnDrag}
             selectionMode={SelectionMode.Partial}
             minZoom={0.3}
-            maxZoom={3}
+            maxZoom={6}
             // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
             // maxZoom={Infinity} // otherwise, it might not be good to have this 
           >
-          <div className="semantic-route">{semanticRoute.join(' / ')}</div>
+          
             <Background />
             <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
             <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
           </ReactFlow>
+          <div className="semantic-route">{semanticRoute.join(' / ')}</div>
           <NodeToolkit 
             travellerMode={travellerMode}
             toggleTravellerMode={toggleTravellerMode}

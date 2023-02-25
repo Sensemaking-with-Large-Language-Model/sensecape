@@ -15,11 +15,9 @@ import { getGPT3Questions } from "../../../api/openai-api"
 const zoomSelector = (s: any) => s.transform[2];
 
 const TopicNode = (props: NodeProps) => {
-  const [topic, setTopic] = useState(props.data.topicName);
-  const [responseInputState, setResponseInputState] = useState<ResponseState>(ResponseState.INPUT);
-  const [tooltipAvailable, setTooltipAvailable] = useState(true);
-  const [toolbarViewState, setToolbarViewState] = useState(InputHoverState.OUT);
-  const [handleStyle, setHandleStyle] = useState<any>({ left: 0, top: 0 });
+  const [topic, setTopic] = useState(props.data.state.topic ?? '');
+  const [tooltipAvailable, setTooltipAvailable] = useState(props.data.state.tooltipAvailable ?? true);
+  const [toolbarViewState, setToolbarViewState] = useState(props.data.state.toolbarViewState ?? InputHoverState.OUT);
   const zoom: number = useStore(zoomSelector);
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -32,14 +30,30 @@ const TopicNode = (props: NodeProps) => {
   const onDelete = () => reactFlowInstance.deleteElements({ nodes: [{ id: props.id }] });
   const onDetach = () => detachNodes([props.id]);
 
+  useEffect(() => {
+    reactFlowInstance.setNodes(nodes => nodes.map(node => {
+      if (node.id === props.id) {
+        node.data.state = {
+          topic,
+          tooltipAvailable,
+          toolbarViewState,
+        }
+      }
+      return node;
+    }))
+  }, [reactFlowInstance, topic, tooltipAvailable, toolbarViewState]);
+
   const addInstantChatNode = useCallback(
     (input: string) => {
       const data: ChatNodeData = {
-        parentChatId: props.id,
+        parentId: props.id,
         chatReference: `${props.data.chatReference}\n\nFocusing on ${topic}:\n\n`,
         // We want chat node to already show a response
         placeholder: '',
-        instantInput: input,
+        state: {
+          input,
+          responseInputState: ResponseState.LOADING,
+        }
       };
       createChatNode(reactFlowInstance, props.id, data);
     },
@@ -97,7 +111,7 @@ const TopicNode = (props: NodeProps) => {
           <button onClick={onDetach}>Detach</button>
         </NodeToolbar>
       }
-      <div className={`node topic-node-box ${props.data.instanceState === InstanceState.current ? 'current-instance' : ''} `}>
+      <div className={`node topic-node-box ${props.data.instanceState === InstanceState.CURRENT ? 'current-instance' : ''} `}>
         <DragHandle className='drag-handle' />
         <div>{topic}</div>
       </div>
@@ -106,7 +120,7 @@ const TopicNode = (props: NodeProps) => {
         <NodeToolbar isVisible={toolbarViewState !== InputHoverState.OUT} position={Position.Bottom}>
           <ExpandToolbar
             sourceId={props.id}
-            responseState={responseInputState}
+            responseState={ResponseState.INPUT}
             generateResponse={generateResponse}
             generateQuestions={generateQuestions}
             setInputState={setToolbarViewState}

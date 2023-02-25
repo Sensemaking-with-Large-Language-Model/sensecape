@@ -5,6 +5,7 @@ import {
 import { QuestionNodeData } from "./question-node.model";
 import { createChatNode, createChatNodeFromDiv } from "../chat-node/chat-node.helper";
 import { ChatNodeData } from "../chat-node/chat-node.model";
+import { ResponseState } from "../../components/input.model";
 
 
 export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeData) => {
@@ -12,14 +13,14 @@ export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeDat
   const reactFlowInstance = useReactFlow();
 
   const handleClick = (event: any) => {
-
-    console.log(event);
-    console.log(event.target.id);
     const data:ChatNodeData = {  
-      parentChatId: '',
+      parentId: '',
       chatReference: '',
       placeholder: '',        // If no response yet, use placeholder
-      instantInput: props.question,
+      state: {
+        input: props.question,
+        responseInputState: ResponseState.LOADING,
+      }
     }
     // createChatNode(reactFlowInstance, '', data);
     createChatNodeFromDiv(reactFlowInstance, event, data);

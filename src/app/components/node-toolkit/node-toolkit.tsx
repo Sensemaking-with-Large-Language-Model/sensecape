@@ -14,9 +14,10 @@ const NodeToolkit = (props: any) => {
   const addChatNode = useCallback(
     () => {
       const data: ChatNodeData = {
-        parentChatId: '',
+        parentId: '',
         chatReference: '',
         placeholder: 'Ask GPT-3',
+        state: {},
       }
       createChatNode(reactFlowInstance, '', data);
     },
@@ -32,17 +33,20 @@ const NodeToolkit = (props: any) => {
         parentId: '',
         chatReference: '',
         placeholder: 'Brainstorm',
+        state: {},
       };
     } else if (nodeType === 'chat') {
       data = {
         parentId: '',
         chatReference: '',
         placeholder: 'Ask GPT-3',
-      };
+        state: {},
+      } as ChatNodeData;
     } else if (nodeType === 'concept') {
       data = {
         label: '',
         topicNodes: [],
+        state: {},
       };
     }
      else if (nodeType === 'concept-from-topic') {

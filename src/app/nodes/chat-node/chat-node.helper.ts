@@ -40,6 +40,7 @@ export const createChatNode = (
       id: `e-${uuid()}`,
       source: sourceId,
       target: newNode.id,
+      data: {},
     };
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);

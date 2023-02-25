@@ -17,6 +17,7 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
     };
     const data: ConceptNodeData = {
       topicNodes,
+      state: {},
     }
     const newNode: TypeConceptNode = {
       id: `chat-${uuid()}`,
@@ -32,6 +33,7 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
         id: `edge-travel-${uuid()}`,
         source: node.id,
         target: newNode.id,
+        data: {},
         hidden: !travellerMode,
         animated: true,
         markerEnd: {

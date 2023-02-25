@@ -34,6 +34,7 @@ export function usePlaceholderClick(id: NodeProps['id']) {
       source: parentNode.id,
       target: childPlaceholderId,
       type: 'placeholder',
+      data: {},
     };
 
     setNodes((nodes) =>
