@@ -175,6 +175,9 @@ export const getTopics = async (prompt: string, concept: string) => {
 }
 
 export const getGPT3Questions = async (concept: string) => {
+  if (devMode) {
+    return Promise.resolve(["placeholder questions",{'why':['placeholder question'], 'what':['placeholder question'], 'when':['placeholder question'], 'where':['placeholder question'], 'how':['placeholder question']}]);
+  }
   const prompt = 'I need to learn about ' + concept + `. Give me a total of 25 questions, 
   with questions starting with "why", 5 questions starting with "when", 
   5 questions starting with "where", 5 questions starting with "how", 
