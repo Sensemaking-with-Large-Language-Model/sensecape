@@ -1,7 +1,11 @@
 import { uuid } from "../utils";
+import { useContext } from "react";
 import { ReactFlowInstance, MarkerType } from "reactflow";
 import { getTopics } from "../../api/openai-api";
 import { ResponseState } from "../components/input.model";
+
+const devMode: boolean = true;
+const verbose: boolean = false;
 
 const extendConcept = async (
   reactFlowInstance: ReactFlowInstance,
@@ -9,7 +13,6 @@ const extendConcept = async (
   pos: string,
   concept: string,
   conceptnode: boolean = true,
-  testing: boolean = true, 
   setResponseState?: Function,
 ) => {
   const parentNode = reactFlowInstance.getNode(id);
@@ -18,6 +21,13 @@ const extendConcept = async (
     return;
   }
 
+  console.log('=====');
+  console.log('concept', concept);
+  console.log('=====');
+
+  if (setResponseState) {
+    setResponseState(ResponseState.LOADING);
+  }
   let prompt = "";
   let sourceHandleId = "";
   let targetHandleId = "";
@@ -92,8 +102,7 @@ const extendConcept = async (
   }
 
   let topics: string[] | any;
-  console.log("prompt", prompt);
-  if (testing) {
+  if (devMode) {
     topics = [
       "Human Resources Management",
       "Financial Management",
@@ -110,10 +119,9 @@ const extendConcept = async (
   const childNodeId = uuid();
 
   // const parentNodeLabel = parentNode.data['label'];
-  console.log("topics:", topics);
+  if (verbose) {console.log('topics', topics)}
 
   // create the child node
-  console.log("nodeType", nodeType);
   const childNode = {
     id: childNodeId,
     // we try to place the child node close to the calculated position from the layout algorithm
@@ -139,9 +147,12 @@ const extendConcept = async (
 
   reactFlowInstance.addNodes(childNode);
   reactFlowInstance.addEdges(childEdge);
+
   if (setResponseState) {
     setResponseState(ResponseState.COMPLETE);
   }
+
+  return [childNode, childEdge];
 };
 
 export default extendConcept;
