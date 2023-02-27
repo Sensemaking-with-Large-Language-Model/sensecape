@@ -18,11 +18,15 @@ export const createConceptNode = (reactFlowInstance: ReactFlowInstance, topicNod
     const data: ConceptNodeData = {
       topicNodes,
       state: {},
+      width: 150,
+      height: 100,
     }
     const newNode: TypeConceptNode = {
       id: `chat-${uuid()}`,
       type: 'concept',
       position,
+      width: 150,
+      height: 100,
       data,
     }
     reactFlowInstance.addNodes(newNode);

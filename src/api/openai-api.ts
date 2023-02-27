@@ -245,9 +245,11 @@ export const extendConcept = async (
     return;
   }
 
-  console.log('=====');
-  console.log('concept', concept);
-  console.log('=====');
+  if (verbose) { 
+    console.log('=====');
+    console.log('concept', concept);
+    console.log('=====');
+  }
 
   if (setResponseState) {
     setResponseState(ResponseState.LOADING);
@@ -267,7 +269,7 @@ export const extendConcept = async (
     prompt = "Give me 5 higher level topics of " + concept;
     sourceHandleId = "a";
     targetHandleId = "b";
-    edgeLabel = "upper-level topic";
+    // edgeLabel = "upper-level topic";
     if (conceptnode) {
       newNodePosition = {
         x: parentNode.position.x - 50,
@@ -285,7 +287,7 @@ export const extendConcept = async (
     prompt = "Give me 5 lower level topics of " + concept;
     sourceHandleId = "b";
     targetHandleId = "a";
-    edgeLabel = "lower-level topic";
+    // edgeLabel = "lower-level topic";
     if (conceptnode) {
       newNodePosition = {
         x: parentNode.position.x - 50,
@@ -351,7 +353,10 @@ export const extendConcept = async (
     // we try to place the child node close to the calculated position from the layout algorithm
     // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
     position: newNodePosition!,
-    type: nodeType,
+    type: 'default',
+    // width: 150,
+    // height: 50,
+    // type: nodeType,
     // data: { label: randomLabel() },
     data: { label: topics[Math.floor((Math.random() * 10) % 5)] },
   };
@@ -360,13 +365,14 @@ export const extendConcept = async (
     id: `${parentNode.id}=>${childNodeId}`,
     source: parentNode.id,
     target: childNodeId,
-    label: edgeLabel,
-    sourceHandle: sourceHandleId,
-    targetHandle: targetHandleId,
-    type: "step",
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-    },
+    // label: edgeLabel,
+    // sourceHandle: sourceHandleId,
+    // targetHandle: targetHandleId,
+    type: "default",
+    // type: "step",
+    // markerEnd: {
+    //   type: MarkerType.ArrowClosed,
+    // },
   };
 
   reactFlowInstance.addNodes(childNode);

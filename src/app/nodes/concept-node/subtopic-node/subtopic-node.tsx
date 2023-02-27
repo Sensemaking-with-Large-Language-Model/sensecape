@@ -1,6 +1,6 @@
 import { NodeProps, Handle, Position, useReactFlow, useStore } from "reactflow";
 import { ReactComponent as DragHandle } from "../../../assets/drag-handle.svg";
-import extendConcept from "../../../hooks/useExtendConcept";
+import { extendConcept } from "../../../../api/openai-api";
 import "./subtopic-node.scss";
 // import cx from 'classnames';
 // import styles from 'subtopic-node.module.scss';
