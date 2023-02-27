@@ -5,7 +5,7 @@ import loadingDots from "../../assets/loading.gif";
 import { uuid, zoomLimits } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
 import { ZoomState } from "../../nodes/node.model";
-import extendConcept from "../../hooks/useExtendConcept";
+import { extendConcept } from "../../../api/openai-api";
 import { ResponseState } from "../input.model";
 
 const zoomSelector = (s: any) => s.transform[2];
@@ -56,13 +56,13 @@ const ConceptInput = (props: any) => {
             "bottom",
             props.input.trim(),
             true,
-            // props.setResponseInputState
+            props.setResponseInputState
           );
         }}
       >
         <input
           id="text"
-          className="concept-input"
+          className="brainstorm-input"
           // className={`${currentZoomState()}`}
           name="text"
           type="text"
@@ -80,8 +80,7 @@ const ConceptInput = (props: any) => {
               props.id,
               "bottom",
               props.input.trim(),
-              true,
-              // props.setResponseInputState
+              props.setResponseInputState
             );
           }}
           type="button"

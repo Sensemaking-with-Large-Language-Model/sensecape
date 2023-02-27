@@ -6,7 +6,6 @@ import { ResponseState } from "../input.model";
 import { uuid, zoomLimits } from "../../utils";
 import { getTopics } from "../../../api/openai-api";
 import { ZoomState } from "../../nodes/node.model";
-import extendConcept from "../../hooks/useExtendConcept";
 
 const zoomSelector = (s: any) => s.transform[2];
 
