@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, createContext } from "react";
 import ReactFlow, {
   Node,
   addEdge,
@@ -63,6 +63,11 @@ import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/ques
 import { uuid } from "./utils";
 import { Instance, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
+// import { FlowContext } from './FlowContext';
+import { FlowContext } from "./flow.model";
+import { stratify, tree } from 'd3-hierarchy';
+
+const verbose: boolean = true;
 
 const nodeColor = (node:Node) => {
   switch (node.type) {
@@ -90,6 +95,63 @@ const initialNodes: Node[] = [];
 
 const initialEdges: Edge[] = [];
 
+// const initialNodes: Node[] = [
+//   {
+//     id: '1',
+//     data: { label: 'Human Computer Interaction', topicNodes: [], state: {} },
+//     position: { x: 0, y: 0 },
+//     type: 'default',
+//   },
+//   {
+//     id: '2',
+//     data: { label: 'Child', topicNodes: [], state: {} },
+//     position: { x: 0, y: 150 },
+//     type: 'default',
+//   },
+//   {
+//     id: '3',
+//     data: { label: 'UX/UI', topicNodes: [], state: {} },
+//     position: { x: 50, y: 150 },
+//     type: 'default',
+//   },
+// ];
+
+// // initial setup: connect the workflow node to the placeholder node with a placeholder edge
+// const initialEdges: Edge[] = [
+//   {
+//     id: '1=>2',
+//     source: '1',
+//     target: '2',
+//     // sourceHandle: 'b',
+//     type: 'default',
+//   },
+//   {
+//     id: '2=>3',
+//     source: '2',
+//     target: '3',
+//     type: 'default',
+//   },
+// ];
+
+// const initialNodes: Node[] = [
+//   {
+//     id: '1',
+//     // data: { label: '🌮 Taco' },
+//     // data: { label: 'Cell' },
+//     // data: { label: 'Structure Engineering' },
+//     // data: { label: 'San Diego' },
+//     data: { label: 'Human Computer Interaction' },
+//     position: { x: 0, y: 0 },
+//     type: 'workflow',
+//   },
+//   {
+//     id: '2',
+//     data: { label: '+' },
+//     position: { x: 0, y: 150 },
+//     type: 'placeholder',
+//   },
+// ];
+
 const proOptions = { account: "paid-pro", hideAttribution: true };
 
 const fitViewOptions = {
@@ -111,6 +173,7 @@ const nodeTypes: NodeTypes = {
   group: GroupNode,
 };
 
+
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -120,6 +183,12 @@ const ExploreFlow = () => {
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const [travellerMode, setTravellerMode] = useState(true);
   const connectingNodeId = useRef("");
+
+  const [numOfConceptNodes, setNumOfConceptNodes] = useState(0);
+  const [conceptNodes, setConceptNodes] = useState([]);
+  const [conceptEdges, setConceptEdges] = useState([]);
+
+  // useLayout();
 
   const zoomSelector = (s: any) => s.transform[2];
   const zoom: number = useStore(zoomSelector);
@@ -190,7 +259,6 @@ const ExploreFlow = () => {
   );
 
   const onConnectStart = useCallback((_: any, { nodeId }: any) => {
-    // console.log('onConnectStart');
     connectingNodeId.current = nodeId;
   }, []);
 
@@ -473,55 +541,59 @@ const ExploreFlow = () => {
   }, [zoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
 
   return (
-    <div className="explore-flow">
-        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-          {/* <button onClick={semanticDive}>Semantic Dive</button> */}
-          <ReactFlow
-            proOptions={proOptions}
-            nodes={nodes}
-            edges={edges}
-            fitView
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            connectionLineComponent={TravellerConnectionLine}
-            // fitViewOptions={fitViewOptions}
-            onInit={setReactFlowInstance}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            onNodeDrag={onNodeDrag}
-            onNodeDragStop={onNodeDragStop}
-            onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
-            onNodeMouseLeave={() => setNodeMouseOver(null)}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onConnectStart={onConnectStart}
-            // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
-            onSelectionChange={onSelectionChange}
-            // onSelectionEnd={onSelectTopicNodes}
-            // onSelectionContextMenu={onSelectTopicNodes}
-            panOnScroll
-            selectionOnDrag
-            panOnDrag={panOnDrag}
-            selectionMode={SelectionMode.Partial}
-            minZoom={0.3}
-            maxZoom={6}
-            // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
-            // maxZoom={Infinity} // otherwise, it might not be good to have this 
-          >
-          
-            <Background />
-            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
-            <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
-          </ReactFlow>
-          <SemanticRoute route={semanticRoute} />
-          {/* <div className="semantic-route">{semanticRoute.join(' / ')}</div> */}
-          <NodeToolkit 
-            travellerMode={travellerMode}
-            toggleTravellerMode={toggleTravellerMode}
-          />
-        </div>
-    </div>
+    <FlowContext.Provider value={{ numOfConceptNodes, setNumOfConceptNodes, conceptNodes, setConceptNodes, conceptEdges, setConceptEdges }}>
+      <div className="explore-flow">
+          <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+            {/* <button onClick={semanticDive}>Semantic Dive</button> */}
+            
+              <ReactFlow
+                proOptions={proOptions}
+                nodes={nodes}
+                edges={edges}
+                fitView
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                connectionLineComponent={TravellerConnectionLine}
+                // fitViewOptions={fitViewOptions}
+                onInit={setReactFlowInstance}
+                nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
+                onNodeDrag={onNodeDrag}
+                onNodeDragStop={onNodeDragStop}
+                onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
+                onNodeMouseLeave={() => setNodeMouseOver(null)}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
+                onConnectStart={onConnectStart}
+                // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
+                onSelectionChange={onSelectionChange}
+                // onSelectionEnd={onSelectTopicNodes}
+                // onSelectionContextMenu={onSelectTopicNodes}
+                panOnScroll
+                selectionOnDrag
+                panOnDrag={panOnDrag}
+                selectionMode={SelectionMode.Partial}
+                minZoom={0.3}
+                maxZoom={6}
+                // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
+                // maxZoom={Infinity} // otherwise, it might not be good to have this 
+              >
+              
+                <Background />
+                <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
+                <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
+              </ReactFlow>
+              
+            <SemanticRoute route={semanticRoute} />
+            {/* <div className="semantic-route">{semanticRoute.join(' / ')}</div> */}
+            <NodeToolkit 
+              travellerMode={travellerMode}
+              toggleTravellerMode={toggleTravellerMode}
+            />
+          </div>
+      </div>
+    </FlowContext.Provider>
   );
 };
 

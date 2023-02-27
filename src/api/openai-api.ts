@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi } from 'openai';
+import { Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
 import { ReactFlowInstance, MarkerType } from "reactflow";
 import { uuid } from "../app/utils";
@@ -9,16 +9,16 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const devMode: boolean = true;
-const verbose: boolean = false;
+const devMode: boolean = false;
+const verbose: boolean = true;
 
 // Object that specifies max token length by response type
 export const tokens = {
   full: 256,
   summary: 64,
   keywords: 16,
-  term: 5
-}
+  term: 5,
+};
 
 export const getGPT3Response = async (history: string, prompt: string) => {
   if (devMode) {
@@ -27,20 +27,22 @@ export const getGPT3Response = async (history: string, prompt: string) => {
 
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
-  return await openai.createCompletion({
-    'model': 'text-davinci-003',
-    'prompt': gptPrompt,
-    'max_tokens': tokens.full,
-    'temperature': 0.7,
-    'top_p': 1,
-    'n': 1,
-    'stream': false,
-    'logprobs': null,
-    'stop': ''
-  }).then((data) => {
-    return data.data.choices[0].text?.trim();
-  });
-}
+  return await openai
+    .createCompletion({
+      model: "text-davinci-003",
+      prompt: gptPrompt,
+      max_tokens: tokens.full,
+      temperature: 0.7,
+      top_p: 1,
+      n: 1,
+      stream: false,
+      logprobs: null,
+      stop: "",
+    })
+    .then((data) => {
+      return data.data.choices[0].text?.trim();
+    });
+};
 
 export const getGPT3Stream = async (history: string, prompt: string) => {
   if (devMode) {
@@ -48,22 +50,24 @@ export const getGPT3Stream = async (history: string, prompt: string) => {
   }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
-  return await openai.createCompletion({
-    'model': 'text-davinci-003',
-    'prompt': gptPrompt,
-    'max_tokens': tokens.full,
-    'temperature': 0.7,
-    'top_p': 1,
-    'n': 1,
-    'stream': true,
-    'logprobs': null,
-    'stop': ''
-  }).then((data) => {
-    console.log(data);
-    return data;
-    // return data.data.choices[0].text?.trim();
-  });
-}
+  return await openai
+    .createCompletion({
+      model: "text-davinci-003",
+      prompt: gptPrompt,
+      max_tokens: tokens.full,
+      temperature: 0.7,
+      top_p: 1,
+      n: 1,
+      stream: true,
+      logprobs: null,
+      stop: "",
+    })
+    .then((data) => {
+      console.log(data);
+      return data;
+      // return data.data.choices[0].text?.trim();
+    });
+};
 
 // Semantic Zoom: Summarize text if zoomed out medium amount
 export const getGPT3Summary = async (text: string) => {
@@ -73,24 +77,26 @@ export const getGPT3Summary = async (text: string) => {
   // If text is as short as what we're asking, just return the text
   if (text.length <= tokens.summary) {
     return Promise.resolve(text);
-  };
+  }
 
   const gptPrompt: string = `Summarize this text in a 1-2 phrases:\n\n${text}\n\n`;
 
-  return await openai.createCompletion({
-    'model': 'text-davinci-003',
-    'prompt': gptPrompt,
-    'max_tokens': tokens.summary,
-    'temperature': 0.4,     // Lower temp: less deterministic
-    'top_p': 1,
-    'n': 1,
-    'stream': false,
-    'logprobs': null,
-    'stop': ''
-  }).then((data) => {
-    return data.data.choices[0].text?.trim();
-  });
-}
+  return await openai
+    .createCompletion({
+      model: "text-davinci-003",
+      prompt: gptPrompt,
+      max_tokens: tokens.summary,
+      temperature: 0.4, // Lower temp: less deterministic
+      top_p: 1,
+      n: 1,
+      stream: false,
+      logprobs: null,
+      stop: "",
+    })
+    .then((data) => {
+      return data.data.choices[0].text?.trim();
+    });
+};
 
 // Semantic Zoom: Summarize text if zoomed out large amount
 export const getGPT3Keywords = async (text: string) => {
@@ -100,24 +106,26 @@ export const getGPT3Keywords = async (text: string) => {
   // If text is as short as what we're asking, just return the text
   if (text.length <= tokens.keywords) {
     return Promise.resolve(text);
-  };
+  }
 
   const gptPrompt: string = `Extract 3-5 key phrases from this text in CSV format\n\n${text}\n\n`;
 
-  return await openai.createCompletion({
-    'model': 'text-davinci-003',
-    'prompt': gptPrompt,
-    'max_tokens': tokens.keywords,
-    'temperature': 0.2,     // Lower temp: less deterministic
-    'top_p': 1,
-    'n': 1,
-    'stream': false,
-    'logprobs': null,
-    'stop': ''
-  }).then((data) => {
-    return data.data.choices[0].text?.trim().replaceAll('"', '');
-  });
-}
+  return await openai
+    .createCompletion({
+      model: "text-davinci-003",
+      prompt: gptPrompt,
+      max_tokens: tokens.keywords,
+      temperature: 0.2, // Lower temp: less deterministic
+      top_p: 1,
+      n: 1,
+      stream: false,
+      logprobs: null,
+      stop: "",
+    })
+    .then((data) => {
+      return data.data.choices[0].text?.trim().replaceAll('"', "");
+    });
+};
 
 export const getGPT3Term = async (history: string, prompt: string) => {
   if (devMode) {
@@ -125,21 +133,22 @@ export const getGPT3Term = async (history: string, prompt: string) => {
   }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
 
-  return await openai.createCompletion({
-    'model': 'text-davinci-003',
-    'prompt': gptPrompt,
-    'max_tokens': tokens.term,
-    'temperature': 0.2,
-    'top_p': 1,
-    'n': 1,
-    'stream': false,
-    'logprobs': null,
-    'stop': ''
-  }).then((data) => {
-    return data.data.choices[0].text?.trim();
-  });
-}
-
+  return await openai
+    .createCompletion({
+      model: "text-davinci-003",
+      prompt: gptPrompt,
+      max_tokens: tokens.term,
+      temperature: 0.2,
+      top_p: 1,
+      n: 1,
+      stream: false,
+      logprobs: null,
+      stop: "",
+    })
+    .then((data) => {
+      return data.data.choices[0].text?.trim();
+    });
+};
 
 export const getTopics = async (prompt: string, concept: string) => {
   if (devMode) {
@@ -147,89 +156,121 @@ export const getTopics = async (prompt: string, concept: string) => {
   }
   const gptPrompt: string = `${prompt}\n\n`;
 
-  return await openai.createCompletion({
-    'model': 'text-davinci-003',
-    'prompt': gptPrompt,
-    'max_tokens': 128,
-    'temperature': 0.7,
-    'top_p': 1,
-    'n': 1,
-    'stream': false,
-    'logprobs': null,
-    'stop': ''
-  }).then((data) => {
+  return await openai
+    .createCompletion({
+      model: "text-davinci-003",
+      prompt: gptPrompt,
+      max_tokens: 128,
+      temperature: 0.7,
+      top_p: 1,
+      n: 1,
+      stream: false,
+      logprobs: null,
+      stop: "",
+    })
+    .then((data) => {
+      const text = data.data.choices[0].text;
 
-    const text = data.data.choices[0].text;
-
-    if (typeof text === 'string') {
-
+      if (typeof text === "string") {
         let re = /\d.*\n*/g; // regex pattern
 
-        let subtopics : any;
-        subtopics = text.match(re);// put all subtopics into array
-        
-        if (Array.isArray(subtopics)) {        
-            // remove unnecessary characters
-            subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/\d. /, ''));
-            subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/ ?\n/, ''));
-            return subtopics;
+        let subtopics: any;
+        subtopics = text.match(re); // put all subtopics into array
+
+        if (Array.isArray(subtopics)) {
+          // remove unnecessary characters
+          subtopics.forEach(
+            (elem, idx) => (subtopics[idx] = elem.replace(/\d. /, ""))
+          );
+          subtopics.forEach(
+            (elem, idx) => (subtopics[idx] = elem.replace(/ ?\n/, ""))
+          );
+          return subtopics;
         }
-    }
-  });
-}
+      }
+    });
+};
 
 export const getGPT3Questions = async (concept: string) => {
   if (devMode) {
-    return Promise.resolve(["placeholder questions",{'why':['placeholder question'], 'what':['placeholder question'], 'when':['placeholder question'], 'where':['placeholder question'], 'how':['placeholder question']}]);
+    return Promise.resolve([
+      "placeholder questions",
+      {
+        why: ["placeholder question"],
+        what: ["placeholder question"],
+        when: ["placeholder question"],
+        where: ["placeholder question"],
+        how: ["placeholder question"],
+      },
+    ]);
   }
-  const prompt = 'I need to learn about ' + concept + `. Give me a total of 25 questions, 
+  const prompt =
+    "I need to learn about " +
+    concept +
+    `. Give me a total of 25 questions, 
   with questions starting with "why", 5 questions starting with "when", 
   5 questions starting with "where", 5 questions starting with "how", 
   and 5 questions starting with "what".`;
   const gptPrompt: string = `${prompt}\n\n`;
 
-  return await openai.createCompletion({
-    'model': 'text-davinci-003',
-    'prompt': gptPrompt,
-    'max_tokens': 700,
-    'temperature': 0.7,
-    'top_p': 1,
-    'n': 1,
-    'stream': false,
-    'logprobs': null,
-    'stop': ''
-  }).then((data) => {
+  return await openai
+    .createCompletion({
+      model: "text-davinci-003",
+      prompt: gptPrompt,
+      max_tokens: 700,
+      temperature: 0.7,
+      top_p: 1,
+      n: 1,
+      stream: false,
+      logprobs: null,
+      stop: "",
+    })
+    .then((data) => {
+      const text: any = data.data.choices[0].text;
 
-    const text: any = data.data.choices[0].text;
-
-    let question_set: any;
-    if (text !== null) {
-      question_set = {
-        'why': text.match(/Why .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
-        'when': text.match(/When .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
-        'where': text.match(/Where .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
-        'how': text.match(/How .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?')),
-        'what': text.match(/What .+?$/gm).map((elem:string) => elem.replace('\n','')).map((elem:string) => elem.replace('? ','?'))
+      let question_set: any;
+      if (text !== null) {
+        question_set = {
+          why: text
+            .match(/Why .+?$/gm)
+            .map((elem: string) => elem.replace("\n", ""))
+            .map((elem: string) => elem.replace("? ", "?")),
+          when: text
+            .match(/When .+?$/gm)
+            .map((elem: string) => elem.replace("\n", ""))
+            .map((elem: string) => elem.replace("? ", "?")),
+          where: text
+            .match(/Where .+?$/gm)
+            .map((elem: string) => elem.replace("\n", ""))
+            .map((elem: string) => elem.replace("? ", "?")),
+          how: text
+            .match(/How .+?$/gm)
+            .map((elem: string) => elem.replace("\n", ""))
+            .map((elem: string) => elem.replace("? ", "?")),
+          what: text
+            .match(/What .+?$/gm)
+            .map((elem: string) => elem.replace("\n", ""))
+            .map((elem: string) => elem.replace("? ", "?")),
+        };
       }
-    }
 
-    return [text, question_set];
-    // if (typeof text === 'string') {
+      return [text, question_set];
+      // if (typeof text === 'string') {
 
-    //     let re = /\d.*\n*/g; // regex pattern
+      //     let re = /\d.*\n*/g; // regex pattern
 
-    //     let subtopics : any;
-    //     subtopics = text.match(re);// put all subtopics into array
-        
-    //     if (Array.isArray(subtopics)) {        
-    //         // remove unnecessary characters
-    //         subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/\d. /, ''));
-    //         subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/ ?\n/, ''));
-    //         return subtopics;
-    //     }
-    // }
-  });
-}
+      //     let subtopics : any;
+      //     subtopics = text.match(re);// put all subtopics into array
+
+      //     if (Array.isArray(subtopics)) {
+      //         // remove unnecessary characters
+      //         subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/\d. /, ''));
+      //         subtopics.forEach((elem, idx) => subtopics[idx] = elem.replace(/ ?\n/, ''));
+      //         return subtopics;
+      //     }
+      // }
+    });
+};
 
 export const extendConcept = async (
   reactFlowInstance: ReactFlowInstance,
@@ -237,7 +278,7 @@ export const extendConcept = async (
   pos: string,
   concept: string,
   conceptnode: boolean = true,
-  setResponseState?: Function,
+  setResponseState?: Function
 ) => {
   const parentNode = reactFlowInstance.getNode(id);
 
@@ -245,10 +286,10 @@ export const extendConcept = async (
     return;
   }
 
-  if (verbose) { 
-    console.log('=====');
-    console.log('concept', concept);
-    console.log('=====');
+  if (verbose) {
+    console.log("=====");
+    console.log("concept", concept);
+    console.log("=====");
   }
 
   if (setResponseState) {
@@ -330,57 +371,86 @@ export const extendConcept = async (
   let topics: string[] | any;
   if (devMode) {
     topics = [
-      "Human Resources Management",
-      "Financial Management",
-      "Project Management",
-      "Strategic Planning",
-      "Risk Management",
-      "Quality Management",
+      //   "Human Resources Management",
+      //   "Financial Management",
+      //   "Project Management",
+      //   "Strategic Planning",
+      //   "Risk Management",
+      //   "Quality Management",
+      "San Diego Beaches",
+      "San Diego Restaurants",
+      "San Diego Museums",
+      "San Diego Shopping",
+      "San Diego Outdoor Activities",
     ];
   } else {
     topics = await getTopics(prompt, concept);
   }
 
-  // create a unique id for the child node
-  const childNodeId = uuid();
-
   // const parentNodeLabel = parentNode.data['label'];
-  if (verbose) {console.log('topics', topics)}
+  if (verbose) {
+    console.log("topics", topics);
+  }
 
-  // create the child node
-  const childNode = {
-    id: childNodeId,
-    // we try to place the child node close to the calculated position from the layout algorithm
-    // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
-    position: newNodePosition!,
-    type: 'default',
-    // width: 150,
-    // height: 50,
-    // type: nodeType,
-    // data: { label: randomLabel() },
-    data: { label: topics[Math.floor((Math.random() * 10) % 5)] },
-  };
+  let childNodeArray = [];
+  let childEdgeArray = [];
 
-  const childEdge = {
-    id: `${parentNode.id}=>${childNodeId}`,
-    source: parentNode.id,
-    target: childNodeId,
-    // label: edgeLabel,
-    // sourceHandle: sourceHandleId,
-    // targetHandle: targetHandleId,
-    type: "default",
-    // type: "step",
-    // markerEnd: {
-    //   type: MarkerType.ArrowClosed,
-    // },
-  };
+  for (const topic of topics) {
+    // create a unique id for the child node
+    const childNodeId = uuid();
 
-  reactFlowInstance.addNodes(childNode);
-  reactFlowInstance.addEdges(childEdge);
+    // create the child node
+    const childNode = {
+      id: childNodeId,
+      // we try to place the child node close to the calculated position from the layout algorithm
+      // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
+      position: newNodePosition!,
+      type: "default",
+      width: 150,
+      height: 50,
+      // type: nodeType,
+      // data: { label: randomLabel() },
+      data: { label: topic },
+    };
+
+    console.log("childNode", childNode);
+    console.log("======");
+
+    const childEdge = {
+      id: `${parentNode.id}=>${childNodeId}`,
+      source: parentNode.id,
+      target: childNodeId,
+      // label: edgeLabel,
+      // sourceHandle: sourceHandleId,
+      // targetHandle: targetHandleId,
+      type: "default",
+      // type: "step",
+      // markerEnd: {
+      //   type: MarkerType.ArrowClosed,
+      // },
+    };
+
+    childNodeArray.push(childNode);
+    childEdgeArray.push(childEdge);
+  }
+
+  console.log("childNodeArray", childNodeArray);
+  console.log("childEdgeArray", childEdgeArray);
+
+  const currNodes = reactFlowInstance.getNodes();
+  const currEdges = reactFlowInstance.getEdges();
+
+  // await reactFlowInstance.addNodes(childNode);
+  // await reactFlowInstance.addEdges(childEdge);
+
+  await reactFlowInstance.setNodes([...currNodes, ...childNodeArray]);
+  await reactFlowInstance.setEdges([...currEdges, ...childEdgeArray]);
 
   if (setResponseState) {
     setResponseState(ResponseState.COMPLETE);
   }
 
-  return [childNode, childEdge];
+  // return [childNode, childEdge];
+  return;
+  // return childNode;
 };

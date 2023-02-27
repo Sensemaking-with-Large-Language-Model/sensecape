@@ -17,7 +17,7 @@ export function useNodeClick(id: NodeProps['id']) {
 
   const askGPT = async (prompt: string) => {
 
-    console.log('asking GPT...');
+    // console.log('asking GPT...');
 
     const response = await openai.createCompletion({
       'model': 'text-davinci-003',
@@ -33,7 +33,7 @@ export function useNodeClick(id: NodeProps['id']) {
 
     // const text = response.data.choices[0].text.trim();
     const text = response.data.choices[0].text;
-    console.log(text);
+    // console.log(text);
 
     let re = /\d.*\n*/g; // regex pattern
 
@@ -44,7 +44,7 @@ export function useNodeClick(id: NodeProps['id']) {
     subtopics.forEach((elem:string, idx:number) => subtopics[idx] = elem.replace(/\d. /, ''));
     subtopics.forEach((elem:string, idx:number) => subtopics[idx] = elem.replace(/ ?\n/, ''));
 
-    console.log('subtopics', subtopics);
+    // console.log('subtopics', subtopics);
     
     return subtopics;
   }
@@ -67,12 +67,12 @@ export function useNodeClick(id: NodeProps['id']) {
 
     const prompt = 'Give me six sub-topics for ' + '' + parentNodeLabel;
 
-    console.log('prompt:', prompt);
+    // console.log('prompt:', prompt);
 
     // const subtopics = await askGPT(prompt);
     const subtopics = ['Interaction Design', 'Usability Engineering', 'Cognitive Psychology', 'Human Factors', 'Interface Design', 'Multimodal Interaction']
 
-    console.log('subtopics:', subtopics);
+    // console.log('subtopics:', subtopics);
 
     // create the child node
     const childNode = {

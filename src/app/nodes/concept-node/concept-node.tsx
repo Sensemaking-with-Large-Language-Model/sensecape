@@ -30,7 +30,7 @@ import useLayout from "../../hooks/useLayout";
 import { stratify, tree } from "d3-hierarchy";
 
 const verbose: boolean = true; // flag for console.log() messages during devMode
-const use_dagre: boolean = false;
+const use_dagre: boolean = true;
 
 // import { dagre } from 'dagre';
 const dagre = require("dagre");
@@ -42,8 +42,8 @@ const getLayoutedElements = (
 ) => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
-  const nodeWidth = 172;
-  const nodeHeight = 36;
+  const nodeWidth = 150;
+  const nodeHeight = 100;
 
   const isHorizontal = direction === "LR";
   dagreGraph.setGraph({ rankdir: direction });
@@ -229,7 +229,7 @@ const ConceptNode = (props: NodeProps) => {
     const nodes = reactFlowInstance.getNodes();
     const edges = reactFlowInstance.getEdges();
     // get nodes we want to rearrange
-    const targetNodes = nodes.filter((node) => node.type === "topic");
+    const targetNodes = nodes.filter((node) => node.type === "default");
     const targetEdges = edges.filter((edge) => edge.type === "default");
     // get new coordinates for nodes we want to rearrange
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
@@ -243,7 +243,7 @@ const ConceptNode = (props: NodeProps) => {
     }
 
     // get other nodes that still need to be placed on canvas
-    const otherNodes = nodes.filter((node) => node.type !== "topic");
+    const otherNodes = nodes.filter((node) => node.type !== "default");
     const otherEdges = edges.filter((edge) => edge.type !== "default");
     // comebine all nodes
     // const allNodes = [...targetNodes, ...otherNodes];
@@ -253,15 +253,7 @@ const ConceptNode = (props: NodeProps) => {
     reactFlowInstance.setEdges([...layoutedEdges, ...otherEdges]);
   };
 
-  const handleSubTopicClick = async () => {
-    await extendConcept(
-      reactFlowInstance,
-      props.id,
-      "bottom",
-      input,
-      true,
-      setResponseInputState
-    );
+  const layout_ = async () => {
     setNumOfConceptNodes(numOfConceptNodes + 1);
     const direction = "TB";
     const nodes = reactFlowInstance.getNodes();
@@ -304,8 +296,8 @@ const ConceptNode = (props: NodeProps) => {
       }
 
       // get other nodes that still need to be placed on canvas
-      const otherNodes = nodes.filter((node) => node.type !== "default" || "concept");
-      const otherEdges = edges.filter((edge) => edge.type !== "default");
+      // const otherNodes = nodes.filter((node) => node.type !== "topic" || "concept");
+      // const otherEdges = edges.filter((edge) => edge.type !== "default");
 
       // const allNodes = [...targetNodes_, ...otherNodes];
       // const allEdges = [...targetEdges, ...otherEdges];
@@ -316,18 +308,60 @@ const ConceptNode = (props: NodeProps) => {
       
       // await reactFlowInstance.setNodes(allNodes);
       // await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
-      await reactFlowInstance.setNodes(targetNodes_);
-      reactFlowInstance.setEdges(targetEdges);
-      reactFlowInstance.addNodes(otherNodes);
-      reactFlowInstance.addEdges(otherEdges);
-      // reactFlowInstance.setEdges(allEdges);
-      
-      // setNodes(allNodes);
-    }
 
+      console.log('BEFORE THE END');
+      await reactFlowInstance.setNodes(targetNodes_);
+      // reactFlowInstance.setEdges(targetEdges);
+
+      console.log('THE END');
+      // reactFlowInstance.addNodes(otherNodes);
+      // reactFlowInstance.addEdges(otherEdges);
+      // reactFlowInstance.setEdges(allEdges);
+    }
     // comebine all nodes
     // const allNodes = [...targetNodes, ...otherNodes];
     // const allEdges = [...targetEdges, ...otherEdges];
+  }
+
+  const handleSubmit = async () => {
+
+    extendConcept(
+      reactFlowInstance,
+      props.id,
+      "bottom",
+      input,
+      true,
+      setResponseInputState
+    ).then(data => {
+      console.log('data', data);
+      setTimeout(layout_,100);
+    });
+      
+  }
+
+  const handleSubTopicClick = async () => {
+    // await extendConcept(
+    //   reactFlowInstance,
+    //   props.id,
+    //   "bottom",
+    //   input,
+    //   true,
+    //   setResponseInputState
+    // );
+    //   setTimeout(layout_, 500);
+
+      extendConcept(
+        reactFlowInstance,
+        props.id,
+        "bottom",
+        input,
+        true,
+        setResponseInputState
+      ).then(data => {
+        console.log('data', data);
+        setTimeout(layout_,100);
+      });
+        
   };
 
   // const onLayout = useCallback(
@@ -404,6 +438,7 @@ const ConceptNode = (props: NodeProps) => {
           placeholder={props.data.placeholder}
           setResponseInputState={setResponseInputState}
           id={props.id}
+          handleSubmit={handleSubmit}
           input={input}
           setInput={setInput}
         />
