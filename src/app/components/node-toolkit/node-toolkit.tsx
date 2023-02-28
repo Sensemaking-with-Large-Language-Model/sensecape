@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useReactFlow } from 'reactflow';
-import { Switch } from 'antd';
+import { Button, Switch } from 'antd';
 import { createChatNode } from '../../nodes/chat-node/chat-node.helper';
 import { ChatNodeData } from '../../nodes/chat-node/chat-node.model';
 import { ConceptNodeData } from '../../nodes/concept-node/concept-node.model';
@@ -64,6 +64,15 @@ const NodeToolkit = (props: any) => {
     event.dataTransfer.setData('dragNodeData', dataString);
   };
 
+  const clearCanvas = useCallback(() => {
+    localStorage.clear();
+    reactFlowInstance.setNodes([]);
+    reactFlowInstance.setEdges([]);
+    reactFlowInstance.zoomTo(1);
+    reactFlowInstance.fitView();
+  },
+  [reactFlowInstance]);
+
   return (
     <div className="node-toolkit">
       <div className='toolkit-option traveller-mode-toggle'>
@@ -123,6 +132,7 @@ const NodeToolkit = (props: any) => {
         </svg>
         Help
       </div>
+      <Button onClick={clearCanvas} type="text" block danger>Reset Canvas</Button>
     </div>
   )
 }
