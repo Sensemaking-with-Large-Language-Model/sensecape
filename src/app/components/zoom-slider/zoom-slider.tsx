@@ -10,13 +10,13 @@ const ZoomSlider = (props: any) => {
   const reactFlowInstance = useReactFlow();
 
   const onChange = useCallback((value: number) => {
-    reactFlowInstance.zoomTo(value);
+    reactFlowInstance.zoomTo(Math.pow(10, value));
   },
   [reactFlowInstance]);
 
   const marks: SliderMarks = {
-    0.75: 'Summary',
-    0.35: 'Keywords',
+    [Math.log10(0.75)]: 'Summary',
+    [Math.log10(0.35)]: 'Keywords',
   };
 
   return (
@@ -24,11 +24,11 @@ const ZoomSlider = (props: any) => {
       <Slider
         vertical
         included={false}
-        step={0.01}
-        value={props.zoom}
+        step={0.001}
+        value={Math.log10(props.zoom)}
         onChange={onChange}
-        min={props.range.min+0.001}
-        max={props.range.max-0.001}
+        min={Math.log10(props.range.min+0.001)}
+        max={Math.log10(props.range.max-0.001)}
         marks={marks}
       />
     </div>
