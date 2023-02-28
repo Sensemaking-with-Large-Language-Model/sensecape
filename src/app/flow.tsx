@@ -67,6 +67,7 @@ import SemanticRoute from "./components/semantic-route/semantic-route";
 import { FlowContext } from "./flow.model";
 import { stratify, tree } from 'd3-hierarchy';
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import ZoomSlider from "./components/zoom-slider/zoom-slider";
 
 const verbose: boolean = true;
 
@@ -112,6 +113,8 @@ const nodeTypes: NodeTypes = {
   placeholder: PlaceholderNode,
   group: GroupNode,
 };
+
+export const zoomRange = {min: 0.3, max: 3};
 
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -472,7 +475,7 @@ const ExploreFlow = () => {
       nodeMouseOver.type === 'topic' &&
       nodeMouseOver.id !== currentTopicId &&
       reactFlowInstance &&
-      zoom >= 6
+      zoom >= zoomRange.max
       ) {
       console.log('in')
       semanticDiveIn(
@@ -484,7 +487,7 @@ const ExploreFlow = () => {
       );
     } else if (
       reactFlowInstance &&
-      zoom <= 0.3
+      zoom <= zoomRange.min
     ) {
       semanticDiveOut(
         [instanceMap, setInstanceMap],
@@ -529,8 +532,8 @@ const ExploreFlow = () => {
                 selectionOnDrag
                 panOnDrag={panOnDrag}
                 selectionMode={SelectionMode.Partial}
-                minZoom={0.3}
-                maxZoom={6}
+                minZoom={zoomRange.min}
+                maxZoom={zoomRange.max}
                 // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
                 // maxZoom={Infinity} // otherwise, it might not be good to have this 
               >
@@ -546,6 +549,7 @@ const ExploreFlow = () => {
               travellerMode={travellerMode}
               toggleTravellerMode={toggleTravellerMode}
             />
+            <ZoomSlider zoom={zoom} range={zoomRange} />
           </div>
       </div>
     </FlowContext.Provider>
