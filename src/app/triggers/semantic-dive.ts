@@ -11,11 +11,15 @@ export interface NodeEdgeSet {
 export interface Instance {
   name: string;
   parentId: string;
-  children: string[];
+  childrenId: string[];
   topicNode: TypeTopicNode;
   jsonObject: ReactFlowJsonObject | {nodes: Node[], edges: Edge[]};
   level: number;
 };
+
+export type InstanceMap = {
+  [x: string]: Instance | undefined;
+}
 
 export enum InstanceState {
   NONE = 'none',          // Never was an instance state
@@ -34,7 +38,7 @@ export enum InstanceState {
  */
 export const semanticDiveIn = (
   nodeMouseOver: TypeTopicNode,
-  [instanceMap, setInstanceMap]: [Map<string, Instance>, Dispatch<SetStateAction<Map<string, Instance>>>],
+  [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
   [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
   reactFlowInstance: ReactFlowInstance,
@@ -52,25 +56,25 @@ export const semanticDiveIn = (
       childInstance = {
         name: topicName,
         parentId: currentTopicId,
-        children: [],
+        childrenId: [],
         topicNode: nodeMouseOver,
         jsonObject: {
           nodes: [],
           edges: [],
         },
-        level: instanceMap.get(currentTopicId)?.level ?? 0 + 1,
+        level: instanceMap[currentTopicId]?.level ?? 0 + 1,
       }
   
-      setInstanceMap(instanceMap.set(nodeMouseOver.id, childInstance));
+      setInstanceMap(map => Object.assign(map, {[nodeMouseOver.id]: childInstance}));
     } else {
       // Restore instance
-      childInstance = instanceMap.get(nodeMouseOver.id)!;
+      childInstance = instanceMap[nodeMouseOver.id]!;
     }
   
     // Save current instance state to the parent instance
-    const currentInstance = instanceMap.get(currentTopicId)!;
+    const currentInstance = instanceMap[currentTopicId]!;
     currentInstance.jsonObject = reactFlowInstance.toObject();
-    instanceMap.set(currentTopicId, currentInstance);
+    setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
   
     // Set topic as current instance
     nodeMouseOver.data.instanceState = InstanceState.CURRENT;
@@ -102,19 +106,19 @@ export const semanticDiveIn = (
  * @param reactFlowInstance 
  */
 export const semanticDiveOut = (
-  instanceMap: Map<string, Instance>,
+  [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
   [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
   setTimeout(() => {
-    const currentInstance = instanceMap.get(currentTopicId)!;
-    const parentInstance = instanceMap.get(currentInstance.parentId);
+    const currentInstance = instanceMap[currentTopicId]!;
+    const parentInstance = instanceMap[currentInstance.parentId];
   
     if (parentInstance) {
       // store current reactFlowInstance
       currentInstance.jsonObject = reactFlowInstance.toObject();
-      instanceMap.set(currentTopicId, currentInstance);
+      setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
   
       // Set topic as parent topic
       currentInstance.topicNode.data.instanceState = InstanceState.WAS;
