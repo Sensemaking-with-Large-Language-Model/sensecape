@@ -229,7 +229,7 @@ const ConceptNode = (props: NodeProps) => {
     const nodes = reactFlowInstance.getNodes();
     const edges = reactFlowInstance.getEdges();
     // get nodes we want to rearrange
-    const targetNodes = nodes.filter((node) => node.type === "default");
+    const targetNodes = nodes.filter((node) => node.type === "subtopic");
     const targetEdges = edges.filter((edge) => edge.type === "default");
     // get new coordinates for nodes we want to rearrange
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
@@ -243,7 +243,7 @@ const ConceptNode = (props: NodeProps) => {
     }
 
     // get other nodes that still need to be placed on canvas
-    const otherNodes = nodes.filter((node) => node.type !== "default");
+    const otherNodes = nodes.filter((node) => node.type !== "subtopic");
     const otherEdges = edges.filter((edge) => edge.type !== "default");
     // comebine all nodes
     // const allNodes = [...targetNodes, ...otherNodes];
@@ -261,7 +261,7 @@ const ConceptNode = (props: NodeProps) => {
     // get nodes we want to rearrange
     console.log('=========');
     // const targetNodes = nodes.filter((node) => node.type === "subtopic");
-    const targetNodes = nodes.filter((node) => node.type === "default" || node.type === "concept" );
+    const targetNodes = nodes.filter((node) => node.type === "subtopic" || node.type === "concept" );
     console.log('targetNodes', targetNodes);
     // const targetEdges = edges.filter((edge) => edge.type === "step");
     const targetEdges = edges.filter((edge) => edge.type === "default");
@@ -280,7 +280,7 @@ const ConceptNode = (props: NodeProps) => {
       }
 
       // get other nodes that still need to be placed on canvas
-      const otherNodes = nodes.filter((node) => node.type !== "default" || "concept");
+      const otherNodes = nodes.filter((node) => node.type !== "subtopic" || "concept");
       const otherEdges = edges.filter((edge) => edge.type !== "default");
 
       reactFlowInstance.setNodes([...layoutedNodes, ...otherNodes]);

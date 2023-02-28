@@ -2,6 +2,7 @@ import { Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
 import { ReactFlowInstance, MarkerType } from "reactflow";
 import { uuid } from "../app/utils";
+import { timer } from 'd3-timer';
 
 const configuration = new Configuration({
   apiKey: process.env.REACT_APP_OPEN_AI_KEY,
@@ -325,7 +326,7 @@ export const extendConcept = async (
     }
     nodeType = "suptopic";
   } else if (pos === "bottom") {
-    prompt = "Give me 5 lower level topics of " + concept;
+    prompt = "Give me 3 lower level topics of " + concept;
     sourceHandleId = "b";
     targetHandleId = "a";
     // edgeLabel = "lower-level topic";
@@ -405,7 +406,7 @@ export const extendConcept = async (
       // we try to place the child node close to the calculated position from the layout algorithm
       // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
       position: newNodePosition!,
-      type: "default",
+      type: "subtopic",
       width: 150,
       height: 50,
       // type: nodeType,
@@ -453,4 +454,63 @@ export const extendConcept = async (
   // return [childNode, childEdge];
   return;
   // return childNode;
+
+  const options = { duration: 300 };
+
+  // to interpolate and animate the new positions, we create objects that contain the current and target position of each node
+  const transitions = childNodeArray.map((node) => {
+    return {
+      id: node.id,
+      // this is where the node currently is placed
+      from: reactFlowInstance.getNode(node.id)?.position || node.position,
+      // this is where we want the node to be placed
+      to: node.position,
+      node,
+    };
+  });
+
+    // create a timer to animate the nodes to their new positions
+    const t = timer((elapsed: number) => {
+      const s = elapsed / options.duration;
+
+      const currNodes = transitions.map(({ node, from, to }) => {
+        return {
+          id: node.id,
+          position: {
+            // simple linear interpolation
+            x: from.x + (to.x - from.x) * s,
+            y: from.y + (to.y - from.y) * s,
+          },
+          data: { ...node.data },
+          type: node.type,
+        };
+      });
+
+      reactFlowInstance.setNodes(currNodes);
+
+      // this is the final step of the animation
+      if (elapsed > options.duration) {
+        // we are moving the nodes to their destination
+        // this needs to happen to avoid glitches
+        const finalNodes = transitions.map(({ node, to }) => {
+          return {
+            id: node.id,
+            position: {
+              x: to.x,
+              y: to.y,
+            },
+            data: { ...node.data },
+            type: node.type,
+          };
+        });
+
+        reactFlowInstance.setNodes(finalNodes);
+
+        // stop the animation
+        t.stop();
+
+      }
+    });
+
+
 };
