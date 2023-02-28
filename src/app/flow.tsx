@@ -61,11 +61,12 @@ import QuestionNode from "./nodes/brainstorm-node/question-node";
 import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/question-node.model";
 
 import { uuid } from "./utils";
-import { Instance, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
+import { Instance, InstanceMap, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
 // import { FlowContext } from './FlowContext';
 import { FlowContext } from "./flow.model";
 import { stratify, tree } from 'd3-hierarchy';
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 const verbose: boolean = true;
 
@@ -95,68 +96,7 @@ const initialNodes: Node[] = [];
 
 const initialEdges: Edge[] = [];
 
-// const initialNodes: Node[] = [
-//   {
-//     id: '1',
-//     data: { label: 'Human Computer Interaction', topicNodes: [], state: {} },
-//     position: { x: 0, y: 0 },
-//     type: 'default',
-//   },
-//   {
-//     id: '2',
-//     data: { label: 'Child', topicNodes: [], state: {} },
-//     position: { x: 0, y: 150 },
-//     type: 'default',
-//   },
-//   {
-//     id: '3',
-//     data: { label: 'UX/UI', topicNodes: [], state: {} },
-//     position: { x: 50, y: 150 },
-//     type: 'default',
-//   },
-// ];
-
-// // initial setup: connect the workflow node to the placeholder node with a placeholder edge
-// const initialEdges: Edge[] = [
-//   {
-//     id: '1=>2',
-//     source: '1',
-//     target: '2',
-//     // sourceHandle: 'b',
-//     type: 'default',
-//   },
-//   {
-//     id: '2=>3',
-//     source: '2',
-//     target: '3',
-//     type: 'default',
-//   },
-// ];
-
-// const initialNodes: Node[] = [
-//   {
-//     id: '1',
-//     // data: { label: '🌮 Taco' },
-//     // data: { label: 'Cell' },
-//     // data: { label: 'Structure Engineering' },
-//     // data: { label: 'San Diego' },
-//     data: { label: 'Human Computer Interaction' },
-//     position: { x: 0, y: 0 },
-//     type: 'workflow',
-//   },
-//   {
-//     id: '2',
-//     data: { label: '+' },
-//     position: { x: 0, y: 150 },
-//     type: 'placeholder',
-//   },
-// ];
-
 const proOptions = { account: "paid-pro", hideAttribution: true };
-
-const fitViewOptions = {
-  padding: 0.75,
-};
 
 const panOnDrag = [1, 2];
 
@@ -173,13 +113,12 @@ const nodeTypes: NodeTypes = {
   group: GroupNode,
 };
 
-
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<any>(null);
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const [travellerMode, setTravellerMode] = useState(true);
   const connectingNodeId = useRef("");
@@ -187,8 +126,6 @@ const ExploreFlow = () => {
   const [numOfConceptNodes, setNumOfConceptNodes] = useState(0);
   const [conceptNodes, setConceptNodes] = useState([]);
   const [conceptEdges, setConceptEdges] = useState([]);
-
-  // useLayout();
 
   const zoomSelector = (s: any) => s.transform[2];
   const zoom: number = useStore(zoomSelector);
@@ -210,21 +147,54 @@ const ExploreFlow = () => {
   }
 
   // Topic Node Id of the current instance
-  const [currentTopicId, setCurrentTopicId] = useState<string>(homeTopicNode.id);
+  const [currentTopicId, setCurrentTopicId] = useLocalStorage<string>('currentTopicId', homeTopicNode.id);
 
   // Maps topicNodeId to Instance
-  const [instanceMap, setInstanceMap] = useState<Map<string, Instance>>(new Map([[currentTopicId, {
-    name: 'home',
-    parentId: '',
-    children: [],
-    topicNode: homeTopicNode,
-    jsonObject: {
-      nodes: [],
-      edges: [],
-    },
-    level: -1,
-  }]]));
-  const [semanticRoute, setSemanticRoute] = useState(['home']);
+  const [instanceMap, setInstanceMap] = useLocalStorage<InstanceMap>('instanceMap', {
+    [currentTopicId]: {
+      name: 'home',
+      parentId: '',
+      childrenId: [] as string[],
+      topicNode: homeTopicNode,
+      jsonObject: {
+        nodes: [] as Node[],
+        edges: [] as Edge[],
+      },
+      level: 0,
+    } as Instance
+  });
+
+  const [semanticRoute, setSemanticRoute] = useLocalStorage('semanticRoute', ['home']);
+
+  // Updates the current instance of reactflow
+  useEffect(() => {
+    console.log(reactFlowInstance?.getNodes(), reactFlowInstance?.getEdges(), nodes, edges);
+    const currInstance = instanceMap[currentTopicId];
+    console.log('update', currInstance);
+    if (currInstance && reactFlowInstance) {
+      currInstance.jsonObject = {
+        nodes: nodes,
+        edges: edges,
+      };
+      console.log('changed', currInstance.jsonObject);
+      instanceMap[currentTopicId] = currInstance;
+      localStorage.setItem('instanceMap', JSON.stringify(instanceMap));
+      // setInstanceMap(instanceMap);
+    }
+  },
+  [instanceMap, nodes, edges]);
+
+  // On first load, recover nodes from localstorage
+  useEffect(() => {
+    const recoveredInstanceMap = JSON.parse(localStorage.getItem('instanceMap') ?? '');
+    const currentInstance = recoveredInstanceMap[currentTopicId];
+    console.log('parsed', currentInstance);
+    if (currentInstance && reactFlowInstance) {
+      console.log('recovered from localstorage', currentInstance);
+      reactFlowInstance.setNodes(currentInstance.jsonObject.nodes);
+      reactFlowInstance.setEdges(currentInstance.jsonObject.edges);
+    }
+  }, [reactFlowInstance]);
 
   // show minimap only when there is more than one node
   // showing minimap when there is no node or only one node is perceived as clutter (NOTE: user feedback)
@@ -240,22 +210,9 @@ const ExploreFlow = () => {
     }
   }, [nodes])
 
-  // const { fitView } = useReactFlow();
-
-  // every time our nodes change, we want to center the graph again
-  // but commented out because it seems to disable node selection and dragging of nodes
-  // it might not be ideal to recenter the graph every time nodes are moved
-  // useEffect(() => {
-    // reactFlowInstance!.fitView({ duration: 400 });
-  // }, [nodes]);
-
-  // const onNodesChange = () => {
-  //   reactFlowInstance!.fitView({ duration: 900, padding: 0.4 });
-  // }
-
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((els) => addEdge(params, els)),
-    [setEdges]
+    (params: Edge | Connection) => reactFlowInstance?.setEdges((els) => addEdge(params, els)),
+    [reactFlowInstance]
   );
 
   const onConnectStart = useCallback((_: any, { nodeId }: any) => {
@@ -307,8 +264,8 @@ const ExploreFlow = () => {
           data: {},
         };
 
-        setNodes((nds) => nds.concat(newNode));
-        setEdges((eds) => eds.concat(newEdge));
+        reactFlowInstance.setNodes((nds) => nds.concat(newNode));
+        reactFlowInstance.setEdges((eds) => eds.concat(newEdge));
       }
     },
     [reactFlowInstance]
@@ -380,7 +337,7 @@ const ExploreFlow = () => {
         const intersections = reactFlowInstance.getIntersectingNodes(node).filter((n) => n.type === 'group');
         const groupClassName = intersections.length && node.parentNode !== intersections[0]?.id ? 'active' : '';
 
-        setNodes((nds) => {
+        reactFlowInstance.setNodes((nds) => {
           return nds.map((n) => {
             if (n.type === 'group') {
               return {
@@ -399,7 +356,7 @@ const ExploreFlow = () => {
         });
       }
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance]
   );
 
   const onNodeDragStop = useCallback(
@@ -439,11 +396,11 @@ const ExploreFlow = () => {
             })
             .sort(sortNodes);
 
-          setNodes(nextNodes);
+          reactFlowInstance.setNodes(nextNodes);
         }
       }
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance]
   );
 
   const onSelectionChange = useCallback(
@@ -513,13 +470,15 @@ const ExploreFlow = () => {
   }, [reactFlowInstance]);
 
   useEffect(() => {
+    console.log('dsfa')
     if (
       nodeMouseOver &&
       nodeMouseOver.type === 'topic' &&
-      nodeMouseOver.data.instanceState !== InstanceState.CURRENT &&
+      nodeMouseOver.id !== currentTopicId &&
       reactFlowInstance &&
       zoom >= 6
-    ) {
+      ) {
+      console.log('in')
       semanticDiveIn(
         nodeMouseOver,
         [instanceMap, setInstanceMap],
@@ -532,7 +491,7 @@ const ExploreFlow = () => {
       zoom <= 0.3
     ) {
       semanticDiveOut(
-        instanceMap,
+        [instanceMap, setInstanceMap],
         [currentTopicId, setCurrentTopicId],
         [semanticRoute, setSemanticRoute],
         reactFlowInstance
