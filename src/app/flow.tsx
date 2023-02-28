@@ -170,16 +170,14 @@ const ExploreFlow = () => {
   useEffect(() => {
     console.log(reactFlowInstance?.getNodes(), reactFlowInstance?.getEdges(), nodes, edges);
     const currInstance = instanceMap[currentTopicId];
-    console.log('update', currInstance);
     if (currInstance && reactFlowInstance) {
       currInstance.jsonObject = {
         nodes: nodes,
         edges: edges,
       };
-      console.log('changed', currInstance.jsonObject);
       instanceMap[currentTopicId] = currInstance;
       localStorage.setItem('instanceMap', JSON.stringify(instanceMap));
-      // setInstanceMap(instanceMap);
+      setInstanceMap(instanceMap);
     }
   },
   [instanceMap, nodes, edges]);
@@ -188,9 +186,7 @@ const ExploreFlow = () => {
   useEffect(() => {
     const recoveredInstanceMap = JSON.parse(localStorage.getItem('instanceMap') ?? '');
     const currentInstance = recoveredInstanceMap[currentTopicId];
-    console.log('parsed', currentInstance);
     if (currentInstance && reactFlowInstance) {
-      console.log('recovered from localstorage', currentInstance);
       reactFlowInstance.setNodes(currentInstance.jsonObject.nodes);
       reactFlowInstance.setEdges(currentInstance.jsonObject.edges);
     }
