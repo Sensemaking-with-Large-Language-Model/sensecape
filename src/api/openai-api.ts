@@ -1,6 +1,6 @@
 import { Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
-import { ReactFlowInstance, MarkerType } from "reactflow";
+import { ReactFlowInstance, MarkerType, Node } from "reactflow";
 import { uuid } from "../app/utils";
 import { timer } from 'd3-timer';
 
@@ -401,8 +401,9 @@ export const extendConcept = async (
     const childNodeId = uuid();
 
     // create the child node
-    const childNode = {
+    const childNode: Node = {
       id: childNodeId,
+      parentNode: parentNode.id,
       // we try to place the child node close to the calculated position from the layout algorithm
       // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
       position: newNodePosition!,
