@@ -30,7 +30,7 @@ import useLayout from "../../hooks/useLayout";
 import { stratify, tree } from "d3-hierarchy";
 
 const verbose: boolean = true; // flag for console.log() messages during devMode
-const use_dagre: boolean = true;
+const use_dagre: boolean = false;
 
 // import { dagre } from 'dagre';
 const dagre = require("dagre");
@@ -99,6 +99,8 @@ function layoutNodes(nodes: Node[], edges: Edge[]): Node[] {
     console.log('nodes', nodes);
     console.log('edges', edges);
   }
+  const root_position = nodes.filter((node) => node.type === 'concept')[0].position;
+
   const hierarchy = stratify<Node>()
     .id((d) => d.id)
     // get the id of each node by searching through the edges
@@ -117,7 +119,7 @@ function layoutNodes(nodes: Node[], edges: Edge[]): Node[] {
   // we only extract the position from the d3 function
   return root
     .descendants()
-    .map((d) => ({ ...d.data, position: { x: d.x, y: d.y } }));
+    .map((d) => ({ ...d.data, position: { x: d.x + root_position['x'], y: d.y + root_position['y'] } }));
 }
 
 // ===========================
@@ -268,6 +270,10 @@ const ConceptNode = (props: NodeProps) => {
     console.log('targetEdges', targetEdges);
     console.log('=========');
 
+    // get other nodes that still need to be placed on canvas
+    const otherNodes = nodes.filter((node) => node.type !== "subtopic" || "concept");
+    const otherEdges = edges.filter((edge) => edge.type !== "default");
+
     // dagre approach
     // get new coordinates for nodes we want to rearrange
     if (use_dagre) {
@@ -278,10 +284,6 @@ const ConceptNode = (props: NodeProps) => {
         console.log("layoutedNodes", ...layoutedNodes);
         console.log("layoutedEdges", ...layoutedEdges);
       }
-
-      // get other nodes that still need to be placed on canvas
-      const otherNodes = nodes.filter((node) => node.type !== "subtopic" || "concept");
-      const otherEdges = edges.filter((edge) => edge.type !== "default");
 
       reactFlowInstance.setNodes([...layoutedNodes, ...otherNodes]);
       reactFlowInstance.setEdges([...layoutedEdges, ...otherEdges]);
@@ -309,13 +311,13 @@ const ConceptNode = (props: NodeProps) => {
       // await reactFlowInstance.setNodes(allNodes);
       // await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
 
-      console.log('BEFORE THE END');
+      // console.log('BEFORE THE END');
       await reactFlowInstance.setNodes(targetNodes_);
-      // reactFlowInstance.setEdges(targetEdges);
+      await reactFlowInstance.setEdges(targetEdges);
 
-      console.log('THE END');
-      // reactFlowInstance.addNodes(otherNodes);
-      // reactFlowInstance.addEdges(otherEdges);
+      // console.log('THE END');
+      await reactFlowInstance.addNodes(otherNodes);
+      await reactFlowInstance.addEdges(otherEdges);
       // reactFlowInstance.setEdges(allEdges);
     }
     // comebine all nodes
