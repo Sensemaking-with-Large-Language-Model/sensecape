@@ -10,7 +10,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const devMode: boolean = false;
+const devMode: boolean = true;
 const verbose: boolean = true;
 
 // Object that specifies max token length by response type
@@ -381,8 +381,6 @@ export const extendConcept = async (
       "San Diego Beaches",
       "San Diego Restaurants",
       "San Diego Museums",
-      "San Diego Shopping",
-      "San Diego Outdoor Activities",
     ];
   } else {
     topics = await getTopics(prompt, concept);
@@ -412,7 +410,9 @@ export const extendConcept = async (
       height: 50,
       // type: nodeType,
       // data: { label: randomLabel() },
-      data: { label: topic },
+      data: { label: topic,
+        rootId: parentNode.data.rootId? parentNode.data.rootId: parentNode.id,
+      },
     };
 
     console.log("childNode", childNode);
@@ -430,6 +430,9 @@ export const extendConcept = async (
       // markerEnd: {
       //   type: MarkerType.ArrowClosed,
       // },
+      data: {
+        rootId: parentNode.data.rootId? parentNode.data.rootId: parentNode.id,
+      }
     };
 
     childNodeArray.push(childNode);

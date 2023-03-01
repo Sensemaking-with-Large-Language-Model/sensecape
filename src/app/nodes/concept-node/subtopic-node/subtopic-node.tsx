@@ -15,6 +15,7 @@ import "./subtopic-node.scss";
 import { ZoomState } from "../../../nodes/node.model";
 import { stratify, tree } from "d3-hierarchy";
 
+const verbose: boolean = true; // flag for console.log() messages during devMode
 const zoomSelector = (s: any) => s.transform[2];
 
 // ===========================
@@ -30,8 +31,18 @@ const options = { duration: 300 };
 
 // the layouting function
 // accepts current nodes and edges and returns the layouted nodes with their updated positions
-function layoutNodes(nodes: Node[], edges: Edge[]): Node[] {
+function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
   // convert nodes and edges into a hierarchical object for using it with the layout function
+  if (verbose) {
+    console.log("===========");
+    console.log("before running hierarchy");
+    console.log("nodes", nodes);
+    console.log("edges", edges);
+  }
+  const root_position = rootNode.position;
+  console.log("rootNode", rootNode);
+  console.log("root_position", root_position);
+
   const hierarchy = stratify<Node>()
     .id((d) => d.id)
     // get the id of each node by searching through the edges
@@ -44,6 +55,9 @@ function layoutNodes(nodes: Node[], edges: Edge[]): Node[] {
   // run the layout algorithm with the hierarchy data structure
   const root = layout(hierarchy);
   console.log("root", root);
+
+  root.x = root_position["x"];
+  root.y = root_position["y"];
 
   console.log("===========");
   // convert the hierarchy back to react flow nodes (the original node is stored as d.data)
@@ -66,12 +80,26 @@ const SubTopicNode = (props: NodeProps) => {
     // get nodes we want to rearrange
     console.log("=========");
     // const targetNodes = nodes.filter((node) => node.type === "subtopic");
-    const targetNodes = nodes.filter(
-      (node) => node.type === "subtopic" || node.type === "concept"
-    );
+
+    const clickedNode = reactFlowInstance.getNode(props.id);
+    if (!clickedNode) {
+      return;
+    }
+    const rootId_ = clickedNode?.data.rootId;
+    const rootNode = reactFlowInstance.getNode(rootId_);
+    if (!rootNode) {
+      return;
+    }
+
+    console.log("rootId_", rootId_);
+
+    const targetNodes = nodes.filter((node) => node.data.rootId === rootId_);
+    const targetEdges = edges.filter((edge) => edge.data.rootId === rootId_);
+    const otherNodes = nodes.filter((node) => node.data.rootId !== rootId_);
+    const otherEdges = edges.filter((edge) => edge.data.rootId !== rootId_);
     console.log("targetNodes", targetNodes);
     // const targetEdges = edges.filter((edge) => edge.type === "step");
-    const targetEdges = edges.filter((edge) => edge.type === "default");
+    // const targetEdges = edges.filter((edge) => edge.type === "default");
     console.log("targetEdges", targetEdges);
     console.log("=========");
 
@@ -81,8 +109,13 @@ const SubTopicNode = (props: NodeProps) => {
     console.log("===========");
     console.log("d3 approach");
     // d3 approach
-    const targetNodes_ = layoutNodes(targetNodes, targetEdges);
-    await reactFlowInstance.setNodes(targetNodes_);
+    const targetNodes_ = layoutNodes(
+      rootNode,
+      [rootNode, ...targetNodes],
+      targetEdges
+    );
+    await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
+    await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
   };
 
   // Depending on Zoom level, vary subtopic font size
