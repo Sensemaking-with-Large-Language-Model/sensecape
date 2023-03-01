@@ -1,5 +1,5 @@
 export const devFlags = {
-  disableOpenAI: true,
+  disableOpenAI: false,
   disableLocalStorage: true,
 }
 

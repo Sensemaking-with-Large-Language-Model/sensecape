@@ -15,11 +15,11 @@ const ZoomSlider = (props: any) => {
   [reactFlowInstance]);
 
   const marks: SliderMarks = {
-    [Math.log10(0.75)]: {
+    [Math.log10(ZoomState.ALL)]: {
       style: { right: 18, textAlign: 'right' },
       label: 'Summary',
     },
-    [Math.log10(0.35)]: {
+    [Math.log10(ZoomState.SUMMARY)]: {
       style: { right: 18, textAlign: 'right' },
       label: 'Keywords',
     },

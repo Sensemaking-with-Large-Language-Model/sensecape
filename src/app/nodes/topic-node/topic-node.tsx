@@ -119,7 +119,8 @@ const TopicNode = (props: NodeProps) => {
           <button onClick={onDetach}>Detach</button>
         </NodeToolbar>
       }
-      <div className={`node topic-node-box ${getInstanceStateClassName(props.data.instanceState)} `}>
+      <div
+        className={`node topic-node-box ${getInstanceStateClassName(props.data.instanceState)} `}>
         <DragHandle className='drag-handle' />
         <div>{topic}</div>
       </div>
