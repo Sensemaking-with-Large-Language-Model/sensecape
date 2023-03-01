@@ -239,7 +239,7 @@ const ConceptNode = (props: NodeProps) => {
     const edges = reactFlowInstance.getEdges();
     // get nodes we want to rearrange
     const targetNodes = nodes.filter((node) => node.type === "subtopic");
-    const targetEdges = edges.filter((edge) => edge.type === "default");
+    const targetEdges = edges.filter((edge) => edge.type === "smoothstep");
     // get new coordinates for nodes we want to rearrange
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       targetNodes,
@@ -253,7 +253,7 @@ const ConceptNode = (props: NodeProps) => {
 
     // get other nodes that still need to be placed on canvas
     const otherNodes = nodes.filter((node) => node.type !== "subtopic");
-    const otherEdges = edges.filter((edge) => edge.type !== "default");
+    const otherEdges = edges.filter((edge) => edge.type !== "smoothstep");
 
     reactFlowInstance.setNodes([...layoutedNodes, ...otherNodes]);
     reactFlowInstance.setEdges([...layoutedEdges, ...otherEdges]);
@@ -286,15 +286,28 @@ const ConceptNode = (props: NodeProps) => {
 
     console.log("=========");
 
-    const targetNodes_ = layoutNodes(
-      rootNode,
-      [rootNode, ...targetNodes],
-      targetEdges
-    );
-
-    console.log("targetNodes_", ...targetNodes_);
-    await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
-    await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
+    if(use_dagre) {
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+        targetNodes,
+        targetEdges,
+        direction
+      );
+      if (verbose) {
+        console.log("layoutedNodes", ...layoutedNodes);
+        console.log("layoutedEdges", ...layoutedEdges);
+      }  
+      reactFlowInstance.setNodes([...layoutedNodes, ...otherNodes]);
+      reactFlowInstance.setEdges([...layoutedEdges, ...otherEdges]);
+    } else {
+      const targetNodes_ = layoutNodes(
+        rootNode,
+        [rootNode, ...targetNodes],
+        targetEdges
+      );
+      console.log("targetNodes_", ...targetNodes_);
+      await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
+      await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
+    }
   };
 
   const handleSubmit = async () => {

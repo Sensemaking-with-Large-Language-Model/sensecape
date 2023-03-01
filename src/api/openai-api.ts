@@ -10,7 +10,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const devMode: boolean = true;
+const devMode: boolean = false;
 const verbose: boolean = true;
 
 // Object that specifies max token length by response type
@@ -425,11 +425,10 @@ export const extendConcept = async (
       // label: edgeLabel,
       // sourceHandle: sourceHandleId,
       // targetHandle: targetHandleId,
-      type: "default",
-      // type: "step",
-      // markerEnd: {
-      //   type: MarkerType.ArrowClosed,
-      // },
+      // type: "default",
+      type: 'smoothstep',
+      markerEnd: { type: MarkerType.ArrowClosed },
+      pathOptions: { offset: 5 },
       data: {
         rootId: parentNode.data.rootId? parentNode.data.rootId: parentNode.id,
       }

@@ -17,7 +17,53 @@ import { stratify, tree } from "d3-hierarchy";
 
 const verbose: boolean = true; // flag for console.log() messages during devMode
 const zoomSelector = (s: any) => s.transform[2];
+const use_dagre: boolean = false;
 
+// import { dagre } from 'dagre';
+const dagre = require("dagre");
+
+const getLayoutedElements = (
+  nodes: Node[],
+  edges: Edge[],
+  direction = "TB"
+) => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  const nodeWidth = 50;
+  const nodeHeight = 30;
+
+  const isHorizontal = direction === "LR";
+  dagreGraph.setGraph({ rankdir: direction });
+
+  nodes.forEach((node: Node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach((edge: Edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  nodes.forEach((node: Node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    // node.targetPosition = isHorizontal ? 'left' : 'top';
+    // node.sourcePosition = isHorizontal ? 'right' : 'bottom';
+    node.targetPosition = isHorizontal ? Position.Left : Position.Top;
+    node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+
+    // We are shifting the dagre node position (anchor=center center) to the top left
+    // so it matches the React Flow node anchor point (top left).
+    node.position = {
+      x: nodeWithPosition.x - nodeWidth / 2,
+      y: nodeWithPosition.y - nodeHeight / 2,
+    };
+
+    return node;
+  });
+
+  return { nodes, edges };
+};
 // ===========================
 
 // initialize the tree layout (see https://observablehq.com/@d3/tree for examples)
@@ -101,21 +147,37 @@ const SubTopicNode = (props: NodeProps) => {
     // const targetEdges = edges.filter((edge) => edge.type === "step");
     // const targetEdges = edges.filter((edge) => edge.type === "default");
     console.log("targetEdges", targetEdges);
+    console.log('otherNodes', otherNodes);
+    console.log('otherEdges', otherEdges);
     console.log("=========");
 
     // dagre approach
     // get new coordinates for nodes we want to rearrange
 
-    console.log("===========");
-    console.log("d3 approach");
-    // d3 approach
-    const targetNodes_ = layoutNodes(
-      rootNode,
-      [rootNode, ...targetNodes],
-      targetEdges
-    );
-    await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
-    await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
+    if(use_dagre) {
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+        targetNodes,
+        targetEdges,
+        direction
+      );
+      if (verbose) {
+        console.log("layoutedNodes", ...layoutedNodes);
+        console.log("layoutedEdges", ...layoutedEdges);
+      }  
+      reactFlowInstance.setNodes([...layoutedNodes, ...otherNodes]);
+      reactFlowInstance.setEdges([...layoutedEdges, ...otherEdges]);
+    } else {
+
+      console.log("===========");
+      console.log("d3 approach");
+      // d3 approach
+      const targetNodes_ = layoutNodes(rootNode,
+        [rootNode, ...targetNodes],
+        targetEdges
+      );
+      await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
+      await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
+    }
   };
 
   // Depending on Zoom level, vary subtopic font size
@@ -137,14 +199,25 @@ const SubTopicNode = (props: NodeProps) => {
       props.data.label,
       true
     ).then((data) => {
-      console.log("data", data);
+      setTimeout(layout_, 100);
+    });
+  };
+
+  const handleNodeClick= async () => {
+    extendConcept(
+      reactFlowInstance,
+      props.id,
+      "bottom",
+      props.data.label,
+      true
+    ).then((data) => {
       setTimeout(layout_, 100);
     });
   };
 
   return (
     // <div className="subtopic-node" title="click to add a child node">
-    <div className={`${currentZoomState()}`} title="click to add a child node">
+    <div className={`${currentZoomState()}`} title="click to add a child node" onClick={handleNodeClick}>
       <Handle
         id="a"
         className="handle"
