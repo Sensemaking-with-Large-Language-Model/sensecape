@@ -424,19 +424,28 @@ const ExploreFlow = () => {
         // console.log("click");
         break;
       case 2:
+        // Double clicking topic node triggers Semantic Dive
         if (
           nodeMouseOver &&
           nodeMouseOver.type === 'topic' &&
-          nodeMouseOver.id !== currentTopicId &&
           reactFlowInstance
         ) {
-          semanticDiveIn(
-            nodeMouseOver,
-            [instanceMap, setInstanceMap],
-            [currentTopicId, setCurrentTopicId],
-            [semanticRoute, setSemanticRoute],
-            reactFlowInstance
-          );
+          if (nodeMouseOver.id !== currentTopicId) {
+            semanticDiveIn(
+              nodeMouseOver,
+              [instanceMap, setInstanceMap],
+              [currentTopicId, setCurrentTopicId],
+              [semanticRoute, setSemanticRoute],
+              reactFlowInstance
+            );
+          } else {
+            semanticDiveOut(
+              [instanceMap, setInstanceMap],
+              [currentTopicId, setCurrentTopicId],
+              [semanticRoute, setSemanticRoute],
+              reactFlowInstance
+            );
+          }
         }
         break;
     }
