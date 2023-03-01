@@ -10,7 +10,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const devMode: boolean = false;
+const devMode: boolean = true;
 const verbose: boolean = true;
 
 // Object that specifies max token length by response type

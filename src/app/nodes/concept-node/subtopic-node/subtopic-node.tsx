@@ -199,25 +199,14 @@ const SubTopicNode = (props: NodeProps) => {
       props.data.label,
       true
     ).then((data) => {
-      setTimeout(layout_, 100);
-    });
-  };
-
-  const handleNodeClick= async () => {
-    extendConcept(
-      reactFlowInstance,
-      props.id,
-      "bottom",
-      props.data.label,
-      true
-    ).then((data) => {
+      console.log("data", data);
       setTimeout(layout_, 100);
     });
   };
 
   return (
     // <div className="subtopic-node" title="click to add a child node">
-    <div className={`${currentZoomState()}`} title="click to add a child node" onClick={handleNodeClick}>
+    <div className={`${currentZoomState()}`} title="click to add a child node">
       <Handle
         id="a"
         className="handle"
