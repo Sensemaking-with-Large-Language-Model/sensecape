@@ -474,7 +474,7 @@ const ExploreFlow = () => {
   }, [reactFlowInstance]);
 
   useEffect(() => {
-    console.log('dsfa')
+    // console.log('dsfa')
     if (
       nodeMouseOver &&
       nodeMouseOver.type === 'topic' &&
@@ -482,7 +482,7 @@ const ExploreFlow = () => {
       reactFlowInstance &&
       zoom >= zoomRange.max
       ) {
-      console.log('in')
+      // console.log('in')
       semanticDiveIn(
         nodeMouseOver,
         [instanceMap, setInstanceMap],

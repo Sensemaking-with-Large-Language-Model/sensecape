@@ -1,3 +1,4 @@
+import { MouseEvent } from 'react';
 import { Edge, ReactFlowInstance, XYPosition, getRectOfNodes } from "reactflow";
 import { uuid } from "../../utils";
 import { ChatNodeData, TypeChatNode } from "./chat-node.model";
@@ -50,43 +51,54 @@ export const createChatNode = (
 
 export const createChatNodeFromDiv = (
   reactFlowInstance: ReactFlowInstance,
-  event: any,
+  event: MouseEvent,
+  questionId: string,
+  brainstormNodeId: string,
   data: ChatNodeData
 ) => {
-  // const currNode: TypeChatNode | undefined = reactFlowInstance.getNode(sourceId);
-  // console.log('createChatNodefromDiv1');
-  // if (!currNode) {
-  //   return;
-  // }
 
   setTimeout(() => {
-    const nodeElement = document.getElementById(event?.target.id);
+    const nodeElement = document.getElementById(questionId);
+    const brainstormNodeElement = document.querySelectorAll(`[data-id="${brainstormNodeId}"]`)[0];
+    var node_rect = nodeElement!.getBoundingClientRect();
+    var brainstorm_rect = brainstormNodeElement.getBoundingClientRect();
+    var viewport = reactFlowInstance.getViewport();
+    var zoom = viewport.zoom;
+    console.log('nodeElement', nodeElement);
+    console.log('node_rect', node_rect);
+    console.log('brainstormNodeElement', brainstormNodeElement);
+    console.log('brainstorm_rect', brainstorm_rect);
+    // console.log('window.scrollX', window.scrollX);
+    // console.log('window.scrollY', window.scrollY);
+    console.log('viewport', viewport);
     let position: XYPosition;
-    // console.log('event.pageX', event.pageX);
-    // console.log('event.pageY', event.pageY);
+
+    if (viewport.y < 0) {
+
+    }
+
     position = {
-    //   // x: (width / 2) - (575 / 2),
-    //   // y: (height ?? 0) + 20,
-      x: event.clientLeft + event.clientWidth + 150,
-      y: event.clientTop + event.clientHeight,
+      // x: (viewport.x * zoom) + (brainstorm_rect.right * zoom) + 10,
+      // y: (viewport.y * zoom) + (brainstorm_rect.bottom * zoom) ,
+      x: viewport.x + (brainstorm_rect.right) + 10,
+      y: viewport.y + node_rect.bottom,
+      // y: (viewport.y < 0)? viewport.y - brainstorm_rect.bottom : viewport.y + brainstorm_rect.bottom ,
     };
+    console.log('position', position);
     const newNode: TypeChatNode = {
-      id: `chat-${reactFlowInstance.getNodes().length}`,
+      id: `chat-${reactFlowInstance.getNodes().length}-${uuid()}`,
       type: "chat",
       dragHandle: ".drag-handle",
       position,
-      parentNode: event.target.id,
       data,
     };
-    console.log(newNode);
+    console.log('newNode', newNode);
     // const edge: Edge =  {
     //   id: `e-${reactFlowInstance.getEdges().length}`,
     //   source: sourceId,
     //   target: newNode.id,
     // }
-    console.log("createChatNodefromDiv3");
     reactFlowInstance.addNodes(newNode);
-    console.log("createChatNodefromDiv4");
     // reactFlowInstance.addEdges(edge);
   }, 0);
 };
