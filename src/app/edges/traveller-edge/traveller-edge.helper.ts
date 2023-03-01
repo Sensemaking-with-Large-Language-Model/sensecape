@@ -1,4 +1,24 @@
-import { Position, MarkerType } from 'reactflow';
+import { Position, MarkerType, Edge } from 'reactflow';
+import { uuid } from '../../utils';
+
+export const createTravellerEdge = (source: string, target: string, hidden: boolean): Edge => {
+  // Add traveller edge
+  return {
+    id: `edge-travel-${uuid()}`,
+    source,
+    target,
+    data: {},
+    hidden,
+    animated: true,
+    markerEnd: {
+      type: MarkerType.Arrow,
+      width: 20,
+      height: 20,
+      color: '#3facff',
+    },
+    type: 'traveller',
+  }
+}
 
 // this helper function returns the intersection point
 // of the line between the center of the intersectionNode and the target node

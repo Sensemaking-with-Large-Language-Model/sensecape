@@ -71,6 +71,7 @@ import { stratify, tree } from 'd3-hierarchy';
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import ZoomSlider from "./components/zoom-slider/zoom-slider";
 import { usePrevious } from "./hooks/usePrevious";
+import { createTravellerEdge } from "./edges/traveller-edge/traveller-edge.helper";
 
 const verbose: boolean = true;
 
@@ -259,22 +260,7 @@ const ExploreFlow = () => {
         };
         reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
         if (data.parentId) {
-          // Add traveller edge
-          let newEdge: Edge = {
-            id: `edge-travel-${uuid()}`,
-            source: data.parentId,
-            target: newNode.id,
-            data: {},
-            hidden: !travellerMode,
-            animated: true,
-            markerEnd: {
-              type: MarkerType.Arrow,
-              width: 20,
-              height: 20,
-              color: '#3facff',
-            },
-            type: 'traveller',
-          }
+          const newEdge = createTravellerEdge(data.parentId, newNode.id, !travellerMode)
           reactFlowInstance.setEdges((edges) => edges.concat(newEdge));
         }
       }
