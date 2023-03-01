@@ -1,6 +1,6 @@
 .subtopic-node {
-    border: 1px solid #0984e3;
-    // border: 1px solid grey;
+    // border: 1px solid #0984e3;
+    border: 1px solid grey;
     border-radius: 4px;
     // background-color: #c7e8fe;
     box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
@@ -8,8 +8,8 @@
     width: 160px;
     text-align: center;
     font-weight: bold;
-    // color: #373737;
-    color: #0984e3;
+    color: #373737;
+    // color: #0984e3;
     cursor: pointer;
     line-height: 1.2;
 
@@ -31,10 +31,10 @@
       }
 }
 
-.subtopic-node.summary {
-  font-size: 24px;
-}
+// .subtopic-node.summary {
+//   font-size: 24px;
+// }
 
-.subtopic-node.keywords {
-    font-size: 28px;
-}
+// .subtopic-node.keywords {
+//     font-size: 28px;
+// }
