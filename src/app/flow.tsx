@@ -563,7 +563,7 @@ const ExploreFlow = () => {
   return (
     <FlowContext.Provider value={{ numOfConceptNodes, setNumOfConceptNodes, conceptNodes, setConceptNodes, conceptEdges, setConceptEdges }}>
       <div className="explore-flow">
-          <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+          <div id="scale-it" className="reactflow-wrapper" ref={reactFlowWrapper}>
               <ReactFlow
                 id='reactFlowInstance'
                 proOptions={proOptions}
@@ -573,6 +573,7 @@ const ExploreFlow = () => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onNodeClick={handleNodeClick}
+                // onDoubleClick
                 onConnect={onConnect}
                 connectionLineComponent={TravellerConnectionLine}
                 // fitViewOptions={fitViewOptions}

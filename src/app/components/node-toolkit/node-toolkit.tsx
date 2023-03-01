@@ -75,8 +75,15 @@ const NodeToolkit = (props: any) => {
   },
   [reactFlowInstance]);
 
+  const scale = () => {
+    const el = document.getElementById('scale-it');
+    el?.classList.add('scale');
+    console.log(el);
+  }
+
   return (
     <div className="node-toolkit">
+      <Button onClick={scale}>Scale</Button>
       <div className='toolkit-option traveller-mode-toggle'>
         <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />
         Traveller Mode
