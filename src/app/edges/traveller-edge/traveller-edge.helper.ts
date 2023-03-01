@@ -1,13 +1,16 @@
 import { Position, MarkerType, Edge } from 'reactflow';
 import { uuid } from '../../utils';
+import { TypeTravellerEdge } from './traveller-edge.model';
 
-export const createTravellerEdge = (source: string, target: string, hidden: boolean): Edge => {
+export const createTravellerEdge = (source: string, target: string, hidden: boolean): TypeTravellerEdge => {
   // Add traveller edge
   return {
     id: `edge-travel-${uuid()}`,
     source,
     target,
-    data: {},
+    data: {
+      state: {},
+    },
     hidden,
     animated: true,
     markerEnd: {
