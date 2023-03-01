@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
-import { ReactFlowInstance, MarkerType } from "reactflow";
-import { uuid } from "../app/utils";
+import { ReactFlowInstance, MarkerType, Node } from "reactflow";
+import { devFlags, uuid } from "../app/utils";
 import { timer } from 'd3-timer';
 
 const configuration = new Configuration({
@@ -10,7 +10,6 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const devMode: boolean = false;
 const verbose: boolean = true;
 
 // Object that specifies max token length by response type
@@ -22,7 +21,7 @@ export const tokens = {
 };
 
 export const getGPT3Response = async (history: string, prompt: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI can't take all my money");
   }
 
@@ -46,7 +45,7 @@ export const getGPT3Response = async (history: string, prompt: string) => {
 };
 
 export const getGPT3Stream = async (history: string, prompt: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI can't take all my money");
   }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
@@ -72,7 +71,7 @@ export const getGPT3Stream = async (history: string, prompt: string) => {
 
 // Semantic Zoom: Summarize text if zoomed out medium amount
 export const getGPT3Summary = async (text: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("Boba for 1 dollar");
   }
   // If text is as short as what we're asking, just return the text
@@ -101,7 +100,7 @@ export const getGPT3Summary = async (text: string) => {
 
 // Semantic Zoom: Summarize text if zoomed out large amount
 export const getGPT3Keywords = async (text: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI rich enough");
   }
   // If text is as short as what we're asking, just return the text
@@ -129,7 +128,7 @@ export const getGPT3Keywords = async (text: string) => {
 };
 
 export const getGPT3Term = async (history: string, prompt: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("#save1dollar");
   }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
@@ -152,7 +151,7 @@ export const getGPT3Term = async (history: string, prompt: string) => {
 };
 
 export const getTopics = async (prompt: string, concept: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("free text");
   }
   const gptPrompt: string = `${prompt}\n\n`;
@@ -193,7 +192,7 @@ export const getTopics = async (prompt: string, concept: string) => {
 };
 
 export const getGPT3Questions = async (concept: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve([
       "placeholder questions",
       {
@@ -370,7 +369,7 @@ export const extendConcept = async (
   }
 
   let topics: string[] | any;
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     topics = [
       //   "Human Resources Management",
       //   "Financial Management",
@@ -381,8 +380,6 @@ export const extendConcept = async (
       "San Diego Beaches",
       "San Diego Restaurants",
       "San Diego Museums",
-      "San Diego Shopping",
-      "San Diego Outdoor Activities",
     ];
   } else {
     topics = await getTopics(prompt, concept);
@@ -401,8 +398,9 @@ export const extendConcept = async (
     const childNodeId = uuid();
 
     // create the child node
-    const childNode = {
+    const childNode: Node = {
       id: childNodeId,
+      parentNode: parentNode.id,
       // we try to place the child node close to the calculated position from the layout algorithm
       // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
       position: newNodePosition!,
@@ -411,7 +409,9 @@ export const extendConcept = async (
       height: 50,
       // type: nodeType,
       // data: { label: randomLabel() },
-      data: { label: topic },
+      data: { label: topic,
+        rootId: parentNode.data.rootId? parentNode.data.rootId: parentNode.id,
+      },
     };
 
     console.log("childNode", childNode);
@@ -424,11 +424,13 @@ export const extendConcept = async (
       // label: edgeLabel,
       // sourceHandle: sourceHandleId,
       // targetHandle: targetHandleId,
-      type: "default",
-      // type: "step",
-      // markerEnd: {
-      //   type: MarkerType.ArrowClosed,
-      // },
+      // type: "default",
+      type: 'smoothstep',
+      markerEnd: { type: MarkerType.ArrowClosed },
+      pathOptions: { offset: 5 },
+      data: {
+        rootId: parentNode.data.rootId? parentNode.data.rootId: parentNode.id,
+      }
     };
 
     childNodeArray.push(childNode);

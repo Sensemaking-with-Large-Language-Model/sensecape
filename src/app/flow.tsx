@@ -60,7 +60,7 @@ import { getNodePositionInsideParent, sortNodes } from "./nodes/group-node/group
 import QuestionNode from "./nodes/brainstorm-node/question-node";
 import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/question-node.model";
 
-import { uuid } from "./utils";
+import { devFlags, uuid } from "./utils";
 import { Instance, InstanceMap, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
 // import { FlowContext } from './FlowContext';
@@ -172,6 +172,9 @@ const ExploreFlow = () => {
 
   // Updates the current instance of reactflow
   useEffect(() => {
+    if (devFlags.disableLocalStorage) {
+      return;
+    }
     const currInstance = instanceMap[currentTopicId];
     if (currInstance && reactFlowInstance) {
       currInstance.jsonObject = {
@@ -187,6 +190,9 @@ const ExploreFlow = () => {
 
   // On first load, recover nodes from localstorage
   useEffect(() => {
+    if (devFlags.disableLocalStorage) {
+      return;
+    }
     const recoveredInstanceMap = JSON.parse(localStorage.getItem('instanceMap') ?? '');
     const currentInstance = recoveredInstanceMap[currentTopicId];
     if (currentInstance && reactFlowInstance) {
