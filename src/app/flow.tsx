@@ -418,6 +418,31 @@ const ExploreFlow = () => {
     console.log('pinching');
   })
 
+  const handleNodeClick = useCallback((e: any) => {
+    switch (e.detail) {
+      case 1:
+        // console.log("click");
+        break;
+      case 2:
+        if (
+          nodeMouseOver &&
+          nodeMouseOver.type === 'topic' &&
+          nodeMouseOver.id !== currentTopicId &&
+          reactFlowInstance
+        ) {
+          semanticDiveIn(
+            nodeMouseOver,
+            [instanceMap, setInstanceMap],
+            [currentTopicId, setCurrentTopicId],
+            [semanticRoute, setSemanticRoute],
+            reactFlowInstance
+          );
+        }
+        break;
+    }
+  },
+  [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
+
   useEffect(() => {
     if (resizing) {
       return;
@@ -538,6 +563,7 @@ const ExploreFlow = () => {
                 fitView
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                onNodeClick={handleNodeClick}
                 onConnect={onConnect}
                 connectionLineComponent={TravellerConnectionLine}
                 // fitViewOptions={fitViewOptions}
