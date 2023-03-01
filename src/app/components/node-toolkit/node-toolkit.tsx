@@ -68,7 +68,9 @@ const NodeToolkit = (props: any) => {
     localStorage.clear();
     reactFlowInstance.setNodes([]);
     reactFlowInstance.setEdges([]);
-    reactFlowInstance.zoomTo(1);
+    reactFlowInstance.zoomTo(1, {
+      duration: 400,
+    });
     reactFlowInstance.fitView();
   },
   [reactFlowInstance]);

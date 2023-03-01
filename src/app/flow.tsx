@@ -41,7 +41,7 @@ import { createConceptNode } from "./nodes/concept-node/concept-node.helper";
 import { TypeConceptNode } from "./nodes/concept-node/concept-node.model";
 import MemoNode from "./nodes/memo-node/memo-node";
 import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
-import { CreativeNode } from "./nodes/node.model";
+import { CreativeNode, ZoomState } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import { TopicNodeData, TypeTopicNode } from "./nodes/topic-node/topic-node.model";
 import useLayout from "./hooks/useLayout";
@@ -115,7 +115,6 @@ const nodeTypes: NodeTypes = {
   group: GroupNode,
 };
 
-export const zoomRange = {min: 0.3, max: 3};
 
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -133,6 +132,8 @@ const ExploreFlow = () => {
 
   const zoomSelector = (s: any) => s.transform[2];
   const zoom: number = useStore(zoomSelector);
+  const [zoomRange, setZoomRange] = useState({min: 0.3, max: 4});
+
   const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
 
   const homeTopicNode: TypeTopicNode = {
@@ -223,14 +224,6 @@ const ExploreFlow = () => {
   const onConnectStart = useCallback((_: any, { nodeId }: any) => {
     connectingNodeId.current = nodeId;
   }, []);
-
-  const prevAmount = usePrevious(zoom);
-
-  useEffect(() => {
-    // Let max zoom be 2.
-    // Idea, 
-    console.log(prevAmount, zoom);
-  }, [zoom]);
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
@@ -411,8 +404,34 @@ const ExploreFlow = () => {
     };
   }, [reactFlowInstance]);
 
+  /**
+   * Sticky Zoom Limit
+   */
+  const prevZoom = usePrevious(zoom) ?? 0;
+  const [resizing, setResizing] = useState(false);
+
   useEffect(() => {
-    if (
+    if (resizing) {
+      return;
+    }
+
+    if (reactFlowInstance && zoom >= prevZoom && zoom > ZoomState.PREDIVEIN) {
+      setResizing(true);
+      setTimeout(() => {
+        setResizing(false)
+      }, 201);
+      console.log('dsfa')
+      reactFlowInstance.zoomTo(ZoomState.PREDIVEIN, {
+        duration: 200
+      });
+    }
+  }, [reactFlowInstance, zoom, resizing, zoomRange]);
+
+  /**
+   * Semantic Zoom Transition
+   */
+  useEffect(() => {
+     if (
       nodeMouseOver &&
       nodeMouseOver.type === 'topic' &&
       nodeMouseOver.id !== currentTopicId &&
@@ -444,8 +463,6 @@ const ExploreFlow = () => {
     <FlowContext.Provider value={{ numOfConceptNodes, setNumOfConceptNodes, conceptNodes, setConceptNodes, conceptEdges, setConceptEdges }}>
       <div className="explore-flow">
           <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-            {/* <button onClick={semanticDive}>Semantic Dive</button> */}
-            
               <ReactFlow
                 proOptions={proOptions}
                 nodes={nodes}
@@ -476,17 +493,13 @@ const ExploreFlow = () => {
                 selectionMode={SelectionMode.Partial}
                 minZoom={zoomRange.min}
                 maxZoom={zoomRange.max}
-                // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
-                // maxZoom={Infinity} // otherwise, it might not be good to have this 
               >
-              
                 <Background />
                 <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
                 <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
               </ReactFlow>
-              
+
             <SemanticRoute route={semanticRoute} />
-            {/* <div className="semantic-route">{semanticRoute.join(' / ')}</div> */}
             <NodeToolkit 
               travellerMode={travellerMode}
               toggleTravellerMode={toggleTravellerMode}

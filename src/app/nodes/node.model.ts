@@ -18,9 +18,13 @@ export type CreativeNode =
 // State of Semantic Zoom Content
 // Show ZoomState.value if zoom <= value
 export enum ZoomState {
+  // MAX ZOOM = 3
+  PREDIVEIN = 2.3,    // Indicates Semantic Dive In ready
   ALL = 0.75,         // ALL if zoom <= 0.75
   SUMMARY = 0.35,
-  KEYWORDS = 0.2,
+  KEYWORDS = 0.32,
+  PREDIVEOUT = 0.32,  // indicates Semantic Dive Out ready
+  // MIN ZOOM = 0.3
 }
 
 // enum for a 3 state input/click ui system
