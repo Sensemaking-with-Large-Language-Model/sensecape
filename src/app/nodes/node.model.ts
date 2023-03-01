@@ -22,8 +22,8 @@ export enum ZoomState {
   PREDIVEIN = 2.5,    // Indicates Semantic Dive In ready
   ALL = 0.75,         // ALL if zoom <= 0.75
   SUMMARY = 0.5,
-  KEYWORDS = 0.32,
-  PREDIVEOUT = 0.32,  // indicates Semantic Dive Out ready
+  KEYWORDS = 0.4,
+  PREDIVEOUT = 0.4,  // indicates Semantic Dive Out ready
   // MIN ZOOM = 0.3
 }
 
