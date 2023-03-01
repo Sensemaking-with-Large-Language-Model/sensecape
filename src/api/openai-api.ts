@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
 import { ReactFlowInstance, MarkerType, Node } from "reactflow";
-import { uuid } from "../app/utils";
+import { devFlags, uuid } from "../app/utils";
 import { timer } from 'd3-timer';
 
 const configuration = new Configuration({
@@ -10,7 +10,6 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const devMode: boolean = true;
 const verbose: boolean = true;
 
 // Object that specifies max token length by response type
@@ -22,7 +21,7 @@ export const tokens = {
 };
 
 export const getGPT3Response = async (history: string, prompt: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI can't take all my money");
   }
 
@@ -46,7 +45,7 @@ export const getGPT3Response = async (history: string, prompt: string) => {
 };
 
 export const getGPT3Stream = async (history: string, prompt: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI can't take all my money");
   }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
@@ -72,7 +71,7 @@ export const getGPT3Stream = async (history: string, prompt: string) => {
 
 // Semantic Zoom: Summarize text if zoomed out medium amount
 export const getGPT3Summary = async (text: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("Boba for 1 dollar");
   }
   // If text is as short as what we're asking, just return the text
@@ -101,7 +100,7 @@ export const getGPT3Summary = async (text: string) => {
 
 // Semantic Zoom: Summarize text if zoomed out large amount
 export const getGPT3Keywords = async (text: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI rich enough");
   }
   // If text is as short as what we're asking, just return the text
@@ -129,7 +128,7 @@ export const getGPT3Keywords = async (text: string) => {
 };
 
 export const getGPT3Term = async (history: string, prompt: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("#save1dollar");
   }
   const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
@@ -152,7 +151,7 @@ export const getGPT3Term = async (history: string, prompt: string) => {
 };
 
 export const getTopics = async (prompt: string, concept: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve("free text");
   }
   const gptPrompt: string = `${prompt}\n\n`;
@@ -193,7 +192,7 @@ export const getTopics = async (prompt: string, concept: string) => {
 };
 
 export const getGPT3Questions = async (concept: string) => {
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     return Promise.resolve([
       "placeholder questions",
       {
@@ -370,7 +369,7 @@ export const extendConcept = async (
   }
 
   let topics: string[] | any;
-  if (devMode) {
+  if (devFlags.disableOpenAI) {
     topics = [
       //   "Human Resources Management",
       //   "Financial Management",
