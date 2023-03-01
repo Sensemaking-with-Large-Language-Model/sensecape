@@ -130,7 +130,9 @@ export const semanticDiveOut = (
       reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
   
       // Transition
-      reactFlowInstance.zoomTo(2);
+      reactFlowInstance.zoomTo(3.8);
+      // reactFlowInstance.zoomTo(0.7, { duration: 400 });
+
       reactFlowInstance.fitView({
         duration: 400,
         padding: 0,

@@ -25,6 +25,8 @@ import { getTopics } from "../api/openai-api";
 
 import "reactflow/dist/style.css";
 import '@reactflow/node-resizer/dist/style.css';
+import { usePinch } from '@use-gesture/react'
+import { PinchGesture } from '@use-gesture/vanilla'
 import './flow.scss';
 
 // Components
@@ -114,7 +116,6 @@ const nodeTypes: NodeTypes = {
   placeholder: PlaceholderNode,
   group: GroupNode,
 };
-
 
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -410,35 +411,101 @@ const ExploreFlow = () => {
   const prevZoom = usePrevious(zoom) ?? 0;
   const [resizing, setResizing] = useState(false);
 
+  const elm = document.getElementById('reactFlowInstance') as EventTarget;
+  const gesture = new PinchGesture(elm, (state) => console.log('pinging', state));
+
+  const bind = usePinch(() => {
+    console.log('pinching');
+  })
+
   useEffect(() => {
     if (resizing) {
       return;
     }
 
+    // Ways to implement on release transition
+    // - after max zoom
+    //  - listen for gesture out (fingers release from trackpad)
+    //  - zoom >= prevZoom
+
     if (reactFlowInstance && zoom >= prevZoom && zoom > ZoomState.PREDIVEIN) {
       setResizing(true);
       setTimeout(() => {
-        setResizing(false)
+        setResizing(false);
       }, 201);
-      console.log('dsfa')
-      reactFlowInstance.zoomTo(ZoomState.PREDIVEIN, {
-        duration: 200
-      });
+
+      if (
+        prevZoom === zoomRange.max &&
+        zoom < prevZoom &&
+        nodeMouseOver &&
+        nodeMouseOver.type === 'topic' &&
+        nodeMouseOver.id !== currentTopicId &&
+        reactFlowInstance
+      ) {
+        semanticDiveIn(
+          nodeMouseOver,
+          [instanceMap, setInstanceMap],
+          [currentTopicId, setCurrentTopicId],
+          [semanticRoute, setSemanticRoute],
+          reactFlowInstance
+        );
+      } else {
+        reactFlowInstance.zoomTo(ZoomState.PREDIVEIN, {
+          duration: 200
+        });
+      }
     }
-  }, [reactFlowInstance, zoom, resizing, zoomRange]);
+
+    if (reactFlowInstance && zoom <= prevZoom && zoom < ZoomState.PREDIVEOUT) {
+      setResizing(true);
+      setTimeout(() => {
+        setResizing(false);
+      }, 201);
+
+      if (
+        prevZoom === zoomRange.min &&
+        zoom > prevZoom &&
+        reactFlowInstance
+      ) {
+        semanticDiveOut(
+          [instanceMap, setInstanceMap],
+          [currentTopicId, setCurrentTopicId],
+          [semanticRoute, setSemanticRoute],
+          reactFlowInstance
+        );
+      } else {
+        reactFlowInstance.zoomTo(ZoomState.PREDIVEOUT, {
+          duration: 200
+        });
+      }
+    }
+  }, [reactFlowInstance, zoom, resizing, zoomRange, nodeMouseOver, currentTopicId, semanticRoute]);
 
   /**
    * Semantic Zoom Transition
    */
   useEffect(() => {
-     if (
+    // When ready to trigger Semantic Dive
+    if (
       nodeMouseOver &&
       nodeMouseOver.type === 'topic' &&
       nodeMouseOver.id !== currentTopicId &&
       reactFlowInstance &&
-      zoom >= zoomRange.max
+      zoom > ZoomState.PREDIVEIN &&
+      zoom < zoomRange.max
+    ) {
+      // Idea: while between predivein and maxzoom
+      //       
+    }
+
+    // Trigger Semantic Dive
+    if (
+      nodeMouseOver &&
+      nodeMouseOver.type === 'topic' &&
+      nodeMouseOver.id !== currentTopicId &&
+      reactFlowInstance &&
+      zoom === zoomRange.max
       ) {
-      console.log('in')
       semanticDiveIn(
         nodeMouseOver,
         [instanceMap, setInstanceMap],
@@ -464,6 +531,7 @@ const ExploreFlow = () => {
       <div className="explore-flow">
           <div className="reactflow-wrapper" ref={reactFlowWrapper}>
               <ReactFlow
+                id='reactFlowInstance'
                 proOptions={proOptions}
                 nodes={nodes}
                 edges={edges}
@@ -488,6 +556,7 @@ const ExploreFlow = () => {
                 // onSelectionEnd={onSelectTopicNodes}
                 // onSelectionContextMenu={onSelectTopicNodes}
                 panOnScroll
+                zoomOnPinch
                 selectionOnDrag
                 panOnDrag={panOnDrag}
                 selectionMode={SelectionMode.Partial}
