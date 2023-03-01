@@ -423,6 +423,12 @@ const ConceptNode = (props: NodeProps) => {
           className="node-handle-direct"
         />
         {concept || "Enter concept"}
+        <Handle
+          type="source"
+          className="concept-node-handle"
+          position={Position.Bottom}
+          onClick={handleSubTopicClick}
+        />
       </div>
     );
   }
