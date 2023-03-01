@@ -12,10 +12,6 @@ export const useLocalStorage = <S>(key: string, defaultValue: S): [S, Dispatch<S
     return getStorageValue(key, defaultValue);
   });
 
-  if (key === 'instanceMap') {
-    console.log('value of instance', value);
-  }
-
   useEffect(() => {
     // storing input name
     localStorage.setItem(key, JSON.stringify(value));
