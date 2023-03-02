@@ -61,6 +61,7 @@
 .add-node:hover {
   color: #444;
   box-shadow: 0 5px 10px rgba(154, 154, 154, 0.3);
+  border-radius: 5px;
   path {
     transition: ease 0.15s;
     stroke: #444;

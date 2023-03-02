@@ -109,7 +109,7 @@ const BrainstormNode = (props: NodeProps) => {
                 <div className="brainstorm-response-block">
                   {
                     // elem[1].map((question: any, index:number) => <QuestionNode id={`${input}` + "-" + {index} + "-" + elem[0]} selected={false} type={question} data={''} zIndex={100} isConnectable={true} xPos={0} yPos={0} dragging={false} keyword={input} index={index} fiveWsType={elem[0]} question={question} />)
-                    elem[1].map((question: any, index:number) => <QuestionNode keyword={input} index={index} fiveWsType={elem[0]} question={question} parentId={props.id} />)
+                    elem[1].map((question: any, index:number) => <><Handle type="source" position={Position.Right} /><QuestionNode keyword={input} index={index} fiveWsType={elem[0]} question={question} parentId={props.id} /></>)
                   }
                 </div>
               ))
