@@ -34,52 +34,6 @@ import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 const verbose: boolean = true; // flag for console.log() messages during devMode
 const use_dagre: boolean = false;
 
-// import { dagre } from 'dagre';
-const dagre = require("dagre");
-
-const getLayoutedElements = (
-  nodes: Node[],
-  edges: Edge[],
-  direction = "TB"
-) => {
-  const dagreGraph = new dagre.graphlib.Graph();
-  dagreGraph.setDefaultEdgeLabel(() => ({}));
-  const nodeWidth = 150;
-  const nodeHeight = 100;
-
-  const isHorizontal = direction === "LR";
-  dagreGraph.setGraph({ rankdir: direction });
-
-  nodes.forEach((node: Node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  edges.forEach((edge: Edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node: Node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    // node.targetPosition = isHorizontal ? 'left' : 'top';
-    // node.sourcePosition = isHorizontal ? 'right' : 'bottom';
-    node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-    node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-
-    // We are shifting the dagre node position (anchor=center center) to the top left
-    // so it matches the React Flow node anchor point (top left).
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
-    };
-
-    return node;
-  });
-
-  return { nodes, edges };
-};
-
 // ===========================
 
 // initialize the tree layout (see https://observablehq.com/@d3/tree for examples)
@@ -222,43 +176,6 @@ const ConceptNode = (props: NodeProps) => {
   // NOTE: To update context value with, e.g., `setNumOfConceptNodes` accessed with `useContext`,
   // the function needs to be `hook`. Using `useCallBack` does not update context value.. (ran into this bug)
   // cf: https://stackoverflow.com/questions/50502664/how-to-update-the-context-value-in-a-provider-from-the-consumer
-  const handleSupTopicClick = () => {
-    // const { childNode:any, childEdge:any } = extendConcept(reactFlowInstance, props.id, 'top', input)
-    extendConcept(
-      reactFlowInstance,
-      props.id,
-      "top",
-      input,
-      true,
-      setResponseInputState
-    );
-    setNumOfConceptNodes(numOfConceptNodes + 1);
-    // console.log(numOfConceptNodes);
-    const direction = "TB";
-    const nodes = reactFlowInstance.getNodes();
-    const edges = reactFlowInstance.getEdges();
-    // get nodes we want to rearrange
-    const targetNodes = nodes.filter((node) => node.type === "subtopic");
-    const targetEdges = edges.filter((edge) => edge.type === "smoothstep");
-    // get new coordinates for nodes we want to rearrange
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      targetNodes,
-      targetEdges,
-      direction
-    );
-    if (verbose) {
-      console.log("layoutedNodes", ...layoutedNodes);
-      console.log("layoutedEdges", ...layoutedEdges);
-    }
-
-    // get other nodes that still need to be placed on canvas
-    const otherNodes = nodes.filter((node) => node.type !== "subtopic");
-    const otherEdges = edges.filter((edge) => edge.type !== "smoothstep");
-
-    reactFlowInstance.setNodes([...layoutedNodes, ...otherNodes]);
-    reactFlowInstance.setEdges([...layoutedEdges, ...otherEdges]);
-  };
-
   const layout_ = async () => {
     setNumOfConceptNodes(numOfConceptNodes + 1);
     const direction = "TB";
@@ -284,30 +201,14 @@ const ConceptNode = (props: NodeProps) => {
     const otherNodes = nodes.filter((node) => node.data.rootId !== rootId_);
     const otherEdges = edges.filter((edge) => edge.data.type !== rootId_);
 
-    console.log("=========");
-
-    if(use_dagre) {
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-        targetNodes,
-        targetEdges,
-        direction
-      );
-      if (verbose) {
-        console.log("layoutedNodes", ...layoutedNodes);
-        console.log("layoutedEdges", ...layoutedEdges);
-      }  
-      reactFlowInstance.setNodes([...layoutedNodes, ...otherNodes]);
-      reactFlowInstance.setEdges([...layoutedEdges, ...otherEdges]);
-    } else {
-      const targetNodes_ = layoutNodes(
-        rootNode,
-        [rootNode, ...targetNodes],
-        targetEdges
-      );
-      console.log("targetNodes_", ...targetNodes_);
-      await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
-      await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
-    }
+    const targetNodes_ = layoutNodes(
+      rootNode,
+      [rootNode, ...targetNodes],
+      targetEdges
+    );
+    console.log("targetNodes_", ...targetNodes_);
+    await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
+    await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
   };
 
   const handleSubmit = async () => {
