@@ -1,0 +1,63 @@
+.flex-node {
+    position: relative;
+    width: 525px;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    // border: 1px solid #FF4500;
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+    // background: rgba(255, 69, 0, 0.15);
+    background: #fff;
+    font-size: 14px;
+ 
+  
+    .flex-response {
+      position: relative;
+      margin-top: 20px;
+      white-space: pre-wrap;
+      line-height: 1.4em;
+      border-radius: 4px;
+      padding: 6px;
+      transition: 0.15s;
+    }
+  
+    .all {
+      opacity: 0;
+      visibility: hidden;
+    }
+  
+    .summary {
+      position: absolute;
+      top: -16px;
+      height: 100%;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .keywords {
+      position: absolute;
+      top: -16px;
+      height: 100%;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      opacity: 0;
+      visibility: hidden;
+    }
+  
+    .chat-text-show {
+      opacity: 1;
+      visibility: visible;
+    }
+  
+  }
+  

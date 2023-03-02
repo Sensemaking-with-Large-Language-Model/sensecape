@@ -24,8 +24,8 @@ import ReactFlow, {
 import { getTopics } from "../api/openai-api";
 
 import "reactflow/dist/style.css";
-import '@reactflow/node-resizer/dist/style.css';
-import './flow.scss';
+import "@reactflow/node-resizer/dist/style.css";
+import "./flow.scss";
 
 // Components
 import GenerateConceptButton from "./components/button-generate-concept/button-generate-concept";
@@ -35,7 +35,7 @@ import TravellerConnectionLine from "./edges/traveller-edge/traveller-connection
 
 // Nodes
 import ChatNode from "./nodes/chat-node/chat-node";
-import { TypeChatNode } from "./nodes/chat-node/chat-node.model";
+import { ChatNodeData, TypeChatNode } from './nodes/chat-node/chat-node.model';
 import ConceptNode from "./nodes/concept-node/concept-node";
 import { createConceptNode } from "./nodes/concept-node/concept-node.helper";
 import { TypeConceptNode } from "./nodes/concept-node/concept-node.model";
@@ -43,9 +43,12 @@ import MemoNode from "./nodes/memo-node/memo-node";
 import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
 import { CreativeNode } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
-import { TopicNodeData, TypeTopicNode } from "./nodes/topic-node/topic-node.model";
+import {
+  TopicNodeData,
+  TypeTopicNode,
+} from "./nodes/topic-node/topic-node.model";
 import useLayout from "./hooks/useLayout";
-import useAutoLayout, { Direction } from './hooks/useAutoLayout';
+import useAutoLayout, { Direction } from "./hooks/useAutoLayout";
 import SubTopicNode from "./nodes/concept-node/subtopic-node/subtopic-node";
 import { TypeSubTopicNode } from "./nodes/concept-node/subtopic-node/subtopic-node.model";
 import SupTopicNode from "./nodes/concept-node/suptopic-node/suptopic-node";
@@ -56,40 +59,54 @@ import BrainstormNode from "./nodes/brainstorm-node/brainstorm-node";
 import { TypeBrainstormNode } from "./nodes/brainstorm-node/brainstorm-node.model";
 import GroupNode from "./nodes/group-node/group-node";
 import edgeTypes from "./edges";
-import { getNodePositionInsideParent, sortNodes } from "./nodes/group-node/group-node.helper";
+import {
+  getNodePositionInsideParent,
+  sortNodes,
+} from "./nodes/group-node/group-node.helper";
 import QuestionNode from "./nodes/brainstorm-node/question-node";
-import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/question-node.model";
+import {
+  QuestionNodeData,
+  TypeQuestionNode,
+} from "./nodes/brainstorm-node/question-node.model";
 
 import { devFlags, uuid } from "./utils";
-import { Instance, InstanceMap, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
+import {
+  Instance,
+  InstanceMap,
+  InstanceState,
+  semanticDiveIn,
+  semanticDiveOut,
+} from "./triggers/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
 // import { FlowContext } from './FlowContext';
 import { FlowContext } from "./flow.model";
-import { stratify, tree } from 'd3-hierarchy';
+import { stratify, tree } from "d3-hierarchy";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import ZoomSlider from "./components/zoom-slider/zoom-slider";
+import { FlexNodeData } from "./nodes/flex-node/flex-node.model";
+import FlexNode from "./nodes/flex-node/flex-node";
 
 const verbose: boolean = true;
 
-const nodeColor = (node:Node) => {
+const nodeColor = (node: Node) => {
   switch (node.type) {
-    case 'brainstorm':
+    case "brainstorm":
       // return '#4193F5';
-      return '#6ede87';
-    case 'chat':
-      return '#FF4500';
-    case 'concept':
-      return '#0984e326';
-    case 'topic':
-      return '#6865A5';
-    case 'subtopic':
-      return '#6865A5';
-    case 'suptopic':
-      return '#6865A5';
-    case 'memo':
-        return '#FFFF00';
+      return "#6ede87";
+    case "chat":
+      return "#FF4500";
+    case "concept":
+      return "#0984e326";
+    case "topic":
+      return "#6865A5";
+    case "subtopic":
+      return "#6865A5";
+    case "suptopic":
+      return "#6865A5";
+    case "memo":
+      return "#FFFF00";
     default:
-      return '#ff0072';
+      return "#ff0072";
   }
 };
 
@@ -109,18 +126,20 @@ const nodeTypes: NodeTypes = {
   suptopic: SupTopicNode,
   concept: ConceptNode,
   memo: MemoNode,
+  flex: FlexNode,
   workflow: WorkflowNode,
   placeholder: PlaceholderNode,
   group: GroupNode,
 };
 
-export const zoomRange = {min: 0.3, max: 3};
+export const zoomRange = { min: 0.3, max: 3 };
 
 const ExploreFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const reactFlowWrapper = useRef<any>(null);
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
 
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const [travellerMode, setTravellerMode] = useState(true);
@@ -135,39 +154,47 @@ const ExploreFlow = () => {
   const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
 
   const homeTopicNode: TypeTopicNode = {
-    id: 'topic-home',
-    type: 'topic',
-    dragHandle: '.drag-handle',
+    id: "topic-home",
+    type: "topic",
+    dragHandle: ".drag-handle",
     data: {
-      parentId: '',
-      chatReference: '',
+      parentId: "",
+      chatReference: "",
       instanceState: InstanceState.NONE, // To temporarily disable dive out of home
       state: {
-        topic: 'home'
-      }
+        topic: "home",
+      },
     } as TopicNodeData,
-    position: { x: 0, y: 0 }
-  }
+    position: { x: 0, y: 0 },
+  };
 
   // Topic Node Id of the current instance
-  const [currentTopicId, setCurrentTopicId] = useLocalStorage<string>('currentTopicId', homeTopicNode.id);
+  const [currentTopicId, setCurrentTopicId] = useLocalStorage<string>(
+    "currentTopicId",
+    homeTopicNode.id
+  );
 
   // Maps topicNodeId to Instance
-  const [instanceMap, setInstanceMap] = useLocalStorage<InstanceMap>('instanceMap', {
-    [currentTopicId]: {
-      name: 'home',
-      parentId: '',
-      childrenId: [] as string[],
-      topicNode: homeTopicNode,
-      jsonObject: {
-        nodes: [] as Node[],
-        edges: [] as Edge[],
-      },
-      level: 0,
-    } as Instance
-  });
+  const [instanceMap, setInstanceMap] = useLocalStorage<InstanceMap>(
+    "instanceMap",
+    {
+      [currentTopicId]: {
+        name: "home",
+        parentId: "",
+        childrenId: [] as string[],
+        topicNode: homeTopicNode,
+        jsonObject: {
+          nodes: [] as Node[],
+          edges: [] as Edge[],
+        },
+        level: 0,
+      } as Instance,
+    }
+  );
 
-  const [semanticRoute, setSemanticRoute] = useLocalStorage('semanticRoute', ['home']);
+  const [semanticRoute, setSemanticRoute] = useLocalStorage("semanticRoute", [
+    "home",
+  ]);
 
   // Updates the current instance of reactflow
   useEffect(() => {
@@ -181,18 +208,19 @@ const ExploreFlow = () => {
         edges: edges,
       };
       instanceMap[currentTopicId] = currInstance;
-      localStorage.setItem('instanceMap', JSON.stringify(instanceMap));
+      localStorage.setItem("instanceMap", JSON.stringify(instanceMap));
       setInstanceMap(instanceMap);
     }
-  },
-  [instanceMap, nodes, edges]);
+  }, [instanceMap, nodes, edges]);
 
   // On first load, recover nodes from localstorage
   useEffect(() => {
     if (devFlags.disableLocalStorage) {
       return;
     }
-    const recoveredInstanceMap = JSON.parse(localStorage.getItem('instanceMap') ?? '');
+    const recoveredInstanceMap = JSON.parse(
+      localStorage.getItem("instanceMap") ?? ""
+    );
     const currentInstance = recoveredInstanceMap[currentTopicId];
     if (currentInstance && reactFlowInstance) {
       reactFlowInstance.setNodes(currentInstance.jsonObject.nodes);
@@ -206,16 +234,21 @@ const ExploreFlow = () => {
     // console.log('getRectOfNodes',getRectOfNodes(nodes));
     if (nodes.length < 2) {
       // document.getElementsByClassName('minimap')[0].style.visibility = 'hidden';
-      const minimap = document.getElementsByClassName('minimap')[0] as HTMLElement;
-      minimap.style.visibility = 'hidden';
+      const minimap = document.getElementsByClassName(
+        "minimap"
+      )[0] as HTMLElement;
+      minimap.style.visibility = "hidden";
     } else {
-      const minimap = document.getElementsByClassName('minimap')[0] as HTMLElement;
-      minimap.style.visibility = 'visible';
+      const minimap = document.getElementsByClassName(
+        "minimap"
+      )[0] as HTMLElement;
+      minimap.style.visibility = "visible";
     }
-  }, [nodes])
+  }, [nodes]);
 
   const onConnect = useCallback(
-    (params: Edge | Connection) => reactFlowInstance?.setEdges((els) => addEdge(params, els)),
+    (params: Edge | Connection) =>
+      reactFlowInstance?.setEdges((els) => addEdge(params, els)),
     [reactFlowInstance]
   );
 
@@ -228,13 +261,12 @@ const ExploreFlow = () => {
   // extended topic is intelligently placed at right location (so that users do not have to manually do this)
   const onConnectEnd = useCallback(
     async (event: any) => {
-      console.log('event', event);
-      console.log('event.target', event.target);
+      console.log("event", event);
+      console.log("event.target", event.target);
       // console.log('onConnectEnd');
       // get bounding box to find exact location of cursor
-      const reactFlowBounds = 
+      const reactFlowBounds =
         reactFlowWrapper?.current?.getBoundingClientRect();
-        
 
       if (reactFlowInstance) {
         // select concept node & get text box input value
@@ -320,10 +352,10 @@ const ExploreFlow = () => {
               type: MarkerType.Arrow,
               width: 20,
               height: 20,
-              color: '#3facff',
+              color: "#3facff",
             },
-            type: 'traveller',
-          }
+            type: "traveller",
+          };
           reactFlowInstance.setEdges((edges) => edges.concat(newEdge));
         }
       }
@@ -333,17 +365,22 @@ const ExploreFlow = () => {
 
   const onNodeDrag = useCallback(
     (_: any, node: Node) => {
-      if (node.type !== 'node' && !node.parentNode) {
+      if (node.type !== "node" && !node.parentNode) {
         return;
       }
 
       if (reactFlowInstance) {
-        const intersections = reactFlowInstance.getIntersectingNodes(node).filter((n) => n.type === 'group');
-        const groupClassName = intersections.length && node.parentNode !== intersections[0]?.id ? 'active' : '';
+        const intersections = reactFlowInstance
+          .getIntersectingNodes(node)
+          .filter((n) => n.type === "group");
+        const groupClassName =
+          intersections.length && node.parentNode !== intersections[0]?.id
+            ? "active"
+            : "";
 
         reactFlowInstance.setNodes((nds) => {
           return nds.map((n) => {
-            if (n.type === 'group') {
+            if (n.type === "group") {
               return {
                 ...n,
                 className: groupClassName,
@@ -365,12 +402,14 @@ const ExploreFlow = () => {
 
   const onNodeDragStop = useCallback(
     (_: any, node: Node) => {
-      if (node.type !== 'node') {
+      if (node.type !== "node") {
         return;
       }
 
       if (reactFlowInstance) {
-        const intersections = reactFlowInstance.getIntersectingNodes(node).filter((n) => n.type === 'group');
+        const intersections = reactFlowInstance
+          .getIntersectingNodes(node)
+          .filter((n) => n.type === "group");
         const groupNode = intersections[0];
 
         // when there is an intersection on drag stop, we want to attach the node to its new parent
@@ -382,7 +421,7 @@ const ExploreFlow = () => {
               if (n.id === groupNode.id) {
                 return {
                   ...n,
-                  className: '',
+                  className: "",
                 };
               } else if (n.id === node.id) {
                 const position = getNodePositionInsideParent(n, groupNode);
@@ -391,7 +430,7 @@ const ExploreFlow = () => {
                     ...n,
                     position,
                     parentNode: groupNode.id,
-                    extent: 'parent' as 'parent',
+                    extent: "parent" as "parent",
                   };
                 }
               }
@@ -426,24 +465,23 @@ const ExploreFlow = () => {
   /**
    * Toggles visibility of traveller edges to track progress
    */
-  const toggleTravellerMode = useCallback(
-    () => {
-      setTravellerMode(!travellerMode);
-      console.log(travellerMode);
-      if (reactFlowInstance){
-        console.log(reactFlowInstance.getEdges());
-        reactFlowInstance.setEdges((edges) => edges.map(edge => {
+  const toggleTravellerMode = useCallback(() => {
+    setTravellerMode(!travellerMode);
+    console.log(travellerMode);
+    if (reactFlowInstance) {
+      console.log(reactFlowInstance.getEdges());
+      reactFlowInstance.setEdges((edges) =>
+        edges.map((edge) => {
           // if edge is traveller, toggle hidden
-          if (edge.id.includes('edge-travel')) {
+          if (edge.id.includes("edge-travel")) {
             edge.hidden = travellerMode;
           }
           return edge;
-        }));
-      }
-    },
-    [reactFlowInstance, travellerMode]
-  ) 
-  // this function is used for generating sub- or sup- topics 
+        })
+      );
+    }
+  }, [reactFlowInstance, travellerMode]);
+  // this function is used for generating sub- or sup- topics
   // specifically, it determines prompt based on which handle is clicked
   // and then it calls another function getTopics() to receive and return generated sub- or sup- topics
   const generateTopic = (pos: string, concept: string) => {
@@ -464,24 +502,27 @@ const ExploreFlow = () => {
   };
 
   // this function is called when generate concept button is clicked
-  const generateConceptNode = useCallback((selectedTopicIds: string[]) => {
-    if (reactFlowInstance) {
-      const topicNodes: TypeTopicNode[] = selectedTopicIds
-        .map(topicId => reactFlowInstance.getNode(topicId))
-        .filter((node): node is TypeTopicNode => !!node);
-      createConceptNode(reactFlowInstance, topicNodes, travellerMode);
-    };
-  }, [reactFlowInstance]);
+  const generateConceptNode = useCallback(
+    (selectedTopicIds: string[]) => {
+      if (reactFlowInstance) {
+        const topicNodes: TypeTopicNode[] = selectedTopicIds
+          .map((topicId) => reactFlowInstance.getNode(topicId))
+          .filter((node): node is TypeTopicNode => !!node);
+        createConceptNode(reactFlowInstance, topicNodes, travellerMode);
+      }
+    },
+    [reactFlowInstance]
+  );
 
   useEffect(() => {
     // console.log('dsfa')
     if (
       nodeMouseOver &&
-      nodeMouseOver.type === 'topic' &&
+      nodeMouseOver.type === "topic" &&
       nodeMouseOver.id !== currentTopicId &&
       reactFlowInstance &&
       zoom >= zoomRange.max
-      ) {
+    ) {
       // console.log('in')
       semanticDiveIn(
         nodeMouseOver,
@@ -490,10 +531,7 @@ const ExploreFlow = () => {
         [semanticRoute, setSemanticRoute],
         reactFlowInstance
       );
-    } else if (
-      reactFlowInstance &&
-      zoom <= zoomRange.min
-    ) {
+    } else if (reactFlowInstance && zoom <= zoomRange.min) {
       semanticDiveOut(
         [instanceMap, setInstanceMap],
         [currentTopicId, setCurrentTopicId],
@@ -501,61 +539,118 @@ const ExploreFlow = () => {
         reactFlowInstance
       );
     }
-  }, [zoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
+  }, [
+    zoom,
+    reactFlowInstance,
+    nodeMouseOver,
+    currentTopicId,
+    instanceMap,
+    semanticRoute,
+  ]);
+
+  // add flex node when user double clicks on canvas
+  const onPaneClick = useCallback(
+    (evt: React.MouseEvent<Element, MouseEvent>) => {
+      if (evt.detail === 1) { // single click
+        // it was a double click
+        return;
+      } else if (evt.detail === 2) { // double click
+        // 👇 make adding nodes undoable
+
+        const position: XYPosition = reactFlowInstance!.project({
+          // x: evt.clientX + (525 / 2),
+          x: evt.clientX,
+          y: evt.clientY,
+        });
+
+        const data: FlexNodeData = {
+          // We want chat node to have no response yet, since the user will ask for a response
+          placeholder: 'Ask a follow up question',
+          state: {},
+        };
+
+        reactFlowInstance!.addNodes([
+          {
+            id: `chat-${uuid()}`,
+            type: 'flex',
+            dragHandle: '.drag-handle',
+            position,
+            data,
+          },
+        ]);
+      }
+    },
+    [reactFlowInstance]
+  );
 
   return (
-    <FlowContext.Provider value={{ numOfConceptNodes, setNumOfConceptNodes, conceptNodes, setConceptNodes, conceptEdges, setConceptEdges }}>
+    <FlowContext.Provider
+      value={{
+        numOfConceptNodes,
+        setNumOfConceptNodes,
+        conceptNodes,
+        setConceptNodes,
+        conceptEdges,
+        setConceptEdges,
+      }}
+    >
       <div className="explore-flow">
-          <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-            {/* <button onClick={semanticDive}>Semantic Dive</button> */}
-            
-              <ReactFlow
-                proOptions={proOptions}
-                nodes={nodes}
-                edges={edges}
-                fitView
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                connectionLineComponent={TravellerConnectionLine}
-                // fitViewOptions={fitViewOptions}
-                onInit={setReactFlowInstance}
-                nodeTypes={nodeTypes}
-                edgeTypes={edgeTypes}
-                onNodeDrag={onNodeDrag}
-                onNodeDragStop={onNodeDragStop}
-                onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
-                onNodeMouseLeave={() => setNodeMouseOver(null)}
-                onDrop={onDrop}
-                onDragOver={onDragOver}
-                onConnectStart={onConnectStart}
-                // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
-                onSelectionChange={onSelectionChange}
-                // onSelectionEnd={onSelectTopicNodes}
-                // onSelectionContextMenu={onSelectTopicNodes}
-                panOnScroll
-                selectionOnDrag
-                panOnDrag={panOnDrag}
-                selectionMode={SelectionMode.Partial}
-                minZoom={zoomRange.min}
-                maxZoom={zoomRange.max}
-                // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
-                // maxZoom={Infinity} // otherwise, it might not be good to have this 
-              >
-              
-                <Background />
-                <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
-                <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
-              </ReactFlow>
-              
-            <SemanticRoute route={semanticRoute} />
-            {/* <div className="semantic-route">{semanticRoute.join(' / ')}</div> */}
-            <NodeToolkit 
-              travellerMode={travellerMode}
-              toggleTravellerMode={toggleTravellerMode}
+        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+          {/* <button onClick={semanticDive}>Semantic Dive</button> */}
+
+          <ReactFlow
+            proOptions={proOptions}
+            nodes={nodes}
+            edges={edges}
+            fitView
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            connectionLineComponent={TravellerConnectionLine}
+            // fitViewOptions={fitViewOptions}
+            onInit={setReactFlowInstance}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            onNodeDrag={onNodeDrag}
+            onNodeDragStop={onNodeDragStop}
+            onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
+            onNodeMouseLeave={() => setNodeMouseOver(null)}
+            onDrop={onDrop}
+            onPaneClick={onPaneClick}
+            onDragOver={onDragOver}
+            onConnectStart={onConnectStart}
+            // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
+            onSelectionChange={onSelectionChange}
+            // onSelectionEnd={onSelectTopicNodes}
+            // onSelectionContextMenu={onSelectTopicNodes}
+            panOnScroll
+            selectionOnDrag
+            panOnDrag={panOnDrag}
+            selectionMode={SelectionMode.Partial}
+            minZoom={zoomRange.min}
+            maxZoom={zoomRange.max}
+            // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
+            // maxZoom={Infinity} // otherwise, it might not be good to have this
+          >
+            <Background />
+            <MiniMap
+              nodeColor={nodeColor}
+              nodeStrokeWidth={3}
+              zoomable
+              pannable
+              className="minimap"
             />
-            <ZoomSlider zoom={zoom} range={zoomRange} />
-          </div>
+            <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
+          </ReactFlow>
+
+          <SemanticRoute route={semanticRoute} />
+          {/* <div className="semantic-route">{semanticRoute.join(' / ')}</div> */}
+          <NodeToolkit
+            travellerMode={travellerMode}
+            toggleTravellerMode={toggleTravellerMode}
+          />
+          <ZoomSlider zoom={zoom} range={zoomRange} />
+        </div>
       </div>
     </FlowContext.Provider>
   );
