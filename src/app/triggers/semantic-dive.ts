@@ -140,7 +140,7 @@ export const semanticDiveOut = (
           nodes: [currentInstance.topicNode] as Node[],
           edges: [] as Edge[],
         },
-        level: currentInstance.level+1,
+        level: currentInstance.level-1,
       } as Instance;
 
       currentInstance.parentId = parentInstance.topicNode.id;
@@ -153,7 +153,8 @@ export const semanticDiveOut = (
       setSemanticRoute([parentInstance.name].concat(semanticRoute));
 
     } else {
-      setSemanticRoute(semanticRoute.slice(0, -1));
+      // setSemanticRoute(semanticRoute.slice(0, -1));
+      setSemanticRoute([parentInstance.name]);
     }
 
     // store current reactFlowInstance
@@ -169,7 +170,7 @@ export const semanticDiveOut = (
     reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
 
     // Transition
-    reactFlowInstance.zoomTo(3.8);
+    // reactFlowInstance.zoomTo(3.8);
     // reactFlowInstance.zoomTo(0.7, { duration: 400 });
 
     reactFlowInstance.fitView({

@@ -410,7 +410,9 @@ const ExploreFlow = () => {
         // console.log("click");
         break;
       case 2:
-        // Double clicking topic node triggers Semantic Dive
+        /**
+         * Semantic Zoom by double click
+         */
         if (
           nodeMouseOver &&
           nodeMouseOver.type === 'topic' &&
@@ -438,15 +440,13 @@ const ExploreFlow = () => {
   },
   [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
 
+  /**
+   * Semantic Zoom, zoom cancel pop back up — zoom by pinch
+   */
   useEffect(() => {
     if (resizing) {
       return;
     }
-
-    // Ways to implement on release transition
-    // - after max zoom
-    //  - listen for gesture out (fingers release from trackpad)
-    //  - zoom >= prevZoom
 
     if (reactFlowInstance && zoom >= prevZoom && zoom > ZoomState.PREDIVEIN) {
       setResizing(true);
@@ -482,42 +482,29 @@ const ExploreFlow = () => {
         setResizing(false);
       }, 201);
 
-      if (
-        prevZoom === zoomRange.min &&
-        zoom > prevZoom &&
-        reactFlowInstance
-      ) {
-        semanticDiveOut(
-          [instanceMap, setInstanceMap],
-          [currentTopicId, setCurrentTopicId],
-          [semanticRoute, setSemanticRoute],
-          reactFlowInstance
-        );
-      } else {
-        reactFlowInstance.zoomTo(ZoomState.PREDIVEOUT, {
-          duration: 200
-        });
-      }
+      reactFlowInstance.zoomTo(ZoomState.PREDIVEOUT, {
+        duration: 200
+      });
+      // if (
+      //   prevZoom === zoomRange.min &&
+      //   zoom > prevZoom &&
+      //   reactFlowInstance
+      // ) {
+      //   semanticDiveOut(
+      //     [instanceMap, setInstanceMap],
+      //     [currentTopicId, setCurrentTopicId],
+      //     [semanticRoute, setSemanticRoute],
+      //     reactFlowInstance
+      //   );
+      // } else {
+      // }
     }
   }, [reactFlowInstance, zoom, resizing, zoomRange, nodeMouseOver, currentTopicId, semanticRoute]);
 
   /**
-   * Semantic Zoom Transition
+   * Semantic Zoom Transition by Pinch
    */
   useEffect(() => {
-    // When ready to trigger Semantic Dive
-    if (
-      nodeMouseOver &&
-      nodeMouseOver.type === 'topic' &&
-      nodeMouseOver.id !== currentTopicId &&
-      reactFlowInstance &&
-      zoom > ZoomState.PREDIVEIN &&
-      zoom < zoomRange.max
-    ) {
-      // Idea: while between predivein and maxzoom
-      //       
-    }
-
     // Trigger Semantic Dive
     if (
       nodeMouseOver &&
@@ -535,7 +522,8 @@ const ExploreFlow = () => {
       );
     } else if (
       reactFlowInstance &&
-      zoom <= zoomRange.min
+      zoom <= zoomRange.min &&
+      (instanceMap[currentTopicId]?.level ?? -1) >= 0
     ) {
       semanticDiveOut(
         [instanceMap, setInstanceMap],
