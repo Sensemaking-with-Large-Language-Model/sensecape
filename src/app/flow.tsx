@@ -627,6 +627,7 @@ const ExploreFlow = () => {
             selectionOnDrag
             panOnDrag={panOnDrag}
             selectionMode={SelectionMode.Partial}
+            zoomOnDoubleClick={false}
             minZoom={zoomRange.min}
             maxZoom={zoomRange.max}
             // minZoom={-Infinity} // appropriate only if we constantly fit the view depending on the number of nodes on the canvas
