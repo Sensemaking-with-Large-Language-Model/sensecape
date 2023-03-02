@@ -68,13 +68,22 @@ const NodeToolkit = (props: any) => {
     localStorage.clear();
     reactFlowInstance.setNodes([]);
     reactFlowInstance.setEdges([]);
-    reactFlowInstance.zoomTo(1);
+    reactFlowInstance.zoomTo(1, {
+      duration: 400,
+    });
     reactFlowInstance.fitView();
   },
   [reactFlowInstance]);
 
+  const scale = () => {
+    const el = document.getElementById('scale-it');
+    el?.classList.add('scale');
+    console.log(el);
+  }
+
   return (
     <div className="node-toolkit">
+      <Button onClick={scale}>Scale</Button>
       <div className='toolkit-option traveller-mode-toggle'>
         <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />
         Traveller Mode

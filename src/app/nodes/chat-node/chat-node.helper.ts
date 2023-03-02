@@ -45,7 +45,9 @@ export const createChatNode = (
     };
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);
-  }, 0);
+
+    console.log(reactFlowInstance.getNodes());
+  }, 100);
 };
 
 export const createChatNodeFromDiv = (

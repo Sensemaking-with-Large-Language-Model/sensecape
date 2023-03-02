@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { Node, Edge, getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject } from "reactflow";
-import { TypeTopicNode } from "../nodes/topic-node/topic-node.model";
-import { zoomLimits } from "../utils";
+import { TopicNodeData, TypeTopicNode } from "../nodes/topic-node/topic-node.model";
+import { uuid, zoomLimits } from "../utils";
 
 export interface NodeEdgeSet {
   nodeIds: Set<string>;
@@ -113,31 +113,72 @@ export const semanticDiveOut = (
 ) => {
   setTimeout(() => {
     const currentInstance = instanceMap[currentTopicId]!;
-    const parentInstance = instanceMap[currentInstance.parentId];
+    let parentInstance = instanceMap[currentInstance.parentId];
   
-    if (parentInstance) {
-      // store current reactFlowInstance
-      currentInstance.jsonObject = reactFlowInstance.toObject();
-      setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
-  
-      // Set topic as parent topic
-      currentInstance.topicNode.data.instanceState = InstanceState.WAS;
-      setCurrentTopicId(parentInstance.topicNode.id);
+    if (!parentInstance) {
+
+      // Create the parent instance
+      parentInstance = {
+        name: currentInstance.name + '-parent',
+        parentId: '',
+        childrenId: [],
+        topicNode: {
+          id: `topic-${uuid()}`,
+          type: 'topic',
+          dragHandle: '.drag-handle',
+          data: {
+            parentId: '',
+            chatReference: '',
+            instanceState: InstanceState.NONE, // To temporarily disable dive out of home
+            state: {
+              topic: currentInstance.name + '-parent',
+            }
+          } as TopicNodeData,
+          position: { x: 0, y: 0 }
+        },
+        jsonObject: {
+          nodes: [currentInstance.topicNode] as Node[],
+          edges: [] as Edge[],
+        },
+        level: currentInstance.level+1,
+      } as Instance;
+
+      currentInstance.parentId = parentInstance.topicNode.id;
+
+      setInstanceMap(map => Object.assign(map, {
+        [currentInstance.topicNode.id]: currentInstance,
+        [currentInstance.parentId]: parentInstance,
+      }))
+
+      setSemanticRoute([parentInstance.name].concat(semanticRoute));
+
+    } else {
       setSemanticRoute(semanticRoute.slice(0, -1));
-  
-      // recover parent reactFlowInstance
-      reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
-      reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
-  
-      // Transition
-      reactFlowInstance.zoomTo(2);
-      reactFlowInstance.fitView({
-        duration: 400,
-        padding: 0,
-        maxZoom: zoomLimits.max,
-        minZoom: zoomLimits.min
-      });
     }
+
+    // store current reactFlowInstance
+    currentInstance.jsonObject = reactFlowInstance.toObject();
+    setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
+
+    // Set topic as parent topic
+    currentInstance.topicNode.data.instanceState = InstanceState.WAS;
+    setCurrentTopicId(parentInstance.topicNode.id);
+
+    // recover parent reactFlowInstance
+    reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
+    reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
+
+    // Transition
+    reactFlowInstance.zoomTo(3.8);
+    // reactFlowInstance.zoomTo(0.7, { duration: 400 });
+
+    reactFlowInstance.fitView({
+      duration: 400,
+      padding: 0,
+      maxZoom: zoomLimits.max,
+      minZoom: zoomLimits.min,
+      nodes: reactFlowInstance.getNodes(),
+    });
   }, 0);
 }
 
