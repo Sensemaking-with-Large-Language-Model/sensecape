@@ -45,7 +45,6 @@ export const createChatNode = (
     };
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);
-    console.log(reactFlowInstance.getNodes());
   }, 0);
 };
 
@@ -58,17 +57,23 @@ export const createChatNodeFromDiv = (
 ) => {
 
   setTimeout(() => {
+    // const nodeElement = document.getElementById(questionId);
+    // const nodeElement = document.querySelectorAll(`[data-id="${questionId}"]`)[0];
+    
+    // grab question div to get offset height to place generated chat node next to question
+    const nodeElement = document.getElementById(questionId); 
+    // grab brainstorm node to identify at what (x, y) coordinate to place generated chat node
     const brainstormNodeElement = reactFlowInstance.getNode(brainstormNodeId);
     const xy_position = brainstormNodeElement?.position!;
     const height = brainstormNodeElement?.height!;
     const width = brainstormNodeElement?.width!;
-    let position: XYPosition;
 
+    let position: XYPosition;
     position = {
-      x: xy_position['x'] + width + 10,
-      y: xy_position['y'] - 5,
+      x: xy_position['x'] + width + 10, // place chat node on the right of brainstorm node
+      y: xy_position['y'] + nodeElement?.offsetTop! - 10, // place chat node next to question div relative to brainstorm node (offsetTop)
     };
-    console.log('position', position);
+
     const newNode: TypeChatNode = {
       id: `chat-${reactFlowInstance.getNodes().length}-${uuid()}`,
       type: "chat",
@@ -76,13 +81,14 @@ export const createChatNodeFromDiv = (
       position,
       data,
     };
-    console.log('newNode', newNode);
+
     const edge: Edge =  {
       id: `e-${reactFlowInstance.getEdges().length}`,
       source: brainstormNodeId,
       type: 'default',
       target: newNode.id,
     }
+
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);
   }, 0);
