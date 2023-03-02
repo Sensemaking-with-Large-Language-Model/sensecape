@@ -615,15 +615,21 @@ const ExploreFlow = () => {
           state: {},
         };
 
+        const nodeId = `flex-${uuid()}`;
         reactFlowInstance!.addNodes([
           {
-            id: `chat-${uuid()}`,
+            id: nodeId,
             type: 'flex',
             dragHandle: '.drag-handle',
             position,
             data,
           },
         ]);
+        setTimeout(() => {
+          const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
+          const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
+          inputElement.focus();
+        }, 100);
       }
     },
     [reactFlowInstance]
