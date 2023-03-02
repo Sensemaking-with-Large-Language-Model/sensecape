@@ -284,8 +284,9 @@ const ExploreFlow = () => {
           y: event.clientY - reactFlowBounds.top,
         });
         // Type of node denoted in id
+        const nodeId = `${type}-${uuid()}`;
         const newNode: CreativeNode = {
-          id: `${type}-${uuid()}`,
+          id: nodeId,
           dragHandle: ".drag-handle",
           type,
           position,
@@ -297,6 +298,13 @@ const ExploreFlow = () => {
           const newEdge = createTravellerEdge(data.parentId, newNode.id, !travellerMode)
           reactFlowInstance.setEdges((edges) => edges.concat(newEdge));
         }
+        setTimeout(() => {
+          const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
+          console.log('currElement', currElement);
+          const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
+          console.log('inputElement', inputElement);
+          inputElement.focus();
+        }, 100);
       }
     },
     [reactFlowInstance, travellerMode]
