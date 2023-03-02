@@ -111,6 +111,7 @@ export const semanticDiveOut = (
   [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
+
   setTimeout(() => {
     const currentInstance = instanceMap[currentTopicId]!;
     let parentInstance = instanceMap[currentInstance.parentId];
