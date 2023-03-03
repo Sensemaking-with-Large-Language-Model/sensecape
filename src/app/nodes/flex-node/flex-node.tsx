@@ -6,11 +6,11 @@ import './flex-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { FlexNodeData, TypeFlexNode } from './flex-node.model';
-import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/input.model';
 import { InputHoverState, ZoomState } from '../node.model';
 import { InstanceState } from '../../triggers/semantic-dive';
 import { TopicNodeData } from '../topic-node/topic-node.model';
+import FlexInput from '../../components/flex-input/flex-input';
 
 type FlexState = {
   input: string,
@@ -34,10 +34,11 @@ const FlexNode = (props: NodeProps) => {
       <TooltipProvider>
         <Handle type="target" position={Position.Top} id="b" className="node-handle-direct "/>
         <DragHandle className='drag-handle' />
-        <GPTInput
+        <FlexInput
           sourceId={props.id}
           responseState={responseInputState}
           input={input}
+          placeholder={props.data.placeholder}
           setInput={setInput}
           setInputState={(s: InputHoverState) => {}}
         />

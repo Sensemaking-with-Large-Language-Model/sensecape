@@ -605,12 +605,9 @@ const ExploreFlow = () => {
   // add flex node when user double clicks on canvas
   const onPaneClick = useCallback(
     (evt: React.MouseEvent<Element, MouseEvent>) => {
-      if (evt.detail === 1) { // single click
-        // it was a double click
+      if (evt.detail === 1) { // if single click, ignore
         return;
-      } else if (evt.detail === 2) { // double click
-        // 👇 make adding nodes undoable
-
+      } else if (evt.detail === 2) { // if double click, add flex node
         const position: XYPosition = reactFlowInstance!.project({
           // x: evt.clientX + (525 / 2),
           x: evt.clientX,
@@ -619,7 +616,7 @@ const ExploreFlow = () => {
 
         const data: FlexNodeData = {
           // We want chat node to have no response yet, since the user will ask for a response
-          placeholder: 'Ask a follow up question',
+          placeholder: 'Ask GPT-3',
           state: {},
         };
 
@@ -637,6 +634,15 @@ const ExploreFlow = () => {
           const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
           const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
           inputElement.focus();
+          const buttonElements = currElement.getElementsByClassName('flex-node-button');
+          console.log('buttonElements', buttonElements);
+          for (let i = 0; i < 4; i++) {
+            buttonElements[i].addEventListener('mouseover', () => {
+              // console.log('buttonElements[i].parentNode', buttonElements[i].parentNode);
+              // console.log('buttonElements[i].parentNode', buttonElements[i].parentNode?.childNodes);
+              // buttonElements[i].parentNode?.childNodes.forEach( (childNode) => console.log('childNode', childNode.className));
+            })
+          }
         }, 100);
       }
     },
