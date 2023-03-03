@@ -20,6 +20,7 @@ import ReactFlow, {
   SelectionMode,
   NodeDragHandler,
   ReactFlowJsonObject,
+  useKeyPress,
 } from "reactflow";
 import { getTopics } from "../api/openai-api";
 
@@ -63,7 +64,7 @@ import QuestionNode from "./nodes/brainstorm-node/question-node";
 import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/question-node.model";
 
 import { devFlags, uuid } from "./utils";
-import { Instance, InstanceMap, InstanceState, semanticDiveIn, semanticDiveOut } from "./triggers/semantic-dive";
+import { Instance, InstanceMap, InstanceState, semanticDiveIn, semanticDiveOut, totalTransitionTime } from "./triggers/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
 // import { FlowContext } from './FlowContext';
 import { FlowContext } from "./flow.model";
@@ -134,7 +135,7 @@ const ExploreFlow = () => {
 
   const zoomSelector = (s: any) => s.transform[2];
   const zoom: number = useStore(zoomSelector);
-  const [zoomRange, setZoomRange] = useState({min: 0.3, max: 4});
+  const [zoomRange, setZoomRange] = useState({min: 0.3, max: 3});
 
   const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
 
@@ -440,28 +441,16 @@ const ExploreFlow = () => {
   },
   [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
 
-  /**
-   * Semantic Zoom, zoom cancel pop back up — zoom by pinch
-   */
+  // Whether semantic dive can actually be triggered
+  const [semanticDivable, setSemanticDivable] = useState(true);
+
+  const altKeyPressed = useKeyPress('Alt');
+
   useEffect(() => {
-    if (resizing) {
-      return;
-    }
-
-    if (reactFlowInstance && zoom >= prevZoom && zoom > ZoomState.PREDIVEIN) {
-      setResizing(true);
-      setTimeout(() => {
-        setResizing(false);
-      }, 201);
-
-      if (
-        prevZoom === zoomRange.max &&
-        zoom < prevZoom &&
-        nodeMouseOver &&
-        nodeMouseOver.type === 'topic' &&
-        nodeMouseOver.id !== currentTopicId &&
-        reactFlowInstance
-      ) {
+    if (reactFlowInstance && altKeyPressed && semanticDivable) {
+      if (zoom > prevZoom && nodeMouseOver) {
+        setSemanticDivable(false);
+        setTimeout(() => setSemanticDivable(true), totalTransitionTime);
         semanticDiveIn(
           nodeMouseOver,
           [instanceMap, setInstanceMap],
@@ -469,70 +458,19 @@ const ExploreFlow = () => {
           [semanticRoute, setSemanticRoute],
           reactFlowInstance
         );
-      } else {
-        reactFlowInstance.zoomTo(ZoomState.PREDIVEIN, {
-          duration: 200
-        });
+      } else if (zoom < prevZoom && (instanceMap[currentTopicId]?.level ?? -1) >= 0) {
+        setSemanticDivable(false);
+        setTimeout(() => setSemanticDivable(true), totalTransitionTime);
+        semanticDiveOut(
+          [instanceMap, setInstanceMap],
+          [currentTopicId, setCurrentTopicId],
+          [semanticRoute, setSemanticRoute],
+          reactFlowInstance
+        );
       }
     }
+  }, [altKeyPressed, zoom, prevZoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
 
-    if (reactFlowInstance && zoom <= prevZoom && zoom < ZoomState.PREDIVEOUT) {
-      setResizing(true);
-      setTimeout(() => {
-        setResizing(false);
-      }, 201);
-
-      reactFlowInstance.zoomTo(ZoomState.PREDIVEOUT, {
-        duration: 200
-      });
-      // if (
-      //   prevZoom === zoomRange.min &&
-      //   zoom > prevZoom &&
-      //   reactFlowInstance
-      // ) {
-      //   semanticDiveOut(
-      //     [instanceMap, setInstanceMap],
-      //     [currentTopicId, setCurrentTopicId],
-      //     [semanticRoute, setSemanticRoute],
-      //     reactFlowInstance
-      //   );
-      // } else {
-      // }
-    }
-  }, [reactFlowInstance, zoom, resizing, zoomRange, nodeMouseOver, currentTopicId, semanticRoute]);
-
-  /**
-   * Semantic Zoom Transition by Pinch
-   */
-  useEffect(() => {
-    // Trigger Semantic Dive
-    if (
-      nodeMouseOver &&
-      nodeMouseOver.type === 'topic' &&
-      nodeMouseOver.id !== currentTopicId &&
-      reactFlowInstance &&
-      zoom === zoomRange.max
-      ) {
-      semanticDiveIn(
-        nodeMouseOver,
-        [instanceMap, setInstanceMap],
-        [currentTopicId, setCurrentTopicId],
-        [semanticRoute, setSemanticRoute],
-        reactFlowInstance
-      );
-    } else if (
-      reactFlowInstance &&
-      zoom <= zoomRange.min &&
-      (instanceMap[currentTopicId]?.level ?? -1) >= 0
-    ) {
-      semanticDiveOut(
-        [instanceMap, setInstanceMap],
-        [currentTopicId, setCurrentTopicId],
-        [semanticRoute, setSemanticRoute],
-        reactFlowInstance
-      );
-    }
-  }, [zoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
 
   return (
     <FlowContext.Provider value={{ numOfConceptNodes, setNumOfConceptNodes, conceptNodes, setConceptNodes, conceptEdges, setConceptEdges }}>
@@ -544,6 +482,10 @@ const ExploreFlow = () => {
                 nodes={nodes}
                 edges={edges}
                 fitView
+                zoomOnPinch
+                selectionOnDrag
+                panOnDrag={panOnDrag}
+                selectionMode={SelectionMode.Partial}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onNodeClick={handleNodeClick}
@@ -565,20 +507,19 @@ const ExploreFlow = () => {
                 onSelectionChange={onSelectionChange}
                 // onSelectionEnd={onSelectTopicNodes}
                 // onSelectionContextMenu={onSelectTopicNodes}
-                panOnScroll
-                zoomOnPinch
-                selectionOnDrag
-                panOnDrag={panOnDrag}
-                selectionMode={SelectionMode.Partial}
-                minZoom={zoomRange.min}
-                maxZoom={zoomRange.max}
+                panOnScroll={!altKeyPressed}
+                // onPaneScroll={onSemanticDive}
+                // maxZoom={zoomRange.max}
+                // minZoom={zoomRange.min}
+                maxZoom={Infinity}
+                minZoom={-Infinity}
               >
                 <Background />
                 <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
                 <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
               </ReactFlow>
-
             <SemanticRoute route={semanticRoute} />
+            <div style={{position: 'absolute', top: 0, left: 0, display: `${altKeyPressed ? 'unset' : 'none'}`}}>Semantic Zoom Ready!</div>
             <NodeToolkit 
               travellerMode={travellerMode}
               toggleTravellerMode={toggleTravellerMode}
