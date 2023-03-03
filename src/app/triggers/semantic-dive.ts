@@ -79,13 +79,13 @@ export const semanticDiveIn = (
         childInstance = instanceMap[nodeMouseOver.id]!;
       }
       
-      // reactFlowInstance.fitView({
-      //   duration: 0,
-      //   padding: 0,
-      //   maxZoom: zoomLimits.max,
-      //   minZoom: zoomLimits.min,
-      //   nodes: [nodeMouseOver]
-      // });
+      reactFlowInstance.fitView({
+        duration: 0,
+        padding: 0,
+        maxZoom: zoomLimits.max,
+        minZoom: zoomLimits.min,
+        nodes: [nodeMouseOver]
+      });
       reactFlowInstance.zoomTo(500, { duration: totalTransitionTime });
   
       setTimeout(() => {

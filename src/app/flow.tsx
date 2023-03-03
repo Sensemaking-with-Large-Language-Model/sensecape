@@ -471,7 +471,6 @@ const ExploreFlow = () => {
     }
   }, [altKeyPressed, zoom, prevZoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
 
-
   return (
     <FlowContext.Provider value={{ numOfConceptNodes, setNumOfConceptNodes, conceptNodes, setConceptNodes, conceptEdges, setConceptEdges }}>
       <div className="explore-flow">
@@ -518,8 +517,19 @@ const ExploreFlow = () => {
                 <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
                 <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
               </ReactFlow>
+            <div style={{
+              boxShadow: 'inset 0 0 50px #3c6792',
+              position: 'absolute',
+              pointerEvents: 'none',
+              width: '100%',
+              height: '100%',
+              top: 0,
+              left: 0,
+              visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
+              opacity: `${altKeyPressed ? 1 : 0}`,
+              transition: 'ease 0.2s',
+            }} />
             <SemanticRoute route={semanticRoute} />
-            <div style={{position: 'absolute', top: 0, left: 0, display: `${altKeyPressed ? 'unset' : 'none'}`}}>Semantic Zoom Ready!</div>
             <NodeToolkit 
               travellerMode={travellerMode}
               toggleTravellerMode={toggleTravellerMode}
