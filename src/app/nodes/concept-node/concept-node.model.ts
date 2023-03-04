@@ -3,9 +3,10 @@ import { ResponseState } from '../../components/input.model';
 import { TypeTopicNode } from '../topic-node/topic-node.model';
 
 export interface ConceptNodeData {
+  label?: string;
   topicNodes?: TypeTopicNode[] // optional, since we also have concept node not generated from topics
-  width: number,
-  height: number,
+  width?: number;
+  height?: number;
   state: {
     responseSelfState?: ResponseState;    // State when concept itself is being generated
     responseInputState?: ResponseState             // State when concept is generating

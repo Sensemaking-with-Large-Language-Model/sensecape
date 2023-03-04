@@ -20,6 +20,7 @@ import ReactFlow, {
   SelectionMode,
   NodeDragHandler,
   ReactFlowJsonObject,
+  useKeyPress,
 } from "reactflow";
 import { getTopics } from "../api/openai-api";
 
@@ -76,8 +77,10 @@ import {
   Instance,
   InstanceMap,
   InstanceState,
+  NodeEdgeList,
   semanticDiveIn,
   semanticDiveOut,
+  totalTransitionTime,
 } from "./triggers/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
 // import { FlowContext } from './FlowContext';
@@ -89,6 +92,7 @@ import { FlexNodeData } from "./nodes/flex-node/flex-node.model";
 import FlexNode from "./nodes/flex-node/flex-node";
 import { createTravellerEdge } from "./edges/traveller-edge/traveller-edge.helper";
 import { usePrevious } from "./hooks/usePrevious";
+import { duplicateNode } from "./nodes/node.helper";
 
 const verbose: boolean = true;
 
@@ -153,8 +157,10 @@ const ExploreFlow = () => {
 
   const zoomSelector = (s: any) => s.transform[2];
   const zoom: number = useStore(zoomSelector);
-  const [zoomRange, setZoomRange] = useState({min: 0.3, max: 4});
-
+  const prevZoom = usePrevious(zoom) ?? 0;
+  const [zoomRange, setZoomRange] = useState({min: 0.3, max: 3});
+  const [infiniteZoom, setInfiniteZoom] = useState(false);
+  
   const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
 
   const homeTopicNode: TypeTopicNode = {
@@ -199,6 +205,17 @@ const ExploreFlow = () => {
   const [semanticRoute, setSemanticRoute] = useLocalStorage("semanticRoute", [
     "home",
   ]);
+
+  // List of nodes and edges to carry into another semantic level
+  const [semanticCarryList, setSemanticCarryList] = useState<NodeEdgeList>({
+    nodes: [],
+    edges: [],
+  });
+
+  // Whether semantic dive can actually be triggered
+  const [semanticDivable, setSemanticDivable] = useState(true);
+  const altKeyPressed = useKeyPress('Alt');
+
 
   // Updates the current instance of reactflow
   useEffect(() => {
@@ -300,7 +317,7 @@ const ExploreFlow = () => {
         setTimeout(() => {
           const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
           const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
-          inputElement.focus();
+          inputElement?.focus();
         }, 100);
       }
     },
@@ -405,6 +422,138 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
+  const onNodeClick = useCallback((e: any) => {
+    switch (e.detail) {
+      case 1:
+        break;
+      case 2:
+        // Semantic Zoom by Double Click
+        if (
+          nodeMouseOver &&
+          nodeMouseOver.type === 'topic' &&
+          reactFlowInstance
+        ) {
+          if (nodeMouseOver.id !== currentTopicId) {
+            semanticDiveIn(
+              nodeMouseOver,
+              [infiniteZoom, setInfiniteZoom],
+              [instanceMap, setInstanceMap],
+              [currentTopicId, setCurrentTopicId],
+              [semanticRoute, setSemanticRoute],
+              [semanticCarryList, setSemanticCarryList],
+              reactFlowInstance
+            );
+          } else {
+            semanticDiveOut(
+              [infiniteZoom, setInfiniteZoom],
+              [instanceMap, setInstanceMap],
+              [currentTopicId, setCurrentTopicId],
+              [semanticRoute, setSemanticRoute],
+              [semanticCarryList, setSemanticCarryList],
+              reactFlowInstance
+            );
+          }
+        }
+        break;
+    }
+  },
+  [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
+
+  // add flex node when user double clicks on canvas
+  const onPaneClick = useCallback(
+    (evt: React.MouseEvent<Element, MouseEvent>) => {
+      if (reactFlowInstance) {
+        const position: XYPosition = reactFlowInstance!.project({
+          x: evt.clientX,
+          y: evt.clientY,
+        });
+  
+        if (evt.detail === 1) { // Single click, drop semantic carry list if exists
+          if (semanticCarryList.nodes.length > 0) {
+            const groupRect = getRectOfNodes(semanticCarryList.nodes);
+            const carriedNodes = semanticCarryList.nodes.map(node => {
+              const duplicate = duplicateNode(node);
+              duplicate.position.x += position.x - groupRect.x;
+              duplicate.position.y += position.y - groupRect.y;
+              return duplicate;
+            });
+            reactFlowInstance.addNodes(carriedNodes);
+            setSemanticCarryList({
+              nodes: [],
+              edges: [],
+            });
+            reactFlowInstance.fitView({
+              duration: 400,
+              padding: 5,
+              nodes: carriedNodes,
+            });
+          }
+          return;
+        } else if (evt.detail === 2) { // if double click, add flex node
+  
+          const data: FlexNodeData = {
+            // We want chat node to have no response yet, since the user will ask for a response
+            placeholder: 'Ask GPT-3',
+            state: {},
+          };
+  
+          const nodeId = `flex-${uuid()}`;
+          reactFlowInstance.addNodes([
+            {
+              id: nodeId,
+              type: 'flex',
+              dragHandle: '.drag-handle',
+              position,
+              data,
+            },
+          ]);
+          setTimeout(() => {
+            const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
+            const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
+            inputElement.focus();
+            const buttonElements = currElement.getElementsByClassName('flex-node-button');
+            for (let i = 0; i < 4; i++) {
+              buttonElements[i].addEventListener('mouseover', () => {
+              })
+            }
+          }, 100);
+        }
+      }
+    },
+    [reactFlowInstance, semanticCarryList]
+  );
+
+  // Toggle Semantic Dive Ready Mode
+  useEffect(() => {
+    if (reactFlowInstance && altKeyPressed && semanticDivable) {
+      if (zoom > prevZoom && nodeMouseOver) {
+        setSemanticDivable(false);
+        setTimeout(() => setSemanticDivable(true), totalTransitionTime);
+        semanticDiveIn(
+          nodeMouseOver,
+          [infiniteZoom, setInfiniteZoom],
+          [instanceMap, setInstanceMap],
+          [currentTopicId, setCurrentTopicId],
+          [semanticRoute, setSemanticRoute],
+          [semanticCarryList, setSemanticCarryList],
+          reactFlowInstance
+        );
+      } else if (zoom < prevZoom && (instanceMap[currentTopicId]?.level ?? -1) >= 0) {
+        setSemanticDivable(false);
+        setTimeout(() => setSemanticDivable(true), totalTransitionTime);
+        semanticDiveOut(
+          [infiniteZoom, setInfiniteZoom],
+          [instanceMap, setInstanceMap],
+          [currentTopicId, setCurrentTopicId],
+          [semanticRoute, setSemanticRoute],
+          [semanticCarryList, setSemanticCarryList],
+          reactFlowInstance
+        );
+      }
+    }
+  }, [altKeyPressed, zoom, prevZoom, infiniteZoom, reactFlowInstance, nodeMouseOver,
+      currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
+
   /**
    * Toggles visibility of traveller edges to track progress
    */
@@ -439,272 +588,71 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
-  /**
-   * Sticky Zoom Limit
-   */
-  const prevZoom = usePrevious(zoom) ?? 0;
-  const [resizing, setResizing] = useState(false);
-
-  const elm = document.getElementById('reactFlowInstance') as EventTarget;
-  const gesture = new PinchGesture(elm, (state:any) => console.log('pinging', state));
-
-  const bind = usePinch(() => {
-    console.log('pinching');
-  })
-
-  const handleNodeClick = useCallback((e: any) => {
-    switch (e.detail) {
-      case 1:
-        // console.log("click");
-        break;
-      case 2:
-        // Double clicking topic node triggers Semantic Dive
-        if (
-          nodeMouseOver &&
-          nodeMouseOver.type === 'topic' &&
-          reactFlowInstance
-        ) {
-          if (nodeMouseOver.id !== currentTopicId) {
-            semanticDiveIn(
-              nodeMouseOver,
-              [instanceMap, setInstanceMap],
-              [currentTopicId, setCurrentTopicId],
-              [semanticRoute, setSemanticRoute],
-              reactFlowInstance
-            );
-          } else {
-            semanticDiveOut(
-              [instanceMap, setInstanceMap],
-              [currentTopicId, setCurrentTopicId],
-              [semanticRoute, setSemanticRoute],
-              reactFlowInstance
-            );
-          }
-        }
-        break;
-    }
-  },
-  [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
-
-  useEffect(() => {
-    if (resizing) {
-      return;
-    }
-
-    // Ways to implement on release transition
-    // - after max zoom
-    //  - listen for gesture out (fingers release from trackpad)
-    //  - zoom >= prevZoom
-
-    if (reactFlowInstance && zoom >= prevZoom && zoom > ZoomState.PREDIVEIN) {
-      setResizing(true);
-      setTimeout(() => {
-        setResizing(false);
-      }, 201);
-
-      if (
-        prevZoom === zoomRange.max &&
-        zoom < prevZoom &&
-        nodeMouseOver &&
-        nodeMouseOver.type === 'topic' &&
-        nodeMouseOver.id !== currentTopicId &&
-        reactFlowInstance
-      ) {
-        semanticDiveIn(
-          nodeMouseOver,
-          [instanceMap, setInstanceMap],
-          [currentTopicId, setCurrentTopicId],
-          [semanticRoute, setSemanticRoute],
-          reactFlowInstance
-        );
-      } else {
-        reactFlowInstance.zoomTo(ZoomState.PREDIVEIN, {
-          duration: 200
-        });
-      }
-    }
-
-    if (reactFlowInstance && zoom <= prevZoom && zoom < ZoomState.PREDIVEOUT) {
-      setResizing(true);
-      setTimeout(() => {
-        setResizing(false);
-      }, 201);
-
-      if (
-        prevZoom === zoomRange.min &&
-        zoom > prevZoom &&
-        reactFlowInstance
-      ) {
-        semanticDiveOut(
-          [instanceMap, setInstanceMap],
-          [currentTopicId, setCurrentTopicId],
-          [semanticRoute, setSemanticRoute],
-          reactFlowInstance
-        );
-      } else {
-        reactFlowInstance.zoomTo(ZoomState.PREDIVEOUT, {
-          duration: 200
-        });
-      }
-    }
-  }, [reactFlowInstance, zoom, resizing, zoomRange, nodeMouseOver, currentTopicId, semanticRoute]);
-
-  /**
-   * Semantic Zoom Transition
-   */
-  useEffect(() => {
-    // When ready to trigger Semantic Dive
-    if (
-      nodeMouseOver &&
-      nodeMouseOver.type === 'topic' &&
-      nodeMouseOver.id !== currentTopicId &&
-      reactFlowInstance &&
-      zoom > ZoomState.PREDIVEIN &&
-      zoom < zoomRange.max
-    ) {
-      // Idea: while between predivein and maxzoom
-      //       
-    }
-
-    // Trigger Semantic Dive
-    if (
-      nodeMouseOver &&
-      nodeMouseOver.type === "topic" &&
-      nodeMouseOver.id !== currentTopicId &&
-      reactFlowInstance &&
-      zoom === zoomRange.max
-      ) {
-      semanticDiveIn(
-        nodeMouseOver,
-        [instanceMap, setInstanceMap],
-        [currentTopicId, setCurrentTopicId],
-        [semanticRoute, setSemanticRoute],
-        reactFlowInstance
-      );
-    } else if (reactFlowInstance && zoom <= zoomRange.min) {
-      semanticDiveOut(
-        [instanceMap, setInstanceMap],
-        [currentTopicId, setCurrentTopicId],
-        [semanticRoute, setSemanticRoute],
-        reactFlowInstance
-      );
-    }
-  }, [
-    zoom,
-    reactFlowInstance,
-    nodeMouseOver,
-    currentTopicId,
-    instanceMap,
-    semanticRoute,
-  ]);
-
-  // add flex node when user double clicks on canvas
-  const onPaneClick = useCallback(
-    (evt: React.MouseEvent<Element, MouseEvent>) => {
-      if (evt.detail === 1) { // if single click, ignore
-        return;
-      } else if (evt.detail === 2) { // if double click, add flex node
-        const position: XYPosition = reactFlowInstance!.project({
-          // x: evt.clientX + (525 / 2),
-          x: evt.clientX,
-          y: evt.clientY,
-        });
-
-        const data: FlexNodeData = {
-          // We want chat node to have no response yet, since the user will ask for a response
-          placeholder: 'Ask GPT-3',
-          state: {},
-        };
-
-        const nodeId = `flex-${uuid()}`;
-        reactFlowInstance!.addNodes([
-          {
-            id: nodeId,
-            type: 'flex',
-            dragHandle: '.drag-handle',
-            position,
-            data,
-          },
-        ]);
-        setTimeout(() => {
-          const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
-          const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
-          inputElement.focus();
-          const buttonElements = currElement.getElementsByClassName('flex-node-button');
-          for (let i = 0; i < 4; i++) {
-            buttonElements[i].addEventListener('mouseover', () => {
-            })
-          }
-        }, 100);
-      }
-    },
-    [reactFlowInstance]
-  );
-
   return (
-
-      <div className="explore-flow">
-          <div id="scale-it" className="reactflow-wrapper" ref={reactFlowWrapper}>
-              <ReactFlow
-                id='reactFlowInstance'
-                proOptions={proOptions}
-                nodes={nodes}
-                edges={edges}
-                fitView
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onNodeClick={handleNodeClick}
-                // onDoubleClick
-                onConnect={onConnect}
-                connectionLineComponent={TravellerConnectionLine}
-                // fitViewOptions={fitViewOptions}
-                onInit={setReactFlowInstance}
-                nodeTypes={nodeTypes}
-                edgeTypes={edgeTypes}
-                onNodeDrag={onNodeDrag}
-                onNodeDragStop={onNodeDragStop}
-                onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
-                onNodeMouseLeave={() => setNodeMouseOver(null)}
-                onDrop={onDrop}
-                onDragOver={onDragOver}
-                onConnectStart={onConnectStart}
-                // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
-                onSelectionChange={onSelectionChange}
-                // onSelectionEnd={onSelectTopicNodes}
-                // onSelectionContextMenu={onSelectTopicNodes}
-                onPaneClick={onPaneClick}
-                panOnScroll
-                zoomOnPinch
-                onNodesDelete={(event) => console.log(event)}
-                selectionOnDrag
-                panOnDrag={panOnDrag}
-                zoomOnDoubleClick={false}
-                selectionMode={SelectionMode.Partial}
-                minZoom={zoomRange.min}
-                maxZoom={zoomRange.max}
-              >
-                <Background />
-                <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
-                <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
-              {/* </ReactFlow> */}
-
-            <SemanticRoute route={semanticRoute} />
-            <NodeToolkit 
-              travellerMode={travellerMode}
-              toggleTravellerMode={toggleTravellerMode}
-            />
-            <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
-          </ReactFlow>
-
-          <SemanticRoute route={semanticRoute} />
-          {/* <div className="semantic-route">{semanticRoute.join(' / ')}</div> */}
-          <NodeToolkit
-            travellerMode={travellerMode}
-            toggleTravellerMode={toggleTravellerMode}
-          />
-          <ZoomSlider zoom={zoom} range={zoomRange} />
-        </div>
+    <div className="explore-flow">
+      <div id="scale-it" className="reactflow-wrapper" ref={reactFlowWrapper}>
+        <ReactFlow
+          id='reactFlowInstance'
+          className={altKeyPressed ? 'semantic-carry-ready' : ''}
+          proOptions={proOptions}
+          nodes={nodes}
+          edges={edges}
+          fitView
+          zoomOnPinch
+          selectionOnDrag
+          panOnDrag={panOnDrag}
+          zoomOnDoubleClick={false}
+          selectionMode={SelectionMode.Partial}
+          multiSelectionKeyCode={'Shift'}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={onNodeClick}
+          onConnect={onConnect}
+          connectionLineComponent={TravellerConnectionLine}
+          // fitViewOptions={fitViewOptions}
+          onInit={setReactFlowInstance}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          onNodeDrag={onNodeDrag}
+          onNodeDragStop={onNodeDragStop}
+          onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
+          onNodeMouseLeave={() => setNodeMouseOver(null)}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onConnectStart={onConnectStart}
+          // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
+          onSelectionChange={onSelectionChange}
+          panOnScroll={!altKeyPressed}
+          onPaneClick={onPaneClick}
+          onNodesDelete={(event) => console.log(event)}
+          maxZoom={infiniteZoom ? Infinity : zoomRange.max}
+          minZoom={infiniteZoom ? -Infinity : zoomRange.min}
+        >
+          <Background />
+          <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
+          <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
+        </ReactFlow>
+        <div style={{
+          boxShadow: 'inset 0 0 50px #3c6792',
+          position: 'absolute',
+          pointerEvents: 'none',
+          width: '100%',
+          height: '100%',
+          top: 0,
+          left: 0,
+          visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
+          opacity: `${altKeyPressed ? 1 : 0}`,
+          transition: 'ease 0.2s',
+        }} />
+        <SemanticRoute route={semanticRoute} />
+        <NodeToolkit 
+          travellerMode={travellerMode}
+          toggleTravellerMode={toggleTravellerMode}
+        />
+        <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
+        <ZoomSlider zoom={zoom} range={zoomRange} />
       </div>
+    </div>
   );
 };
 

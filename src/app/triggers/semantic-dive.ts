@@ -1,11 +1,17 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { Node, Edge, getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject } from "reactflow";
+import { ResponseState } from "../components/input.model";
+import { duplicateNode } from "../nodes/node.helper";
+import { InputHoverState } from "../nodes/node.model";
 import { TopicNodeData, TypeTopicNode } from "../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../utils";
 
-export interface NodeEdgeSet {
-  nodeIds: Set<string>;
-  edgeIds: Set<string>;
+// How long dive transition will take in seconds
+export const totalTransitionTime = 1000;
+
+export interface NodeEdgeList {
+  nodes: Node[];
+  edges: Edge[];
 }
 
 export interface Instance {
@@ -13,7 +19,7 @@ export interface Instance {
   parentId: string;
   childrenId: string[];
   topicNode: TypeTopicNode;
-  jsonObject: ReactFlowJsonObject | {nodes: Node[], edges: Edge[]};
+  jsonObject: ReactFlowJsonObject | NodeEdgeList;
   level: number;
 };
 
@@ -37,65 +43,101 @@ export enum InstanceState {
  * @param reactFlowInstance 
  */
 export const semanticDiveIn = (
-  nodeMouseOver: TypeTopicNode,
+  nodeMouseOver: Node,
+  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
   [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
+  [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
-  setTimeout(() => {
+  if (
+    nodeMouseOver &&
+    nodeMouseOver.type === 'topic' &&
+    currentTopicId !== nodeMouseOver.id
+  ) {
+    setTimeout(() => {
 
-    // Save topic name
-    let topicName = nodeMouseOver.data.state.topic ?? '';
-  
-    let childInstance: Instance;
-    // If topic node has never doven in before, create a new Instance
-    if (nodeMouseOver.data.instanceState === InstanceState.NONE) {
-  
-      // Create New Instance
-      childInstance = {
-        name: topicName,
-        parentId: currentTopicId,
-        childrenId: [],
-        topicNode: nodeMouseOver,
-        jsonObject: {
-          nodes: [],
-          edges: [],
-        },
-        level: instanceMap[currentTopicId]?.level ?? 0 + 1,
+      // Save topic name
+      let topicName = nodeMouseOver.data.state.topic ?? '';
+
+      let childInstance: Instance;
+      // If topic node has never doven in before, create a new Instance
+      if (nodeMouseOver.data.instanceState === InstanceState.NONE) {
+        // Create copy node
+        const copyNode = duplicateNode(nodeMouseOver) as TypeTopicNode;
+        copyNode.data.state.toolbarViewState = InputHoverState.OUT;
+        copyNode.data.state.toolbarAvailable = true;
+        copyNode.data.parentId = '';
+
+        // Create New Instance
+        childInstance = {
+          name: topicName,
+          parentId: currentTopicId,
+          childrenId: [],
+          topicNode: copyNode,
+          jsonObject: {
+            nodes: [copyNode],
+            edges: [],
+          },
+          level: instanceMap[currentTopicId]?.level ?? 0 + 1,
+        }
+
+        nodeMouseOver.data.instanceState = InstanceState.WAS;
+        setInstanceMap(map => Object.assign(map, {[copyNode.id]: childInstance}));
+      } else {
+        // Restore instance
+        const foundChildInstance = Object.values(instanceMap)
+          .find(instance => instance?.parentId === currentTopicId);
+        if (foundChildInstance) {
+          childInstance = foundChildInstance;
+        } else {
+          return;
+        }
       }
+
+      prepareDive(reactFlowInstance, setSemanticCarryList);
+
+      setInfiniteZoom(true);
+      // Initial zoom transition out before removing current nodes
+      reactFlowInstance.fitView({
+        duration: 0,
+        padding: 0,
+        maxZoom: zoomLimits.max,
+        minZoom: zoomLimits.min,
+        nodes: [nodeMouseOver]
+      });
+      reactFlowInstance.zoomTo(500, { duration: totalTransitionTime });
+
+      setTimeout(() => {
+        // Save current instance state to the parent instance
+        const currentInstance = instanceMap[currentTopicId]!;
+        currentInstance.jsonObject = reactFlowInstance.toObject();
+        setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
   
-      setInstanceMap(map => Object.assign(map, {[nodeMouseOver.id]: childInstance}));
-    } else {
-      // Restore instance
-      childInstance = instanceMap[nodeMouseOver.id]!;
-    }
-  
-    // Save current instance state to the parent instance
-    const currentInstance = instanceMap[currentTopicId]!;
-    currentInstance.jsonObject = reactFlowInstance.toObject();
-    setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
-  
-    // Set topic as current instance
-    nodeMouseOver.data.instanceState = InstanceState.CURRENT;
-    setCurrentTopicId(childInstance.topicNode?.id ?? 'home'); // If id DNE, it should be home
-    setSemanticRoute(semanticRoute.concat(topicName));
-  
-    // Restore child nodes & include topic node
-    // console.log([...childInstance.jsonObject.nodes, nodeMouseOver]);
-    reactFlowInstance.setNodes([...childInstance.jsonObject.nodes, nodeMouseOver]);
-    reactFlowInstance.setEdges(childInstance.jsonObject.edges);
-  
-    // Transition into new canvas
-    reactFlowInstance.zoomTo(0.7);
-    reactFlowInstance.fitView({
-      duration: 400,
-      padding: 7,
-      maxZoom: zoomLimits.max,
-      minZoom: zoomLimits.min,
-      nodes: [nodeMouseOver]
-    });
-  }, 0);
+        // Set topic as current instance
+        childInstance.topicNode.data.instanceState = InstanceState.CURRENT;
+        setCurrentTopicId(childInstance.topicNode?.id ?? 'home'); // If id DNE, it should be home
+        setSemanticRoute(semanticRoute.concat(topicName));
+
+        // Restore child nodes & include topic node
+        console.log(reactFlowInstance.getNodes());
+        reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
+        reactFlowInstance.setEdges(childInstance.jsonObject.edges);
+        console.log(childInstance.jsonObject.nodes);
+
+        reactFlowInstance.zoomTo(0.7);
+        reactFlowInstance.fitView({
+          duration: totalTransitionTime/2,
+          padding: 0,
+          maxZoom: zoomLimits.max,
+          minZoom: zoomLimits.min,
+          nodes: [nodeMouseOver]
+        });
+        setInfiniteZoom(false);
+      }, totalTransitionTime/2);
+    }, 0);
+  }
 }
 
 /**
@@ -106,15 +148,17 @@ export const semanticDiveIn = (
  * @param reactFlowInstance 
  */
 export const semanticDiveOut = (
+  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
   [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
+  [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
   setTimeout(() => {
     const currentInstance = instanceMap[currentTopicId]!;
     let parentInstance = instanceMap[currentInstance.parentId];
-  
+
     if (!parentInstance) {
 
       // Create the parent instance
@@ -134,13 +178,13 @@ export const semanticDiveOut = (
               topic: currentInstance.name + '-parent',
             }
           } as TopicNodeData,
-          position: { x: 0, y: 0 }
+          position: currentInstance.topicNode.position,
         },
         jsonObject: {
           nodes: [currentInstance.topicNode] as Node[],
           edges: [] as Edge[],
         },
-        level: currentInstance.level+1,
+        level: currentInstance.level-1,
       } as Instance;
 
       currentInstance.parentId = parentInstance.topicNode.id;
@@ -153,8 +197,10 @@ export const semanticDiveOut = (
       setSemanticRoute([parentInstance.name].concat(semanticRoute));
 
     } else {
-      setSemanticRoute(semanticRoute.slice(0, -1));
+      setSemanticRoute([parentInstance.name]);
     }
+
+    prepareDive(reactFlowInstance, setSemanticCarryList);
 
     // store current reactFlowInstance
     currentInstance.jsonObject = reactFlowInstance.toObject();
@@ -164,21 +210,21 @@ export const semanticDiveOut = (
     currentInstance.topicNode.data.instanceState = InstanceState.WAS;
     setCurrentTopicId(parentInstance.topicNode.id);
 
-    // recover parent reactFlowInstance
-    reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
-    reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
-
     // Transition
-    reactFlowInstance.zoomTo(3.8);
-    // reactFlowInstance.zoomTo(0.7, { duration: 400 });
+    setInfiniteZoom(true);
+    reactFlowInstance.zoomTo(0.01, { duration: totalTransitionTime });
+    setTimeout(() => {
+      reactFlowInstance.zoomTo(20);
+      reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
 
-    reactFlowInstance.fitView({
-      duration: 400,
-      padding: 0,
-      maxZoom: zoomLimits.max,
-      minZoom: zoomLimits.min,
-      nodes: reactFlowInstance.getNodes(),
-    });
+      if (parentInstance) {
+        // recover parent reactFlowInstance
+        reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
+        reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
+      }
+      setInfiniteZoom(false);
+    }, totalTransitionTime/2);
+
   }, 0);
 }
 
@@ -193,3 +239,20 @@ export const semanticJumpTo = (
 ) => {
 
 };
+
+const prepareDive = (
+  reactFlowInstance: ReactFlowInstance,
+  setSemanticCarryList: Dispatch<SetStateAction<NodeEdgeList>>
+) => {
+  // Save selected nodes & edges for semantic dives
+  setSemanticCarryList({
+    nodes: reactFlowInstance.getNodes().filter(node => node.selected),
+    edges: reactFlowInstance.getEdges().filter(edge => edge.selected),
+  });
+
+  // Preprocessing of nodes before semantic dive
+  reactFlowInstance.setNodes(nodes => nodes.map(node => {
+    node.selected = false;
+    return node;
+  }));
+}

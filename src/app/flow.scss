@@ -8,16 +8,19 @@
   }
 }
 
-.scale {
-  transform: scale(3);
+.node {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline ease 0.2s, scale ease 0.2s;
 }
 
 .selected .node {
   outline: 2px solid #3facff;
-  outline-offset: 2px;
-  // opacity: 0.4;
-  // filter: blur(2px);
-  // transform: scale(0.7);
+}
+
+.semantic-carry-ready .selected .node {
+  outline: 2px solid #3c6792;
+  scale: 0.95;
 }
 
 .node-handle-direct {

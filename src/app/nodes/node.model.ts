@@ -1,15 +1,18 @@
+import { BrainstormNodeData, TypeBrainstormNode } from "./brainstorm-node/brainstorm-node.model";
 import { ChatNodeData, TypeChatNode } from "./chat-node/chat-node.model";
 import { ConceptNodeData, TypeConceptNode } from "./concept-node/concept-node.model";
 import { MemoNodeData, TypeMemoNode } from "./memo-node/memo-node.model";
 import { TopicNodeData, TypeTopicNode } from "./topic-node/topic-node.model";
 
 export type CreativeNodeData = 
+  BrainstormNodeData |
   ChatNodeData |
   TopicNodeData |
   ConceptNodeData |
   MemoNodeData;
 
 export type CreativeNode = 
+  TypeBrainstormNode |
   TypeChatNode |
   TypeTopicNode |
   TypeConceptNode |
@@ -29,7 +32,7 @@ export enum ZoomState {
 
 // enum for a 3 state input/click ui system
 export enum InputHoverState {
-  OUT = 0,
-  HOVER = 1,
-  CLICKED = 2,
+  OUT = 'out',
+  HOVER = 'hover',
+  CLICKED = 'clicked',
 }

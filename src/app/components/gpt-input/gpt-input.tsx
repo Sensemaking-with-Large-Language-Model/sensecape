@@ -31,9 +31,10 @@ const GPTInput = (props: any) => {
 
   const handleOnBlur = (event: any) => {
     props.setInputState(InputHoverState.OUT);
+    props.setResponseState(ResponseState.IDLE);
   }
 
-  if (props.responseState === ResponseState.INPUT) {
+  if (props.responseState === ResponseState.INPUT || props.responseState === ResponseState.IDLE) {
     return (
       <form
         className='chat-input'
