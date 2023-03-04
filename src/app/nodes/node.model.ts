@@ -29,7 +29,7 @@ export enum ZoomState {
 
 // enum for a 3 state input/click ui system
 export enum InputHoverState {
-  OUT = 0,
-  HOVER = 1,
-  CLICKED = 2,
+  OUT = 'out',
+  HOVER = 'hover',
+  CLICKED = 'clicked',
 }

@@ -12,7 +12,7 @@ export interface TopicNodeData {
   state: {
     topic?: string;
     // topicUniqueName: string; // Used for semantic dive
-    tooltipAvailable?: true;
+    toolbarAvailable?: true;
     toolbarViewState?: InputHoverState.OUT;
   }
 };

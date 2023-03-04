@@ -64,7 +64,7 @@ import QuestionNode from "./nodes/brainstorm-node/question-node";
 import { QuestionNodeData, TypeQuestionNode } from "./nodes/brainstorm-node/question-node.model";
 
 import { devFlags, uuid } from "./utils";
-import { Instance, InstanceMap, InstanceState, semanticDiveIn, semanticDiveOut, totalTransitionTime } from "./triggers/semantic-dive";
+import { Instance, InstanceMap, InstanceState, NodeEdgeList, semanticDiveIn, semanticDiveOut, totalTransitionTime } from "./triggers/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
 // import { FlowContext } from './FlowContext';
 import { FlowContext } from "./flow.model";
@@ -172,7 +172,19 @@ const ExploreFlow = () => {
     } as Instance
   });
 
+  // Route list of semantic route
   const [semanticRoute, setSemanticRoute] = useLocalStorage('semanticRoute', ['home']);
+
+  // List of nodes and edges to carry into another semantic level
+  const [semanticCarryList, setSemanticCarryList] = useState<NodeEdgeList>({
+    nodes: [],
+    edges: [],
+  });
+
+  // Whether semantic dive can actually be triggered
+  const [semanticDivable, setSemanticDivable] = useState(true);
+  const altKeyPressed = useKeyPress('Alt');
+
 
   // Updates the current instance of reactflow
   useEffect(() => {
@@ -425,6 +437,7 @@ const ExploreFlow = () => {
               [instanceMap, setInstanceMap],
               [currentTopicId, setCurrentTopicId],
               [semanticRoute, setSemanticRoute],
+              [semanticCarryList, setSemanticCarryList],
               reactFlowInstance
             );
           } else {
@@ -432,6 +445,7 @@ const ExploreFlow = () => {
               [instanceMap, setInstanceMap],
               [currentTopicId, setCurrentTopicId],
               [semanticRoute, setSemanticRoute],
+              [semanticCarryList, setSemanticCarryList],
               reactFlowInstance
             );
           }
@@ -439,13 +453,9 @@ const ExploreFlow = () => {
         break;
     }
   },
-  [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
+  [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
 
-  // Whether semantic dive can actually be triggered
-  const [semanticDivable, setSemanticDivable] = useState(true);
-
-  const altKeyPressed = useKeyPress('Alt');
-
+  // Toggle Semantic Dive Ready Mode
   useEffect(() => {
     if (reactFlowInstance && altKeyPressed && semanticDivable) {
       if (zoom > prevZoom && nodeMouseOver) {
@@ -456,6 +466,7 @@ const ExploreFlow = () => {
           [instanceMap, setInstanceMap],
           [currentTopicId, setCurrentTopicId],
           [semanticRoute, setSemanticRoute],
+          [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
       } else if (zoom < prevZoom && (instanceMap[currentTopicId]?.level ?? -1) >= 0) {
@@ -465,11 +476,12 @@ const ExploreFlow = () => {
           [instanceMap, setInstanceMap],
           [currentTopicId, setCurrentTopicId],
           [semanticRoute, setSemanticRoute],
+          [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
       }
     }
-  }, [altKeyPressed, zoom, prevZoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute]);
+  }, [altKeyPressed, zoom, prevZoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
 
   return (
     <FlowContext.Provider value={{ numOfConceptNodes, setNumOfConceptNodes, conceptNodes, setConceptNodes, conceptEdges, setConceptEdges }}>
@@ -477,6 +489,7 @@ const ExploreFlow = () => {
           <div id="scale-it" className="reactflow-wrapper" ref={reactFlowWrapper}>
               <ReactFlow
                 id='reactFlowInstance'
+                className={altKeyPressed ? 'semantic-carry-ready' : ''}
                 proOptions={proOptions}
                 nodes={nodes}
                 edges={edges}
@@ -485,6 +498,7 @@ const ExploreFlow = () => {
                 selectionOnDrag
                 panOnDrag={panOnDrag}
                 selectionMode={SelectionMode.Partial}
+                multiSelectionKeyCode={'Shift'}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onNodeClick={handleNodeClick}
