@@ -96,7 +96,7 @@ export const semanticDiveIn = (
         }
       }
 
-      prepareDive(reactFlowInstance, setSemanticCarryList);
+      prepareDive(reactFlowInstance, setSemanticCarryList, nodeMouseOver.id);
 
       setInfiniteZoom(true);
       // Initial zoom transition out before removing current nodes
@@ -242,11 +242,12 @@ export const semanticJumpTo = (
 
 const prepareDive = (
   reactFlowInstance: ReactFlowInstance,
-  setSemanticCarryList: Dispatch<SetStateAction<NodeEdgeList>>
+  setSemanticCarryList: Dispatch<SetStateAction<NodeEdgeList>>,
+  diveInstanceId?: string,
 ) => {
   // Save selected nodes & edges for semantic dives
   setSemanticCarryList({
-    nodes: reactFlowInstance.getNodes().filter(node => node.selected),
+    nodes: reactFlowInstance.getNodes().filter(node => node.selected && node.id !== diveInstanceId),
     edges: reactFlowInstance.getEdges().filter(edge => edge.selected),
   });
 
