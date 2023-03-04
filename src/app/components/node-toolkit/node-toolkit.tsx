@@ -13,6 +13,7 @@ import { ReactComponent as SearchIcon } from '../../assets/node-icons/search.svg
 import { ReactComponent as HierarchyIcon } from '../../assets/node-icons/hierarchy.svg';
 import { ReactComponent as MemoIcon } from '../../assets/node-icons/memo.svg';
 import { ReactComponent as HelpIcon } from '../../assets/help.svg';
+import resetCanvas from "../../assets/tutorial/reset-canvas.gif";
 
 
 
@@ -30,6 +31,15 @@ const VideoElement = () => {
     <>
     <h3>Tutorial</h3>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/BzSMLP5KpjM" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+    </>
+  )
+}
+
+const ResetCanvas = () => {
+  return (
+    <>
+    <h3>Tutorial</h3>
+    <img src={resetCanvas} width="700px" alt="" />
     </>
   )
 }
@@ -101,8 +111,8 @@ const steps = [
   },
   {
     element: '.toolkit-reset-canvas',
-    intro: <ImageElement/>,
-    position: 'right',
+    intro: <ResetCanvas/>,
+    position: 'top',
     tooltipClass: 'gif',
   },
   {
@@ -125,7 +135,7 @@ const introOptions = {
   hidePrev: true,
   hideNext: true,
   showButtons: true,
-  showBullets: false,
+  showBullets: true,
   keyboardNavigation: true,
   showProgress: true,
 }
@@ -181,7 +191,7 @@ const NodeToolkit = (props: any) => {
     } else if (nodeType === 'memo') {
       data = {
         state: {
-          input: '',
+          memo: '',
         }
       }
     } else {

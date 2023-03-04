@@ -9,7 +9,7 @@ const zoomSelector = (s: any) => s.transform[2];
 
 const MemoNode = (props: NodeProps) => {
   const [title, setTitle] = useState(props.data.state.title ?? 'Memo Node');
-  const [memo, setMemo] = useState(props.data.state.title ?? '');
+  const [memo, setMemo] = useState(props.data.state.memo ?? '');
   const [hasUpdated, setHasUpdated] = useState(false);
   const zoom: number = useStore(zoomSelector);
 
