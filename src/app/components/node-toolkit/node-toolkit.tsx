@@ -174,7 +174,9 @@ const NodeToolkit = (props: any) => {
       };
     } else if (nodeType === 'memo') {
       data = {
-        // Memo node holds no data for now
+        state: {
+          input: '',
+        }
       }
     } else {
       return;

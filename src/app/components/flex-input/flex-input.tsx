@@ -109,8 +109,9 @@ const FlexInput = (props: any) => {
       };
     } else if (clickedNodeType === 'memo') {
       data = {
-        label: inputText,
-        // Memo node holds no data for now
+        state: {
+          input: inputText,
+        }
       }
     } else {
       return;
