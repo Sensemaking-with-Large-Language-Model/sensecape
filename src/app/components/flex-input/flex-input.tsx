@@ -153,11 +153,13 @@ const FlexInput = (props: any) => {
       // https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget 
       const buttonElem = event.currentTarget as HTMLInputElement;
       const elem = document.getElementById(buttonElem.id);
+      
+      // grab flex node id
       const flexNodeElem = elem?.parentElement?.parentElement;
       const elem_ = flexNodeElem?.querySelectorAll(`[data-nodeid]`)[0] as HTMLElement;
       const flexNodeId = elem_?.getAttribute('data-nodeid') as string;
-      console.log('flexNodeId', flexNodeId);
-      
+
+      // grab input element
       const inputElem = elem?.parentElement?.parentElement?.getElementsByClassName('text-input')[0] as HTMLInputElement;
 
       // grab (x, y) of flex node
@@ -166,7 +168,6 @@ const FlexInput = (props: any) => {
       
       // grab input 
       const inputText = inputElem.value;
-      console.log(inputText);
       
       // change the color of the double clicked button for a split second? 
 
@@ -179,13 +180,14 @@ const FlexInput = (props: any) => {
   // when mouse leaves button (i.e., after cursor hovers over), return placeholder text to correspond to active (clicked) button
   const handleMouseOut = (id: string) => {
     const elem = document.getElementById(id);
-    const buttonElements = elem?.parentElement?.parentElement?.getElementsByClassName('flex-node-button');
-    let activeElem;
-    for (let i = 0; i < buttonElements?.length!; i++) {
-      if (buttonElements![i].classList.contains('active')) {
-        activeElem = buttonElements![i];
-      }
-    }
+    // const buttonElements = elem?.parentElement?.parentElement?.getElementsByClassName('flex-node-button');
+    // let activeElem;
+
+    // for (let i = 0; i < buttonElements?.length!; i++) {
+    //   if (buttonElements![i].classList.contains('active')) {
+    //     activeElem = buttonElements![i];
+    //   }
+    // }
     const inputElem = elem?.parentElement?.parentElement?.getElementsByClassName('text-input')[0];
     inputElem?.setAttribute('placeholder', placeholderText(clickedNodeType) as string);
     setHoveredNodeType('');
