@@ -59,16 +59,16 @@ const ChatNode = (props: NodeProps) => {
   }, [reactFlowInstance, input, response, summary, keywords, responseInputState, highlightIds]);
 
   useEffect(() => {
-    // console.log(props.data.state.input, props.data.state.responseInputState)
+    console.log(props.data.state.input, props.data.state.responseInputState)
     // If a response is already given, don't take in any input.
     if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
       generateResponse(input);
     } else if (props.data.state.responseInputState === ResponseState.INPUT) {
       const currElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0];
       const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
-      // setTimeout(() => {
-      //   inputElement.focus();
-      // }, 100);
+      setTimeout(() => {
+        inputElement.focus();
+      }, 100);
     }
   }, []);
 
@@ -189,6 +189,7 @@ const ChatNode = (props: NodeProps) => {
         <GPTInput
           sourceId={props.id}
           responseState={responseInputState}
+          setResponseState={setResponseInputState}
           generateResponse={generateResponse}
           placeholder={props.data.placeholder}
           input={input}

@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { Node, Edge, getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject } from "reactflow";
+import { ResponseState } from "../components/input.model";
 import { TopicNodeData, TypeTopicNode } from "../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../utils";
 
