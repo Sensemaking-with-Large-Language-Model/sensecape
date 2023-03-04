@@ -30,7 +30,7 @@ const FlexNode = (props: NodeProps) => {
   return (
     // Allow highlighting only for fully expanded text
     // <div className='chat-node highlightable'>
-      <div className='flex-node' >
+      <div className='node flex-node' >
       <TooltipProvider>
         <Handle type="target" position={Position.Top} id="b" className="node-handle-direct "/>
         <DragHandle className='drag-handle' />
