@@ -270,12 +270,13 @@ const ExploreFlow = () => {
       event.preventDefault();
       const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect();
       const type = event.dataTransfer.getData("dragNodeType");
-      const data = JSON.parse(event.dataTransfer.getData("dragNodeData"));
 
       // check if the dropped element is valid
       if (typeof type === "undefined" || !type) {
         return;
       }
+
+      const data = JSON.parse(event.dataTransfer.getData("dragNodeData"));
 
       if (reactFlowInstance) {
         const position: XYPosition = reactFlowInstance.project({
@@ -675,7 +676,7 @@ const ExploreFlow = () => {
                 onPaneClick={onPaneClick}
                 panOnScroll
                 zoomOnPinch
-                onNodesDelete={(event) => console.log(event)}
+                // onNodesDelete={(event) => console.log(event)}
                 selectionOnDrag
                 panOnDrag={panOnDrag}
                 zoomOnDoubleClick={false}
