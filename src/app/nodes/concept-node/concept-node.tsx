@@ -145,6 +145,21 @@ const ConceptNode = (props: NodeProps) => {
     );
   }, [reactFlowInstance]);
 
+  useEffect(() => {
+    // console.log(props.data.state.input, props.data.state.responseInputState)
+    // If a response is already given, don't take in any input.
+    if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
+      handleSubmit();
+    } else if (props.data.state.responseInputState === ResponseState.INPUT) {
+      const currElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0];
+      const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
+      setTimeout(() => {
+        inputElement.focus();
+      }, 100);
+    }
+  }, []);
+
+
   const generateConceptFromTopics = async (context: string, prompt: string) => {
     if (!prompt) return;
 

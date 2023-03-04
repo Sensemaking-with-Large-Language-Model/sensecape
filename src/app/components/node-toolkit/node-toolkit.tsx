@@ -44,18 +44,18 @@ const steps = [
   //   // highlightClass: 'myHighlightClass',
   // },
   {
-    element: '.semantic-route',
-    intro: 'Semantic route<br><br>[Description]',
-    tooltipClass: 'semantic-route-tooltip',
-    position: 'right', 
-  },
-  {
     intro: <ImageElement/>,
     tooltipClass: 'gif',
   },
   {
     intro: <VideoElement/>,
     tooltipClass: 'video',
+  },
+  {
+    element: '.semantic-route',
+    intro: 'Semantic route<br><br>[Description]',
+    tooltipClass: 'semantic-route-tooltip',
+    position: 'right', 
   },
   {
     element: '.node-toolkit',
