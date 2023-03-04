@@ -16,7 +16,7 @@ const zoomSelector = (s: any) => s.transform[2];
 
 const TopicNode = (props: NodeProps) => {
   const [topic, setTopic] = useState(props.data.state.topic ?? '');
-  const [tooltipAvailable, setTooltipAvailable] = useState(props.data.state.tooltipAvailable ?? true);
+  const [toolbarAvailable, setToolbarAvailable] = useState(props.data.state.toolbarAvailable ?? true);
   const [toolbarViewState, setToolbarViewState] = useState(props.data.state.toolbarViewState ?? InputHoverState.OUT);
   const zoom: number = useStore(zoomSelector);
 
@@ -35,13 +35,13 @@ const TopicNode = (props: NodeProps) => {
       if (node.id === props.id) {
         node.data.state = {
           topic,
-          tooltipAvailable,
+          toolbarAvailable,
           toolbarViewState,
         }
       }
       return node;
     }))
-  }, [reactFlowInstance, topic, tooltipAvailable, toolbarViewState]);
+  }, [reactFlowInstance, topic, toolbarAvailable, toolbarViewState]);
 
   const addInstantChatNode = useCallback(
     (input: string) => {
@@ -72,7 +72,7 @@ const TopicNode = (props: NodeProps) => {
       return;
     }
     addInstantChatNode(prompt);
-    setTooltipAvailable(false);
+    setToolbarAvailable(false);
   }
 
   // generate questions like in brainstorm node
@@ -81,7 +81,7 @@ const TopicNode = (props: NodeProps) => {
       return;
     }
     addInstantChatNode(prompt);
-    setTooltipAvailable(false);
+    setToolbarAvailable(false);
   }
 
   // Depending on Zoom level, show response by length
@@ -106,7 +106,14 @@ const TopicNode = (props: NodeProps) => {
   return (
     <div
       className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}
-      onMouseEnter={() => toolbarViewState === InputHoverState.OUT && setToolbarViewState(InputHoverState.HOVER)}
+      onClick={() => console.log(props.id)}
+      // onMouseEnter={() => toolbarViewState === InputHoverState.OUT && setToolbarViewState(InputHoverState.HOVER)}
+      onMouseEnter={() => {
+        if (toolbarViewState === InputHoverState.OUT) {
+          console.log('showing hover toolbar');
+          setToolbarViewState(InputHoverState.HOVER);
+        } 
+      }}
       onMouseLeave={() => toolbarViewState === InputHoverState.HOVER && setToolbarViewState(InputHoverState.OUT)}
       // style={{
       //   transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
@@ -124,8 +131,7 @@ const TopicNode = (props: NodeProps) => {
         <DragHandle className='drag-handle' />
         <div>{topic}</div>
       </div>
-      {tooltipAvailable ?
-      <>
+      {toolbarAvailable ?
         <NodeToolbar isVisible={toolbarViewState !== InputHoverState.OUT} position={Position.Bottom}>
           <ExpandToolbar
             sourceId={props.id}
@@ -135,7 +141,7 @@ const TopicNode = (props: NodeProps) => {
             setInputState={setToolbarViewState}
             topic={topic}
           />
-        </NodeToolbar></>
+        </NodeToolbar>
         : <></>
       }
       <Handle type="source" position={Position.Bottom} className="node-handle-direct source-handle"/>
