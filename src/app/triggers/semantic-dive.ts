@@ -44,6 +44,7 @@ export enum InstanceState {
  */
 export const semanticDiveIn = (
   nodeMouseOver: Node,
+  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
   [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
@@ -97,6 +98,7 @@ export const semanticDiveIn = (
 
       prepareDive(reactFlowInstance, setSemanticCarryList);
 
+      setInfiniteZoom(true);
       // Initial zoom transition out before removing current nodes
       reactFlowInstance.fitView({
         duration: 0,
@@ -132,6 +134,7 @@ export const semanticDiveIn = (
           minZoom: zoomLimits.min,
           nodes: [nodeMouseOver]
         });
+        setInfiniteZoom(false);
       }, totalTransitionTime/2);
     }, 0);
   }
@@ -145,6 +148,7 @@ export const semanticDiveIn = (
  * @param reactFlowInstance 
  */
 export const semanticDiveOut = (
+  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
   [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
@@ -174,7 +178,7 @@ export const semanticDiveOut = (
               topic: currentInstance.name + '-parent',
             }
           } as TopicNodeData,
-          position: { x: 0, y: 0 }
+          position: currentInstance.topicNode.position,
         },
         jsonObject: {
           nodes: [currentInstance.topicNode] as Node[],
@@ -207,6 +211,7 @@ export const semanticDiveOut = (
     setCurrentTopicId(parentInstance.topicNode.id);
 
     // Transition
+    setInfiniteZoom(true);
     reactFlowInstance.zoomTo(0.01, { duration: totalTransitionTime });
     setTimeout(() => {
       reactFlowInstance.zoomTo(20);
@@ -217,6 +222,7 @@ export const semanticDiveOut = (
         reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
         reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
       }
+      setInfiniteZoom(false);
     }, totalTransitionTime/2);
 
   }, 0);

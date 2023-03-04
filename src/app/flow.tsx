@@ -159,7 +159,8 @@ const ExploreFlow = () => {
   const zoom: number = useStore(zoomSelector);
   const prevZoom = usePrevious(zoom) ?? 0;
   const [zoomRange, setZoomRange] = useState({min: 0.3, max: 3});
-
+  const [infiniteZoom, setInfiniteZoom] = useState(false);
+  
   const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
 
   const homeTopicNode: TypeTopicNode = {
@@ -435,6 +436,7 @@ const ExploreFlow = () => {
           if (nodeMouseOver.id !== currentTopicId) {
             semanticDiveIn(
               nodeMouseOver,
+              [infiniteZoom, setInfiniteZoom],
               [instanceMap, setInstanceMap],
               [currentTopicId, setCurrentTopicId],
               [semanticRoute, setSemanticRoute],
@@ -443,6 +445,7 @@ const ExploreFlow = () => {
             );
           } else {
             semanticDiveOut(
+              [infiniteZoom, setInfiniteZoom],
               [instanceMap, setInstanceMap],
               [currentTopicId, setCurrentTopicId],
               [semanticRoute, setSemanticRoute],
@@ -474,8 +477,11 @@ const ExploreFlow = () => {
               duplicate.position.y += position.y - groupRect.y;
               return duplicate;
             });
-            console.log('adding nodes', semanticCarryList);
             reactFlowInstance.addNodes(carriedNodes);
+            setSemanticCarryList({
+              nodes: [],
+              edges: [],
+            });
             reactFlowInstance.fitView({
               duration: 400,
               padding: 5,
@@ -525,6 +531,7 @@ const ExploreFlow = () => {
         setTimeout(() => setSemanticDivable(true), totalTransitionTime);
         semanticDiveIn(
           nodeMouseOver,
+          [infiniteZoom, setInfiniteZoom],
           [instanceMap, setInstanceMap],
           [currentTopicId, setCurrentTopicId],
           [semanticRoute, setSemanticRoute],
@@ -535,6 +542,7 @@ const ExploreFlow = () => {
         setSemanticDivable(false);
         setTimeout(() => setSemanticDivable(true), totalTransitionTime);
         semanticDiveOut(
+          [infiniteZoom, setInfiniteZoom],
           [instanceMap, setInstanceMap],
           [currentTopicId, setCurrentTopicId],
           [semanticRoute, setSemanticRoute],
@@ -543,7 +551,8 @@ const ExploreFlow = () => {
         );
       }
     }
-  }, [altKeyPressed, zoom, prevZoom, reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
+  }, [altKeyPressed, zoom, prevZoom, infiniteZoom, reactFlowInstance, nodeMouseOver,
+      currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
 
   /**
    * Toggles visibility of traveller edges to track progress
@@ -616,8 +625,8 @@ const ExploreFlow = () => {
           panOnScroll={!altKeyPressed}
           onPaneClick={onPaneClick}
           onNodesDelete={(event) => console.log(event)}
-          maxZoom={Infinity}
-          minZoom={-Infinity}
+          maxZoom={infiniteZoom ? Infinity : zoomRange.max}
+          minZoom={infiniteZoom ? -Infinity : zoomRange.min}
         >
           <Background />
           <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
