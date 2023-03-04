@@ -148,7 +148,16 @@ const ConceptNode = (props: NodeProps) => {
   useEffect(() => {
     // console.log(props.data.state.input, props.data.state.responseInputState)
     // If a response is already given, don't take in any input.
-    if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
+    if (props.data.state.input === '') {
+      console.log('props.id', props.id);
+      const currElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0];
+      console.log('currElement', currElement);
+      const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
+      setTimeout(() => {
+        inputElement.focus();
+      }, 100);
+    }
+    else if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
       handleSubmit();
     } else if (props.data.state.responseInputState === ResponseState.INPUT) {
       const currElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0];
@@ -202,26 +211,21 @@ const ConceptNode = (props: NodeProps) => {
     if (!rootNode) {
       return;
     }
-    console.log("rootNode", rootNode);
 
     // get nodes we want to rearrange
-    console.log("=========");
     // grab generated subtopics
     const targetNodes = nodes.filter((node) => node.data.rootId === rootId_);
     const targetEdges = edges.filter((edge) => edge.data.rootId === rootId_);
-    console.log("targetConceptNode", targetNodes);
-    console.log("targetConceptEdges", targetEdges);
 
     // get other nodes that still need to be placed on canvas
     const otherNodes = nodes.filter((node) => node.data.rootId !== rootId_);
-    const otherEdges = edges.filter((edge) => edge.data.type !== rootId_);
+    const otherEdges = edges.filter((edge) => edge.data.rootId !== rootId_);
 
     const targetNodes_ = layoutNodes(
       rootNode,
       [rootNode, ...targetNodes],
       targetEdges
     );
-    console.log("targetNodes_", ...targetNodes_);
     await reactFlowInstance.setNodes([...targetNodes_, ...otherNodes]);
     await reactFlowInstance.setEdges([...targetEdges, ...otherEdges]);
   };
@@ -235,7 +239,6 @@ const ConceptNode = (props: NodeProps) => {
       true,
       setResponseInputState
     ).then((data) => {
-      console.log("data", data);
       setTimeout(layout_, 100);
     });
   };
@@ -249,7 +252,6 @@ const ConceptNode = (props: NodeProps) => {
       true,
       setResponseInputState
     ).then((data) => {
-      console.log("data", data);
       setTimeout(layout_, 100);
     });
   };
