@@ -50,7 +50,9 @@ const ConceptInput = (props: any) => {
         onSubmit={(event) => {
           event.preventDefault();
           // props.setResponseInputState(ResponseState.LOADING);
-          props.handleSubmit();
+          if (props.input !== '') {
+            props.handleSubmit();
+          }
           // extendConcept(
           //   reactFlowInstance,
           //   props.id,
@@ -77,7 +79,9 @@ const ConceptInput = (props: any) => {
           onClick={(event) => {
             // props.setResponseInputState(ResponseState.LOADING);
             event.preventDefault();
-            props.handleSubmit();
+            if (props.input !== '') {
+              props.handleSubmit();
+            }
             // extendConcept(
             //   reactFlowInstance,
             //   props.id,
