@@ -91,7 +91,7 @@ const FlexInput = (props: any) => {
         placeholder: inputText,
         state: {
           input: inputText,
-          responseInputState: ResponseState.LOADING,
+          responseInputState: inputText === ''? ResponseState.INPUT : ResponseState.LOADING,
         },
       };
     } else if (clickedNodeType === 'chat') {
@@ -101,7 +101,7 @@ const FlexInput = (props: any) => {
         placeholder: inputText,
         state: {
           input: inputText,
-          responseInputState: ResponseState.LOADING,
+          responseInputState: inputText === ''? ResponseState.INPUT : ResponseState.LOADING,
         },
       } as ChatNodeData;
     } else if (clickedNodeType === 'concept') {
@@ -110,7 +110,7 @@ const FlexInput = (props: any) => {
         topicNodes: [],
         state: {
           input: inputText,
-          responseInputState: ResponseState.LOADING,
+          responseInputState: inputText === ''? ResponseState.INPUT : ResponseState.LOADING,
         },
       } as ConceptNodeData;
     } else if (clickedNodeType === 'memo') {
@@ -122,6 +122,8 @@ const FlexInput = (props: any) => {
     } else {
       return;
     }
+
+    console.log('data', data);
 
       const position: XYPosition = nodePosition as XYPosition;
       // Type of node denoted in id
