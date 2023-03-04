@@ -247,7 +247,7 @@ const FlexInput = (props: any) => {
               handleMouseOut(elem.id);
             }}
           >
-            Brainstorm&nbsp;<BrainstormIcon />
+            <BrainstormIcon/>Brainstorm
           </button>
           <button
             // onClick={() => props.generateResponse(props.input.trim())}
@@ -268,7 +268,7 @@ const FlexInput = (props: any) => {
               handleMouseOut(elem.id);
             }}
           >
-            Search&nbsp;<SearchIcon />
+            <SearchIcon/>Search
           </button>
           <button
             // onClick={() => props.generateResponse(props.input.trim())}
@@ -289,7 +289,7 @@ const FlexInput = (props: any) => {
               handleMouseOut(elem.id);
             }}
           >
-            Hierarchy&nbsp;<HierarchyIcon />
+            <HierarchyIcon/>Hierarchy
           </button>
           <button
             id={`flex-memo-${uuid()}`}
@@ -308,7 +308,7 @@ const FlexInput = (props: any) => {
               handleMouseOut(elem.id);
             }}
           >
-            Memo&nbsp;<MemoIcon />
+            <MemoIcon/>Memo
           </button>
         </div>
       </>
