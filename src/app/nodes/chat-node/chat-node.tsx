@@ -66,9 +66,9 @@ const ChatNode = (props: NodeProps) => {
     } else if (props.data.state.responseInputState === ResponseState.INPUT) {
       const currElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0];
       const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
-      setTimeout(() => {
-        inputElement.focus();
-      }, 100);
+      // setTimeout(() => {
+      //   inputElement.focus();
+      // }, 100);
     }
   }, []);
 

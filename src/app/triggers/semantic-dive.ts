@@ -72,13 +72,13 @@ export const semanticDiveIn = (
           },
           level: instanceMap[currentTopicId]?.level ?? 0 + 1,
         }
-    
+
         setInstanceMap(map => Object.assign(map, {[nodeMouseOver.id]: childInstance}));
       } else {
         // Restore instance
         childInstance = instanceMap[nodeMouseOver.id]!;
       }
-      
+
       reactFlowInstance.fitView({
         duration: 0,
         padding: 0,
@@ -114,8 +114,6 @@ export const semanticDiveIn = (
         });
       }, totalTransitionTime/2);
     }, 0);
-    // @ts-ignore
-    document.activeElement?.blur()
   }
 }
 
@@ -174,7 +172,6 @@ export const semanticDiveOut = (
       setSemanticRoute([parentInstance.name].concat(semanticRoute));
 
     } else {
-      // setSemanticRoute(semanticRoute.slice(0, -1));
       setSemanticRoute([parentInstance.name]);
     }
 
@@ -186,21 +183,25 @@ export const semanticDiveOut = (
     currentInstance.topicNode.data.instanceState = InstanceState.WAS;
     setCurrentTopicId(parentInstance.topicNode.id);
 
-    // recover parent reactFlowInstance
-    reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
-    reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
-
     // Transition
-    // reactFlowInstance.zoomTo(3.8);
-    // reactFlowInstance.zoomTo(0.7, { duration: 400 });
+    reactFlowInstance.zoomTo(0.01, { duration: totalTransitionTime });
+    setTimeout(() => {
+      reactFlowInstance.zoomTo(20);
+      reactFlowInstance.fitView({
+        duration: totalTransitionTime/2,
+        padding: 0,
+        maxZoom: zoomLimits.max,
+        minZoom: zoomLimits.min,
+        nodes: reactFlowInstance.getNodes(),
+      });
 
-    reactFlowInstance.fitView({
-      duration: totalTransitionTime/2,
-      padding: 0,
-      maxZoom: zoomLimits.max,
-      minZoom: zoomLimits.min,
-      nodes: reactFlowInstance.getNodes(),
-    });
+      if (parentInstance) {
+        // recover parent reactFlowInstance
+        reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
+        reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
+      }
+    }, totalTransitionTime/2);
+
   }, 0);
 }
 
