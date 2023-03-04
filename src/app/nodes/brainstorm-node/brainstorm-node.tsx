@@ -41,7 +41,7 @@ type BrainstormState = {
 const zoomSelector = (s: any) => s.transform[2];
 
 const BrainstormNode = (props: NodeProps) => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(props.data.state.input ?? '');
   const [response, setResponse] = useState("");
   const [questions, setQuestions] = useState({});
   const [responseInputState, setResponseInputState] = useState<ResponseState>(
