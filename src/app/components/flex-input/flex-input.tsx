@@ -115,7 +115,9 @@ const FlexInput = (props: any) => {
       } as ConceptNodeData;
     } else if (clickedNodeType === 'memo') {
       data = {
-        state: {},
+        state: {
+          input: inputText,
+        }
       } as MemoNodeData;
     } else {
       return;

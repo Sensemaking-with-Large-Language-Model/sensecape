@@ -180,7 +180,9 @@ const NodeToolkit = (props: any) => {
       };
     } else if (nodeType === 'memo') {
       data = {
-        state: {}
+        state: {
+          input: '',
+        }
       }
     } else {
       return;
