@@ -1,5 +1,6 @@
 import { MouseEvent } from 'react';
 import { Edge, ReactFlowInstance, XYPosition, getRectOfNodes } from "reactflow";
+import { createTravellerEdge } from '../../edges/traveller-edge/traveller-edge.helper';
 import { uuid } from "../../utils";
 import { ChatNodeData, TypeChatNode } from "./chat-node.model";
 
@@ -72,7 +73,7 @@ export const createChatNodeFromDiv = (
 
     let position: XYPosition;
     position = {
-      x: xy_position['x'] + width + 10, // place chat node on the right of brainstorm node
+      x: xy_position['x'] + width + 80, // place chat node on the right of brainstorm node
       y: xy_position['y'] + nodeElement?.offsetTop! - 10, // place chat node next to question div relative to brainstorm node (offsetTop)
     };
 
@@ -86,15 +87,19 @@ export const createChatNodeFromDiv = (
 
     console.log('brainstormNodeId', brainstormNodeId);
     console.log('newNode.id', newNode.id);
-    const edge: Edge =  {
-      type: 'default',
-      id: `e-${reactFlowInstance.getEdges().length}-${uuid()}`,
-      source: brainstormNodeId,
-      target: newNode.id,
-      data: {},
-    }
+    // const edge: Edge =  {
+    //   type: 'default',
+    //   id: `e-${reactFlowInstance.getEdges().length}-${uuid()}`,
+    //   source: brainstormNodeId,
+    //   target: newNode.id,
+    //   data: {},
+    // }
 
     reactFlowInstance.addNodes(newNode);
-    reactFlowInstance.addEdges(edge);
+
+    const newEdge = createTravellerEdge(brainstormNodeId, newNode.id, false)
+    reactFlowInstance.setEdges((edges) => edges.concat(newEdge));
+
+    // reactFlowInstance.addEdges(edge);
   }, 0);
 };

@@ -92,7 +92,8 @@ const BrainstormNode = (props: NodeProps) => {
   return (
     <div className={`node brainstorm-node`}>
       <DragHandle className="drag-handle" />
-      <Handle type="source" position={Position.Right} />
+      {/* <Handle type="source" position={Position.Right} /> */}
+      <Handle type="source" position={Position.Bottom} className="node-handle-direct" />
       <BrainstormInput
         placeholder={props.data.placeholder}
         generateQuestions={generateQuestions}
@@ -110,7 +111,7 @@ const BrainstormNode = (props: NodeProps) => {
                 <div className="brainstorm-response-block" key={index}>
                   {
                     // elem[1].map((question: any, index:number) => <QuestionNode id={`${input}` + "-" + {index} + "-" + elem[0]} selected={false} type={question} data={''} zIndex={100} isConnectable={true} xPos={0} yPos={0} dragging={false} keyword={input} index={index} fiveWsType={elem[0]} question={question} />)
-                    elem[1].map((question: any, index:number) => <div key={index}><Handle type="source" position={Position.Right} /><QuestionNode keyword={input} index={index} fiveWsType={elem[0]} question={question} parentId={props.id} /></div>)
+                    elem[1].map((question: any, index:number) => <div key={index}><QuestionNode keyword={input} index={index} fiveWsType={elem[0]} question={question} parentId={props.id} /></div>)
                   }
                 </div>
               ))
