@@ -100,3 +100,7 @@
     }
     cursor: grab;
   }
+
+  .node-type-selection > button.active:hover {
+    background-color: #b7e0ff;
+  }
