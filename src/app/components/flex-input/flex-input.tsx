@@ -15,6 +15,7 @@ const FlexInput = (props: any) => {
     props.setInput(event.target.value);
   };
 
+  // move viewport to node when input on focus
   const handleOnFocus = useCallback(
     (event: any) => {
       props.setInputState(InputHoverState.CLICKED);
@@ -32,10 +33,12 @@ const FlexInput = (props: any) => {
     [reactFlowInstance]
   );
 
+  // if currently selected node, add 'active' css
   const selectedType = (nodeType: string) => {
     return nodeType === clickedNodeType ? "active" : "";
   };
 
+  // return corresponding placeholder text for node type
   const placeholderText = (nodeType: string) => {
     switch(nodeType) {
       case 'brainstorm':
@@ -49,13 +52,89 @@ const FlexInput = (props: any) => {
     }
   }
 
+  // update input placeholder text when mouse hovers over button
   const handleMouseOver = (id: string, placeholderText: string) => {
     const elem = document.getElementById(id);
     const inputElem = elem?.parentElement?.parentElement?.getElementsByClassName('text-input')[0];
     inputElem?.setAttribute('placeholder', placeholderText);
   };
 
-  const handleClick = async (event: any, nodeType: string) => {
+  // when 'enter' is pressed, create node according to selected node type
+  const handleSubmit = (event: any) => {
+    const inputText = event.currentTarget.getElementsByClassName('text-input')[0].value;
+    const flexNodeElem = event.currentTarget.parentElement;
+    const elem_ = flexNodeElem?.querySelectorAll(`[data-nodeid]`)[0] as HTMLElement;
+    const flexNodeId = elem_?.getAttribute('data-nodeid') as string;
+    const flexNode = reactFlowInstance.getNode(flexNodeId);
+    const flexNodePosition = flexNode?.position;
+
+    createNode(flexNodeId, inputText, flexNodePosition as XYPosition);
+  }
+
+  // create node
+  const createNode = async (flexNodeId: string, inputText: string, nodePosition: XYPosition) => {
+
+    let data: CreativeNodeData;
+
+    if (clickedNodeType === 'brainstorm') {
+      data = {
+        parentId: '',
+        chatReference: '',
+        placeholder: inputText,
+        state: {
+          input: inputText,
+          responseInputState: ResponseState.LOADING,
+        },
+      };
+    } else if (clickedNodeType === 'chat') {
+      data = {
+        parentId: '',
+        chatReference: '',
+        placeholder: inputText,
+        state: {
+          input: inputText,
+          responseInputState: ResponseState.LOADING,
+        },
+      } as ChatNodeData;
+    } else if (clickedNodeType === 'concept') {
+      data = {
+        label: inputText,
+        topicNodes: [],
+        state: {
+          input: inputText,
+          responseInputState: ResponseState.LOADING,
+        },
+      };
+    } else if (clickedNodeType === 'memo') {
+      data = {
+        label: inputText,
+        // Memo node holds no data for now
+      }
+    } else {
+      return;
+    }
+
+      const position: XYPosition = nodePosition as XYPosition;
+      // Type of node denoted in id
+      const type = clickedNodeType;
+      const nodeId = `${clickedNodeType}-${uuid()}`;
+      const newNode: CreativeNode = {
+        id: nodeId,
+        dragHandle: ".drag-handle",
+        type,
+        position,
+        data,
+      };
+
+      // remove existing flex node
+      await reactFlowInstance.setNodes((nodes) => nodes.filter((node) => node.id !== flexNodeId));
+
+      // add new node
+      reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
+  }
+
+  // handle button click
+  const handleClick = async (event: any, nodeType: string = 'chat') => {
 
     if (event.detail === 1) { // if single click, just update placeholder text and icon
       const buttonElem = event.target as HTMLInputElement;
@@ -91,66 +170,11 @@ const FlexInput = (props: any) => {
 
 
       // create node based on nodeType
-
-      let data: CreativeNodeData;
-      if (nodeType === 'brainstorm') {
-        data = {
-          parentId: '',
-          chatReference: '',
-          placeholder: inputText,
-          state: {
-            input: inputText,
-            responseInputState: ResponseState.LOADING,
-          },
-        };
-      } else if (nodeType === 'chat') {
-        data = {
-          parentId: '',
-          chatReference: '',
-          placeholder: inputText,
-          state: {
-            input: inputText,
-            responseInputState: ResponseState.LOADING,
-          },
-        } as ChatNodeData;
-      } else if (nodeType === 'concept') {
-        data = {
-          label: inputText,
-          topicNodes: [],
-          state: {
-            input: inputText,
-            responseInputState: ResponseState.LOADING,
-          },
-        };
-      } else if (nodeType === 'memo') {
-        data = {
-          label: inputText,
-          // Memo node holds no data for now
-        }
-      } else {
-        return;
-      }
-
-        const position: XYPosition = flexNodePosition as XYPosition;
-        // Type of node denoted in id
-        const type = nodeType;
-        const nodeId = `${nodeType}-${uuid()}`;
-        const newNode: CreativeNode = {
-          id: nodeId,
-          dragHandle: ".drag-handle",
-          type,
-          position,
-          data,
-        };
-
-        // remove existing flex node
-        await reactFlowInstance.setNodes((nodes) => nodes.filter((node) => node.id !== flexNodeId));
-
-        // add new node
-        reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
+      createNode(flexNodeId, inputText, flexNodePosition as XYPosition);
     }
   }
 
+  // when mouse leaves button (i.e., after cursor hovers over), return placeholder text to correspond to active (clicked) button
   const handleMouseOut = (id: string) => {
     const elem = document.getElementById(id);
     const buttonElements = elem?.parentElement?.parentElement?.getElementsByClassName('flex-node-button');
@@ -164,6 +188,7 @@ const FlexInput = (props: any) => {
     inputElem?.setAttribute('placeholder', placeholderText(clickedNodeType) as string);
   }
 
+  // used to update icon in input element within flex node depending on which element is selected
   const Icon = () => {
     switch (clickedNodeType) {
       case 'brainstorm':
@@ -212,6 +237,7 @@ const FlexInput = (props: any) => {
           className="chat-input"
           onSubmit={(event) => {
             event.preventDefault();
+            handleSubmit(event);
             // props.generateResponse(props.input.trim());
           }}
         >
@@ -237,6 +263,7 @@ const FlexInput = (props: any) => {
             // onClick={() => props.generateResponse(props.input.trim())}
             // className={`flex-node-button ${clickedNodeType === 'brainstorm'? 'active': ''}`}
             id={`flex-brainstorm-${uuid()}`}
+            node-type="brainstorm"
             className={`flex-node-button ${selectedType("brainstorm")}`}
             type="button"
             onMouseOver={(event) => {
@@ -263,6 +290,7 @@ const FlexInput = (props: any) => {
           <button
             // onClick={() => props.generateResponse(props.input.trim())}
             id={`flex-chat-${uuid()}`}
+            node-type="chat"
             className={`flex-node-button ${selectedType("chat")}`}
             type="button"
             onMouseOver={(event) => {
@@ -289,6 +317,7 @@ const FlexInput = (props: any) => {
           <button
             // onClick={() => props.generateResponse(props.input.trim())}
             id={`flex-concept-${uuid()}`}
+            node-type="concept"
             className={`flex-node-button ${selectedType("hierarchy")}`}
             type="button"
             onMouseOver={(event) => {
@@ -316,6 +345,7 @@ const FlexInput = (props: any) => {
           </button>
           <button
             id={`flex-memo-${uuid()}`}
+            node-type="memo"
             className={`flex-node-button ${selectedType("memo")}`}
             type="button"
             onMouseOver={(event) => {
