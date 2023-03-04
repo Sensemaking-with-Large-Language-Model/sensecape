@@ -1,0 +1,102 @@
+.chat-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid #eee;
+    border-radius: 4px;
+    padding: 4px 6px;
+  
+    input {
+      flex-grow: 2;
+      border: none;
+      background-color: #fff;
+      font-size: 14px;
+    }
+  
+    input::placeholder {
+      color: #ddd;
+    }
+  
+  
+    input:focus {
+      outline: none;
+    }
+  
+    input::-webkit-search-cancel-button,
+    input::-webkit-search-decoration {
+      -webkit-appearance: none;
+    }
+  
+    button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: none;
+      border-radius: 4px;
+      color: rgb(127, 127, 127);
+      padding: 3px 6px;
+      background: none;
+      cursor: pointer;
+      transition: ease 0.15s;
+  
+      svg path {
+        stroke: #aaa;
+      }
+    }
+  
+    button:hover {
+      // background: #eee;
+      background: transparent;
+    }
+
+    button:active {
+      // color:rgba(154, 154, 154, 0.7);
+      background-color: #fff;
+    }
+  
+    img {
+      padding: 3px 6px;
+    }
+  }
+  
+  .chat-input:focus-within { 
+    border: 2px solid #ddd;
+  }
+  
+
+  .node-type-selection {
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .node-type-selection > button {
+    margin: 7px 5px 0 5px;
+    background-color: transparent;
+    border: 0px solid rgb(0 0 0 / 15%);;
+    border-radius: 5px;
+    padding: 10px 8px;
+    color: #7f7f7f;
+  }
+
+  .node-type-selection > button:hover {
+    color: #444;
+    // box-shadow: 0 5px 10px rgba(154, 154, 154, 0.3);
+    // border-radius: 5px;
+    path {
+      transition: ease 0.15s;
+      stroke: #444;
+    }
+    cursor: grab;
+  }
+
+  .node-type-selection > button.active {
+    color: #444;
+    box-shadow: 0 5px 10px rgba(154, 154, 154, 0.3);
+    border-radius: 5px;
+    path {
+      transition: ease 0.15s;
+      stroke: #444;
+    }
+    cursor: grab;
+  }

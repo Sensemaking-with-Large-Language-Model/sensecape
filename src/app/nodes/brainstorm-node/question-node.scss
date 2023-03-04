@@ -1,0 +1,12 @@
+// .brainstorm-response-question {
+//     border: 1px solid lightgrey;
+// }
+
+.brainstorm-response-question:hover {
+    color: #444;
+    box-shadow: 0 5px 10px rgba(154, 154, 154, 0.3);
+    path {
+      transition: ease 0.15s;
+      stroke: #444;
+    }
+}

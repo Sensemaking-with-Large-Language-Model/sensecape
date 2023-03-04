@@ -54,6 +54,7 @@ const MemoNode = (props: NodeProps) => {
               <h3>{title}</h3>
             </div>
             <textarea
+              className="text-input"
               value={memo}
               onChange={handleChange}
               // onBlur={generateTitle}

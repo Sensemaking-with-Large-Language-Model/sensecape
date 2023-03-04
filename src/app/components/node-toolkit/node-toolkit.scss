@@ -61,6 +61,7 @@
 .add-node:hover {
   color: #444;
   box-shadow: 0 5px 10px rgba(154, 154, 154, 0.3);
+  border-radius: 5px;
   path {
     transition: ease 0.15s;
     stroke: #444;
@@ -73,4 +74,20 @@
 
 .add-gpt-node:hover path {
   stroke: #444;
+}
+
+.semantic-route-tooltip {
+  max-width: 300px !important;
+}
+
+.gif {
+  max-width: 900px !important;
+  text-align-last: center;
+  width: 700px;
+}
+
+.video {
+  max-width: 1200px !important;
+  text-align-last: center;
+  width: 1000px;
 }

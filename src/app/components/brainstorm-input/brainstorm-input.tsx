@@ -53,7 +53,7 @@ const BrainstormInput = (props: any) => {
       >
         <input
           id="text"
-          className="brainstorm-input"
+          className="brainstorm-input text-input"
           // className={`${currentZoomState()}`}
           name="text"
           type="text"
