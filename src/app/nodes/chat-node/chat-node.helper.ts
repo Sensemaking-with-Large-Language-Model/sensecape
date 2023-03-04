@@ -84,11 +84,14 @@ export const createChatNodeFromDiv = (
       data,
     };
 
+    console.log('brainstormNodeId', brainstormNodeId);
+    console.log('newNode.id', newNode.id);
     const edge: Edge =  {
-      id: `e-${reactFlowInstance.getEdges().length}`,
-      source: brainstormNodeId,
       type: 'default',
+      id: `e-${reactFlowInstance.getEdges().length}-${uuid()}`,
+      source: brainstormNodeId,
       target: newNode.id,
+      data: {},
     }
 
     reactFlowInstance.addNodes(newNode);

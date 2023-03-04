@@ -268,8 +268,7 @@ const ExploreFlow = () => {
   const onDrop = useCallback(
     (event: any) => {
       event.preventDefault();
-      const reactFlowBounds =
-        reactFlowWrapper?.current?.getBoundingClientRect();
+      const reactFlowBounds = reactFlowWrapper?.current?.getBoundingClientRect();
       const type = event.dataTransfer.getData("dragNodeType");
       const data = JSON.parse(event.dataTransfer.getData("dragNodeData"));
 
@@ -300,9 +299,7 @@ const ExploreFlow = () => {
         }
         setTimeout(() => {
           const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
-          console.log('currElement', currElement);
           const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
-          console.log('inputElement', inputElement);
           inputElement.focus();
         }, 100);
       }
@@ -403,7 +400,6 @@ const ExploreFlow = () => {
         return;
       }
 
-      console.log("topic", selectedTopicNodes);
       setSelectedTopics(selectedTopicNodes);
     },
     [reactFlowInstance]
@@ -635,12 +631,8 @@ const ExploreFlow = () => {
           const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
           inputElement.focus();
           const buttonElements = currElement.getElementsByClassName('flex-node-button');
-          console.log('buttonElements', buttonElements);
           for (let i = 0; i < 4; i++) {
             buttonElements[i].addEventListener('mouseover', () => {
-              // console.log('buttonElements[i].parentNode', buttonElements[i].parentNode);
-              // console.log('buttonElements[i].parentNode', buttonElements[i].parentNode?.childNodes);
-              // buttonElements[i].parentNode?.childNodes.forEach( (childNode) => console.log('childNode', childNode.className));
             })
           }
         }, 100);
@@ -683,6 +675,7 @@ const ExploreFlow = () => {
                 onPaneClick={onPaneClick}
                 panOnScroll
                 zoomOnPinch
+                onNodesDelete={(event) => console.log(event)}
                 selectionOnDrag
                 panOnDrag={panOnDrag}
                 zoomOnDoubleClick={false}
