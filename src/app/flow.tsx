@@ -474,11 +474,18 @@ const ExploreFlow = () => {
             const groupRect = getRectOfNodes(semanticCarryList.nodes);
             const carriedNodes = semanticCarryList.nodes.map(node => {
               const duplicate = duplicateNode(node);
-              duplicate.position.x += position.x - groupRect.x;
-              duplicate.position.y += position.y - groupRect.y;
+              duplicate.position.x += position.x - groupRect.x - groupRect.width/2;
+              duplicate.position.y += position.y - groupRect.y - groupRect.height/2;
               return duplicate;
             });
             reactFlowInstance.addNodes(carriedNodes);
+
+            const carryBox = document.getElementById('semantic-carry-box');
+            carryBox?.replaceChildren();
+            // document.removeEventListener('mousemove', (e) => {
+            //   carryCapture.style.top = `${e.clientY - carryCapture.clientHeight/2}px`;
+            //   carryCapture.style.left = `${e.clientX - carryCapture.clientWidth/2}px`;
+            // })
             setSemanticCarryList({
               nodes: [],
               edges: [],
@@ -591,7 +598,7 @@ const ExploreFlow = () => {
 
   return (
     <div className="explore-flow">
-      <div id="scale-it" className="reactflow-wrapper" ref={reactFlowWrapper}>
+      <div id="reactflow-wrapper" className="reactflow-wrapper" ref={reactFlowWrapper}>
         <ReactFlow
           id='reactFlowInstance'
           className={altKeyPressed ? 'semantic-carry-ready' : ''}
@@ -608,6 +615,7 @@ const ExploreFlow = () => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeClick={onNodeClick}
+          nodeOrigin={[0.5, 0.5]}
           onConnect={onConnect}
           connectionLineComponent={TravellerConnectionLine}
           // fitViewOptions={fitViewOptions}
@@ -633,6 +641,7 @@ const ExploreFlow = () => {
           <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
           <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
         </ReactFlow>
+        <div id='semantic-carry-box'></div>
         <div style={{
           boxShadow: 'inset 0 0 50px #3c6792',
           position: 'absolute',
