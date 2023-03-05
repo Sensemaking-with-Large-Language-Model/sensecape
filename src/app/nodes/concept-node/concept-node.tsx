@@ -114,10 +114,6 @@ const ConceptNode = (props: NodeProps) => {
   );
   const [concept, setConcept] = useState(props.data.state.concept ?? "");
   const [input, setInput] = useState(props.data.state.input ?? "");
-  // const [lowLevelTopics, setLowLevelTopics] = useState<string[]>([]);
-  // const [highLevelTopics, setHighLevelTopics] = useState<string[]>([]);
-  const [tree, setTree] = useState({});
-
   const reactFlowInstance = useReactFlow();
 
   let {
@@ -126,8 +122,6 @@ const ConceptNode = (props: NodeProps) => {
     setConceptNodes,
     conceptNodes,
   } = useContext(FlowContext);
-
-  // useLayout();
 
   useEffect(() => {
     reactFlowInstance.setNodes((nodes) =>
@@ -143,7 +137,7 @@ const ConceptNode = (props: NodeProps) => {
         return node;
       })
     );
-  }, [reactFlowInstance]);
+  }, [reactFlowInstance, concept, input, responseInputState]);
 
   useEffect(() => {
     // console.log(props.data.state.input, props.data.state.responseInputState)
