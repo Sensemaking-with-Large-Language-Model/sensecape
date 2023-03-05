@@ -16,7 +16,27 @@ import { ReactComponent as HelpIcon } from '../../assets/help.svg';
 import resetCanvas from "../../assets/tutorial/reset-canvas.gif";
 import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
+import styled from 'styled-components';
 import useCloseOnDocumentClick from '../../hooks/useCloseOnDocumentClick';
+
+
+const doNotShowTooltip = false; // change to true if don't want to show tool tip next to node types
+const positionToolTip = "right center";
+const mouseLeaveDelayTime = 20;
+const offsetXValue = 15;
+const offsetYValue = 13;
+const showArrow = true;
+
+const StyledPopup = styled(Popup)`
+  // use your custom style for ".popup-overlay"
+  &-overlay {
+    ...;
+  }
+  // use your custom style for ".popup-content"
+  &-content {
+    ...;
+  }
+`;
 
 const PopupExample = () => (
   <Popup trigger={<button> Trigger</button>} position="right center">
@@ -24,80 +44,121 @@ const PopupExample = () => (
   </Popup>
 );
 
+const ImageElement = () => {
+  return (
+    <>
+    <h3>Tutorial</h3>
+    <img src="https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp" alt="" />
+    </>
+  )
+}
+
+const VideoElement = () => {
+return (
+  <>
+  <h3>Tutorial</h3>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/BzSMLP5KpjM" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+  </>
+)
+}
+
+const ResetCanvas = () => {
+return (
+  <>
+  <h3>Tutorial</h3>
+  <img src={resetCanvas} width="700px" alt="" />
+  </>
+)
+}
+
+const ShortcutGIF = () => {
+  return (
+  <Popup
+  trigger={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12.53 20.4201H6.21C3.05 20.4201 2 18.3201 2 16.2101V7.79008C2 4.63008 3.05 3.58008 6.21 3.58008H12.53C15.69 3.58008 16.74 4.63008 16.74 7.79008V16.2101C16.74 19.3701 15.68 20.4201 12.53 20.4201Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M19.52 17.0999L16.74 15.1499V8.83989L19.52 6.88989C20.88 5.93989 22 6.51989 22 8.18989V15.8099C22 17.4799 20.88 18.0599 19.52 17.0999Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11.5 11C12.3284 11 13 10.3284 13 9.5C13 8.67157 12.3284 8 11.5 8C10.6716 8 10 8.67157 10 9.5C10 10.3284 10.6716 11 11.5 11Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>}
+    on="click"
+    position="top center"
+    nested
+  >
+  {/* Lorem ipsum */}
+  <ImageElement/>
+</Popup>
+)
+}
 
 
 const KeyboardShortcuts:any = (close: () => void) => {
   return (
     <>
       <div className="modal">
-        {/* <button className="close" onClick={close}>
+        <button className="close" onClick={close}>
           &times;
-        </button> */}
-        <div className="header"> Modal Title </div>
+        </button>
+        <div className="header"> <h3>Keyboard shortcuts</h3> </div>
         <div className="content">
-          {' '}
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, a nostrum.
-          Dolorem, repellat quidem ut, minima sint vel eveniet quibusdam voluptates
-          delectus doloremque, explicabo tempore dicta adipisci fugit amet dignissimos?
-          <br />
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequatur sit
-          commodi beatae optio voluptatum sed eius cumque, delectus saepe repudiandae
-          explicabo nemo nam libero ad, doloribus, voluptas rem alias. Vitae?
+          <div className="shortcut-navigation">
+            <h2>Navigation</h2>
+            <div className="shortcut-container">              
+              <div className="shortcut">
+              <div>Move Canvas</div>
+                <div className="key-container"><kbd className="key">Space</kbd> + <kbd className="key">Drag</kbd>
+                <ShortcutGIF ></ShortcutGIF>
+                </div>
+              </div>
+              <div className="shortcut">
+                <div>Zoom in/out</div>
+                <div className="key-container"><kbd className="key">Cmd</kbd> + <kbd className="key">Scroll</kbd>
+                  <ShortcutGIF ></ShortcutGIF>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="shortcut-editor">
+            <h2>Editor</h2>
+            <div className="shortcut-container">
+              <div className="shortcut">
+                <div>Delete</div>
+                <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Select multiple nodes</div>
+                <div className="key-container"><kbd className="key">Shift</kbd> + <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+            </div>
+          </div>
+          <div className="shortcut-semantic-navigation">
+            <h2>Semantic Dive</h2>
+            <div className="shortcut-container">
+              <div className="shortcut">
+                <div>Dive in</div>
+                <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Dive out</div>
+                <div className="key-container"><kbd className="key">Shift</kbd> + <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="actions">
-          <Popup
-            trigger={<button className="button"> Trigger </button>}
-            position="top center"
-            nested
-          >
-            <span>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae
-              magni omnis delectus nemo, maxime molestiae dolorem numquam
-              mollitia, voluptate ea, accusamus excepturi deleniti ratione
-              sapiente! Laudantium, aperiam doloribus. Odit, aut.
-            </span>
-          </Popup>
+        {/* <div className="actions">
           <button
-            className="button"
+            className="close-button"
             onClick={() => {
               console.log('modal closed ');
               close();
             }}
           >
-            close modal
+            Close
           </button>
-        </div>
+        </div> */}
       </div>
     </>
   )
 };
 
-const ImageElement = () => {
-    return (
-      <>
-      <h3>Tutorial</h3>
-      <img src="https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp" alt="" />
-      </>
-    )
-}
-
-const VideoElement = () => {
-  return (
-    <>
-    <h3>Tutorial</h3>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/BzSMLP5KpjM" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
-    </>
-  )
-}
-
-const ResetCanvas = () => {
-  return (
-    <>
-    <h3>Tutorial</h3>
-    <img src={resetCanvas} width="700px" alt="" />
-    </>
-  )
-}
 
 // https://github.com/HiDeoo/intro.js-react#introjs-options
 // element - target element
@@ -285,33 +346,81 @@ const NodeToolkit = (props: any) => {
         <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />
         Traveller Mode
       </div>
-      <div className='toolkit-option toolkit-brainstorm add-node' draggable onDragStart={(e) => onDragStart(e, 'brainstorm')}>
+      <Popup
+        trigger={<div className='toolkit-option toolkit-brainstorm add-node' draggable onDragStart={(e) => onDragStart(e, 'brainstorm')}>
         <BrainstormIcon />
         Brainstorm
-      </div>
-      <div className='toolkit-option toolkit-search add-node' draggable onDragStart={(e) => onDragStart(e, 'chat')}>
+      </div>}
+        position={positionToolTip}
+        offsetX={offsetXValue}
+        offsetY={offsetYValue}
+        on="hover"
+        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseEnterDelay={0}
+        disabled={doNotShowTooltip}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={showArrow}>
+        Drag out to create this node
+      </Popup>
+      <Popup
+        trigger={<div className='toolkit-option toolkit-search add-node' draggable onDragStart={(e) => onDragStart(e, 'chat')}>
         <SearchIcon />
         Search
-      </div>
-      <div className='toolkit-option toolkit-concept add-node' draggable onDragStart={(e) => onDragStart(e, 'concept')}>
+      </div>}
+        position={positionToolTip}
+        offsetX={offsetXValue}
+        offsetY={offsetYValue}
+        on="hover"
+        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseEnterDelay={0}
+        disabled={doNotShowTooltip}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={showArrow}>
+        Drag out to create this node
+      </Popup>
+      <Popup
+        trigger={<div className='toolkit-option toolkit-concept add-node' draggable onDragStart={(e) => onDragStart(e, 'concept')}>
         <HierarchyIcon />
         Hierarchy
-      </div>
-      <div className='toolkit-option toolkit-memo add-node' draggable onDragStart={(e) => onDragStart(e, 'memo')}>
-        <MemoIcon />
-        Memo
-      </div>
+      </div>}
+        position={positionToolTip}
+        offsetX={offsetXValue}
+        offsetY={offsetYValue}
+        on="hover"
+        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseEnterDelay={0}
+        disabled={doNotShowTooltip}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={showArrow}>
+        Drag out to create this node
+      </Popup>
+      <Popup
+        trigger={<div className='toolkit-option toolkit-memo add-node' draggable onDragStart={(e) => onDragStart(e, 'memo')}>
+          <MemoIcon />
+          Memo
+        </div>} 
+        position={positionToolTip}
+        offsetX={offsetXValue}
+        offsetY={offsetYValue}
+        on="hover"
+        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseEnterDelay={0}
+        disabled={doNotShowTooltip}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={showArrow}>
+          Drag out to create this node
+      </Popup>
       {/* <div className='toolkit-option toolkit-help add-node' draggable onClick={startIntroJS}>
         <HelpIcon />
         Help
       </div> */}
-      <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position="right top"
+      <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position={positionToolTip}
         on="hover"
-        closeOnDocumentClick
-        mouseLeaveDelay={100}
+        offsetX={0}
+        mouseLeaveDelay={mouseLeaveDelayTime}
         mouseEnterDelay={0}
         contentStyle={{ padding: '5px', border: 'none' }}
-        arrow={false}>
+        arrow={showArrow}>
         <div className="menu">
           <div onClick={startIntroJS} className="menu-item">Interface tutorial</div>
           {/* <div className="menu-item">Keyboard shortcuts</div> */}
