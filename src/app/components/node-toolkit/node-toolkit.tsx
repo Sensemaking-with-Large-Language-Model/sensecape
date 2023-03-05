@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { JSXElementConstructor, ReactElement, ReactFragment, ReactPortal, useCallback, useState } from 'react';
 import { useReactFlow } from 'reactflow';
 import { Button, Switch } from 'antd';
 import { createChatNode } from '../../nodes/chat-node/chat-node.helper';
@@ -13,6 +13,10 @@ import { ReactComponent as SearchIcon } from '../../assets/node-icons/search.svg
 import { ReactComponent as HierarchyIcon } from '../../assets/node-icons/hierarchy.svg';
 import { ReactComponent as MemoIcon } from '../../assets/node-icons/memo.svg';
 import { ReactComponent as HelpIcon } from '../../assets/help.svg';
+import { ReactComponent as EraserIcon } from '../../assets/eraser.svg';
+import { ReactComponent as KeyboardIcon } from '../../assets/keyboard.svg';
+import { ReactComponent as ElementIcon } from '../../assets/element.svg';
+import { ReactComponent as TeacherIcon } from '../../assets/teacher.svg';
 import resetCanvas from "../../assets/tutorial/reset-canvas.gif";
 import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
@@ -24,7 +28,8 @@ const doNotShowTooltip = false; // change to true if don't want to show tool tip
 const positionToolTip = "right center";
 const mouseLeaveDelayTime = 20;
 const offsetXValue = 15;
-const offsetYValue = 15;
+// const offsetYValue = 15;
+const offsetYValue = 0;
 const showArrow = true;
 
 const StyledPopup = styled(Popup)`
@@ -38,26 +43,21 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-const PopupExample = () => (
-  <Popup trigger={<button> Trigger</button>} position="right center">
-    <div>Popup content here !!</div>
-  </Popup>
-);
-
-const ImageElement = () => {
+const ImageElement = (props: { title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; url: string | undefined; description: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; }) => {
   return (
     <>
-    <h3>Tutorial</h3>
-    <img src="https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp" alt="" />
+    <h3>{props.title}</h3>
+    <img src={props.url} alt="" />
+    <span>{props.description}</span>
     </>
   )
 }
 
-const VideoElement = () => {
+const VideoElement = (props: { url: string | undefined; }) => {
 return (
   <>
   <h3>Tutorial</h3>
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/BzSMLP5KpjM" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+  <iframe width="560" height="315" src={props.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
   </>
 )
 }
@@ -74,7 +74,7 @@ return (
 const ShortcutGIF = () => {
   return (
   <Popup
-  trigger={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    trigger={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12.53 20.4201H6.21C3.05 20.4201 2 18.3201 2 16.2101V7.79008C2 4.63008 3.05 3.58008 6.21 3.58008H12.53C15.69 3.58008 16.74 4.63008 16.74 7.79008V16.2101C16.74 19.3701 15.68 20.4201 12.53 20.4201Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M19.52 17.0999L16.74 15.1499V8.83989L19.52 6.88989C20.88 5.93989 22 6.51989 22 8.18989V15.8099C22 17.4799 20.88 18.0599 19.52 17.0999Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M11.5 11C12.3284 11 13 10.3284 13 9.5C13 8.67157 12.3284 8 11.5 8C10.6716 8 10 8.67157 10 9.5C10 10.3284 10.6716 11 11.5 11Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -84,7 +84,7 @@ const ShortcutGIF = () => {
     nested
   >
   {/* Lorem ipsum */}
-  <ImageElement/>
+  <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>
 </Popup>
 )
 }
@@ -175,11 +175,11 @@ const steps = [
   //   // highlightClass: 'myHighlightClass',
   // },
   {
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     tooltipClass: 'gif',
   },
   {
-    intro: <VideoElement/>,
+    intro: <VideoElement url={"https://www.youtube.com/embed/BzSMLP5KpjM"} />,
     tooltipClass: 'video',
   },
   {
@@ -197,36 +197,36 @@ const steps = [
   },
   {
     element: '.traveller-mode-toggle',
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     position: 'right',
   },
   {
     element: '.toolkit-brainstorm',
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     position: 'right',
     tooltipClass: 'gif',
   },
   {
     element: '.toolkit-search',
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     position: 'right',
     tooltipClass: 'gif',
   },
   {
     element: '.toolkit-concept',
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     position: 'right',
     tooltipClass: 'gif',
   },
   {
     element: '.toolkit-memo',
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     position: 'right',
     tooltipClass: 'gif',
   },
   {
     element: '.toolkit-help',
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     position: 'right',
     tooltipClass: 'gif',
   },
@@ -238,7 +238,7 @@ const steps = [
   },
   {
     element: '.zoom-slider',
-    intro: <ImageElement/>,
+    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     position: 'left',
     tooltipClass: 'gif',
   },
@@ -437,16 +437,22 @@ const NodeToolkit = (props: any) => {
         contentStyle={{ padding: '5px', border: 'none' }}
         arrow={showArrow}>
         <div className="menu">
-          <div onClick={startIntroJS} className="menu-item">Interface tutorial</div>
+          <div onClick={startIntroJS} className="menu-item">
+          <ElementIcon/>&nbsp; Interface</div>
           {/* <div className="menu-item">Keyboard shortcuts</div> */}
           {/* <KeyboardShortcuts /> */}
-          <Popup trigger={<div className="menu-item">Keyboard shortcuts</div>} modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
+          <div onClick={startIntroJS} className="menu-item">
+          <TeacherIcon/>&nbsp; Tutorial</div>
+          <Popup trigger={<div className="menu-item">
+          <KeyboardIcon/>&nbsp; Keyboard shortcuts</div>} modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
             { KeyboardShortcuts }
           </Popup>
           {/* <div className="menu-item"> item 3</div> */}
         </div>
       </Popup>
-      <Button onClick={clearCanvas} className="toolkit-reset-canvas" type="text" block danger>Reset Canvas</Button>
+      <Button onClick={clearCanvas} className="toolkit-reset-canvas" type="text" block danger>
+      {/* <EraserIcon/>&nbsp; */}
+      Reset Canvas</Button>
       {/* <PopupExample /> */}
       <Steps
         enabled={stepsEnabled}
