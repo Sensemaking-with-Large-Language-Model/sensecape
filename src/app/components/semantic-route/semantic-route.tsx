@@ -1,10 +1,12 @@
 import { Breadcrumb } from 'antd';
 import './semantic-route.scss';
+import 'reactjs-popup/dist/index.css';
+import Popup from 'reactjs-popup';
 
 const SemanticRoute = (props: any) => {
 
   return (
-    <div className="semantic-route">
+    <Popup trigger={<div className="semantic-route">
       <Breadcrumb>
         {
           props.route.map((topic: string, index: number) => (
@@ -21,7 +23,11 @@ const SemanticRoute = (props: any) => {
           <a href="">General</a>
         </Breadcrumb.Item> */}
       </Breadcrumb>
-    </div>
+    </div>}
+    on="hover"
+    position="right center">
+      <span>Indicates which level you are in</span>
+    </Popup>
   )
 }
 
