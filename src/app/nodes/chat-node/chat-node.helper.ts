@@ -21,13 +21,13 @@ export const createChatNode = (
       const height = nodeElement.clientHeight;
       const width = nodeElement.clientWidth;
       position = {
-        x: width / 2 - 575 / 2,
+        x: width / 2,
         y: (height ?? 0) + 20,
       };
     } else {
       position = {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2 + 100,
+        x: 0,
+        y: 100,
       };
     }
     const newNode: TypeChatNode = {
