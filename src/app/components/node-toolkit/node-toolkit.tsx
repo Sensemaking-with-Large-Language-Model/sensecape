@@ -24,7 +24,7 @@ const doNotShowTooltip = false; // change to true if don't want to show tool tip
 const positionToolTip = "right center";
 const mouseLeaveDelayTime = 20;
 const offsetXValue = 15;
-const offsetYValue = 13;
+const offsetYValue = 15;
 const showArrow = true;
 
 const StyledPopup = styled(Popup)`
@@ -196,6 +196,11 @@ const steps = [
     // highlightClass: 'myHighlightClass',
   },
   {
+    element: '.traveller-mode-toggle',
+    intro: <ImageElement/>,
+    position: 'right',
+  },
+  {
     element: '.toolkit-brainstorm',
     intro: <ImageElement/>,
     position: 'right',
@@ -342,10 +347,20 @@ const NodeToolkit = (props: any) => {
 
   return (
     <div className="node-toolkit">
-      <div className='toolkit-option traveller-mode-toggle'>
-        <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />
-        Traveller Mode
-      </div>
+      <Popup
+        trigger={<div className='toolkit-option traveller-mode-toggle'>
+        <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />Traveller Mode</div>}
+        position={positionToolTip}
+        offsetX={offsetXValue}
+        offsetY={offsetYValue}
+        on="hover"
+        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseEnterDelay={0}
+        disabled={doNotShowTooltip}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={showArrow}>
+          Show or hide track history
+      </Popup>
       <Popup
         trigger={<div className='toolkit-option toolkit-brainstorm add-node' draggable onDragStart={(e) => onDragStart(e, 'brainstorm')}>
         <BrainstormIcon />
