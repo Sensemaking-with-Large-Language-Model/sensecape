@@ -23,6 +23,19 @@
   scale: 0.95;
 }
 
+.carry-capture-init {
+  position: absolute;
+  scale: 0.2;
+  opacity: 0;
+  pointer-events: none;
+  transition: ease 0.5s;
+}
+
+.carry-capture {
+  scale: 0.5;
+  opacity: 0.7;
+}
+
 .node-handle-direct {
   background: none;
   border: none;
