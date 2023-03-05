@@ -56,6 +56,7 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
     console.log("edges", edges);
   }
   const root_position = rootNode.position;
+  // console.log(rootNode.width)
   console.log("rootNode", rootNode);
   console.log("root_position", root_position);
 
@@ -71,16 +72,21 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
   // run the layout algorithm with the hierarchy data structure
   const root = layout(hierarchy);
   console.log("root", root);
+  console.log('rootNode.width', rootNode.width);
 
+  console.log('root.x', root.x);
   root.x = root_position["x"];
   root.y = root_position["y"];
+
+  console.log('root.x', root.x);
 
   console.log("===========");
   // convert the hierarchy back to react flow nodes (the original node is stored as d.data)
   // we only extract the position from the d3 function
+  // we add (rootNode.width! / 2) to d.x and (rootNode.height! / 2) to d.y to account for the change in anchor point by Bryan where the anchor point was moved from top left to center of the node
   return root
     .descendants()
-    .map((d) => ({ ...d.data, position: { x: d.x, y: d.y } }));
+    .map((d) => ({ ...d.data, position: { x: d.x + (rootNode.width! / 2), y: d.y + (rootNode.height! / 2) } })); 
 }
 
 // ===========================
