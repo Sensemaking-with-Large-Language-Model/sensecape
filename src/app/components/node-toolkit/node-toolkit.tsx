@@ -14,8 +14,63 @@ import { ReactComponent as HierarchyIcon } from '../../assets/node-icons/hierarc
 import { ReactComponent as MemoIcon } from '../../assets/node-icons/memo.svg';
 import { ReactComponent as HelpIcon } from '../../assets/help.svg';
 import resetCanvas from "../../assets/tutorial/reset-canvas.gif";
+import 'reactjs-popup/dist/index.css';
+import Popup from 'reactjs-popup';
+import useCloseOnDocumentClick from '../../hooks/useCloseOnDocumentClick';
+
+const PopupExample = () => (
+  <Popup trigger={<button> Trigger</button>} position="right center">
+    <div>Popup content here !!</div>
+  </Popup>
+);
 
 
+
+const KeyboardShortcuts:any = (close: () => void) => {
+  return (
+    <>
+      <div className="modal">
+        {/* <button className="close" onClick={close}>
+          &times;
+        </button> */}
+        <div className="header"> Modal Title </div>
+        <div className="content">
+          {' '}
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, a nostrum.
+          Dolorem, repellat quidem ut, minima sint vel eveniet quibusdam voluptates
+          delectus doloremque, explicabo tempore dicta adipisci fugit amet dignissimos?
+          <br />
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequatur sit
+          commodi beatae optio voluptatum sed eius cumque, delectus saepe repudiandae
+          explicabo nemo nam libero ad, doloribus, voluptas rem alias. Vitae?
+        </div>
+        <div className="actions">
+          <Popup
+            trigger={<button className="button"> Trigger </button>}
+            position="top center"
+            nested
+          >
+            <span>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae
+              magni omnis delectus nemo, maxime molestiae dolorem numquam
+              mollitia, voluptate ea, accusamus excepturi deleniti ratione
+              sapiente! Laudantium, aperiam doloribus. Odit, aut.
+            </span>
+          </Popup>
+          <button
+            className="button"
+            onClick={() => {
+              console.log('modal closed ');
+              close();
+            }}
+          >
+            close modal
+          </button>
+        </div>
+      </div>
+    </>
+  )
+};
 
 const ImageElement = () => {
     return (
@@ -220,8 +275,9 @@ const NodeToolkit = (props: any) => {
 
   const onExit = () => { setStepsEnabled(false) };
 
-  const startIntroJS = () => {setStepsEnabled(true)}
+  const startIntroJS = () => {setStepsEnabled(true)};
 
+  const closeOnDocumentClick = useCloseOnDocumentClick();
 
   return (
     <div className="node-toolkit">
@@ -245,11 +301,29 @@ const NodeToolkit = (props: any) => {
         <MemoIcon />
         Memo
       </div>
-      <div className='toolkit-option toolkit-help add-node' draggable onClick={startIntroJS}>
+      {/* <div className='toolkit-option toolkit-help add-node' draggable onClick={startIntroJS}>
         <HelpIcon />
         Help
-      </div>
+      </div> */}
+      <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position="right top"
+        on="hover"
+        closeOnDocumentClick
+        mouseLeaveDelay={100}
+        mouseEnterDelay={0}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={false}>
+        <div className="menu">
+          <div onClick={startIntroJS} className="menu-item">Interface tutorial</div>
+          {/* <div className="menu-item">Keyboard shortcuts</div> */}
+          {/* <KeyboardShortcuts /> */}
+          <Popup trigger={<div className="menu-item">Keyboard shortcuts</div>} modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
+            { KeyboardShortcuts }
+          </Popup>
+          {/* <div className="menu-item"> item 3</div> */}
+        </div>
+      </Popup>
       <Button onClick={clearCanvas} className="toolkit-reset-canvas" type="text" block danger>Reset Canvas</Button>
+      {/* <PopupExample /> */}
       <Steps
         enabled={stepsEnabled}
         steps={steps}
