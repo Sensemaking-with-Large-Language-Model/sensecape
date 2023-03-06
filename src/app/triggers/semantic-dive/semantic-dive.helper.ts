@@ -91,8 +91,8 @@ export const styleNodesAndEdges = (
 }
 
 export const getRepelDirection = (sourceRect: Rect, target: Node) => {
-  const xDiff = target.position.x - sourceRect.x;
-  const yDiff = target.position.y - sourceRect.y;
+  const xDiff = target?.position.x - sourceRect.x;
+  const yDiff = target?.position.y - sourceRect.y;
   const mag = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
   return {x: xDiff/mag, y: yDiff/mag};
 }
