@@ -3,6 +3,7 @@
   background-color: rgba(251, 241, 196, 0.557);
   // border: 2px solid #a0a0a0;
   max-width: 570px;
+  min-width: 200px;
   border-radius: 8px;
   width: fit-content;
 
@@ -19,7 +20,9 @@
 
   textarea {
     width: 455px;
-    max-width: 570px;
+    max-width: 550px;
+    min-width: 200px;
+    min-height: 50px;
     height: 150px;
     padding: 8px;
     flex-grow: 2;
