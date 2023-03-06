@@ -10,7 +10,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const verbose: boolean = true;
+const verbose: boolean = false;
 
 // Object that specifies max token length by response type
 export const tokens = {
@@ -414,8 +414,10 @@ export const extendConcept = async (
       },
     };
 
-    console.log("childNode", childNode);
-    console.log("======");
+    if (verbose) {
+      console.log("childNode", childNode);
+      console.log("======");
+    }
 
     const childEdge = {
       id: `${parentNode.id}=>${childNodeId}`,
@@ -437,8 +439,10 @@ export const extendConcept = async (
     childEdgeArray.push(childEdge);
   }
 
-  console.log("childNodeArray", childNodeArray);
-  console.log("childEdgeArray", childEdgeArray);
+  if (verbose) {
+    console.log("childNodeArray", childNodeArray);
+    console.log("childEdgeArray", childEdgeArray);
+  }
 
   const currNodes = reactFlowInstance.getNodes();
   const currEdges = reactFlowInstance.getEdges();
