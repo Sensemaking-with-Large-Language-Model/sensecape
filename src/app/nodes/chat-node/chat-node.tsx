@@ -13,7 +13,7 @@ import GPTInput from '../../components/gpt-input/gpt-input';
 import { ResponseState } from '../../components/input.model';
 import { createChatNode } from './chat-node.helper';
 import { InputHoverState, ZoomState } from '../node.model';
-import { InstanceState } from '../../triggers/semantic-dive';
+import { InstanceState } from '../../triggers/semantic-dive/semantic-dive';
 import { TopicNodeData } from '../topic-node/topic-node.model';
 
 type ChatState = {

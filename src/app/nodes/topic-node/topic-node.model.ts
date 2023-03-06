@@ -1,6 +1,6 @@
 import { Node } from 'reactflow';
 import { ResponseState } from '../../components/input.model';
-import { InstanceState } from '../../triggers/semantic-dive';
+import { InstanceState } from '../../triggers/semantic-dive/semantic-dive';
 import { InputHoverState } from '../node.model';
 
 export interface TopicNodeData {

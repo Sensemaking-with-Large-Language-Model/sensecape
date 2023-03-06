@@ -8,7 +8,7 @@ import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { FlexNodeData, TypeFlexNode } from './flex-node.model';
 import { ResponseState } from '../../components/input.model';
 import { InputHoverState, ZoomState } from '../node.model';
-import { InstanceState } from '../../triggers/semantic-dive';
+import { InstanceState } from '../../triggers/semantic-dive/semantic-dive';
 import { TopicNodeData } from '../topic-node/topic-node.model';
 import FlexInput from '../../components/flex-input/flex-input';
 

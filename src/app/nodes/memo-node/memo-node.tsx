@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NodeProps, useStore, useReactFlow, getRectOfNodes } from "reactflow";
 import { getGPT3Keywords } from "../../../api/openai-api";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
@@ -14,6 +14,18 @@ const MemoNode = (props: NodeProps) => {
   const zoom: number = useStore(zoomSelector);
 
   const reactFlowInstance = useReactFlow();
+
+  useEffect(() => {
+    reactFlowInstance.setNodes((nodes) => nodes.map(node => {
+      if (node.id === props.id) {
+        node.data.state = {
+          title,
+          memo,
+        };
+      }
+      return node;
+    }));
+  }, [reactFlowInstance, title, memo]);
 
   const handleChange = (event: any) => {
     setMemo(event.target.value);
@@ -47,7 +59,7 @@ const MemoNode = (props: NodeProps) => {
   return (
     <div className={`node memo-node`}>
       {
-        zoom >= ZoomState.SUMMARY ?
+        zoom > ZoomState.SUMMARY ?
           (<>
             <div className="header drag-handle">
               <DragHandle className='drag-handle' />
