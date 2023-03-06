@@ -31,7 +31,7 @@ import { stratify, tree } from "d3-hierarchy";
 import { SubTopicNodeData } from "./subtopic-node/subtopic-node.model";
 import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
-const verbose: boolean = false; // flag for console.log() messages during devMode
+const verbose: boolean = true; // flag for console.log() messages during devMode
 const use_dagre: boolean = false;
 
 // ===========================
@@ -134,8 +134,11 @@ const ConceptNode = (props: NodeProps) => {
   } = useContext(FlowContext);
 
   useEffect(() => {
+    console.log('useEffect1');
+    // console.log('props.id', props.id);
     reactFlowInstance.setNodes((nodes) =>
       nodes.map((node) => {
+        console.log('node', node);
         if (node.id === props.id) {
           node.data.state = {
             responseSelfState,
@@ -150,6 +153,7 @@ const ConceptNode = (props: NodeProps) => {
   }, [reactFlowInstance, concept, input, responseInputState]);
 
   useEffect(() => {
+    console.log('useEffect2');
     // console.log(props.data.state.input, props.data.state.responseInputState)
     // If a response is already given, don't take in any input.
     if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
@@ -215,6 +219,13 @@ const ConceptNode = (props: NodeProps) => {
     // get other nodes that still need to be placed on canvas
     const otherNodes = nodes.filter((node) => node.data.rootId !== rootId_);
     const otherEdges = edges.filter((edge) => edge.data.rootId !== rootId_);
+
+    if(verbose) {
+      console.log('targetNodes', targetNodes);
+      console.log('targetEdges', targetEdges);
+      console.log('otherNodes', otherNodes);
+      console.log('otherEdges', otherEdges);
+    }
 
     const targetNodes_ = layoutNodes(
       rootNode,
