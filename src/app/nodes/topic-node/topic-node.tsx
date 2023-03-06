@@ -4,7 +4,7 @@ import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import ExpandToolbar from "../../components/expand-toolbar/expand-toolbar";
 import { ResponseState } from "../../components/input.model";
 import useDetachNodes from '../../hooks/useDetachNodes';
-import { InstanceState } from "../../triggers/semantic-dive";
+import { InstanceState } from "../../triggers/semantic-dive/semantic-dive";
 import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
 import { InputHoverState, ZoomState } from "../node.model";

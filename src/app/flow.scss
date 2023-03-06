@@ -11,11 +11,36 @@
 .node {
   outline: 2px solid transparent;
   outline-offset: 2px;
-  transition: outline ease 0.2s, scale ease 0.2s;
+  opacity: 1;
+  transition: outline ease 0.2s, scale ease 0.2s, opacity ease-in 0.2s;
 }
 
 .selected .node {
   outline: 2px solid #3facff;
+}
+
+.lift-up .node, .lift-up path {
+  transition: ease 1s;
+  opacity: 0;
+  // translate: 0 calc(-1 * 60vh);
+  // scale: 2;
+}
+
+.node-focus .node {
+  transition: cubic-bezier(0.48,0,0.26,1) 1s;
+  opacity: 1;
+  scale: 0.6;
+}
+
+.node-enter .node {
+  transition: none;
+  opacity: 1;
+  scale: 1.4;
+}
+
+.node-blur .node {
+  transition: cubic-bezier(0,0,0.40,1) 0.5s;
+  scale: 1;
 }
 
 .semantic-carry-ready .selected .node {

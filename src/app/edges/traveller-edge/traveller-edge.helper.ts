@@ -19,6 +19,9 @@ export const createTravellerEdge = (source: string, target: string, hidden: bool
       height: 20,
       color: '#3facff',
     },
+    style: {
+      transition: 'ease',
+    },
     type: 'traveller',
   }
 }
@@ -50,14 +53,14 @@ function getNodeIntersection(intersectionNode: any, targetNode: any) {
   const x = w * (xx3 + yy3) + x2;
   const y = h * (-xx3 + yy3) + y2;
 
-  return { x: x - w, y: y - h };
+  return { x: x - w, y };
 }
 
 // returns the position (top,right,bottom or right) passed node compared to the intersection point
 function getEdgePosition(node: any, intersectionPoint: any) {
   const n = { ...node.positionAbsolute, ...node };
   const nx = Math.round(n.x) - n.width/2;
-  const ny = Math.round(n.y) - n.height/2;
+  const ny = Math.round(n.y);
   const px = Math.round(intersectionPoint.x);
   const py = Math.round(intersectionPoint.y);
 
