@@ -225,6 +225,7 @@ const NodeToolkit = (props: any) => {
 
   return (
     <div className="node-toolkit">
+      <Button onClick={() => console.log('rea', reactFlowInstance.getViewport())}>center</Button>
       <div className='toolkit-option traveller-mode-toggle'>
         <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />
         Traveller Mode

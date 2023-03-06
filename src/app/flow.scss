@@ -11,12 +11,40 @@
 .node {
   outline: 2px solid transparent;
   outline-offset: 2px;
-  transition: outline ease 0.2s, scale ease 0.2s;
+  transition: outline ease 0.2s, scale ease 0.2s, opacity ease-in 0.2s;
 }
 
 .selected .node {
   outline: 2px solid #3facff;
 }
+
+.lift-up .node {
+  transition: ease 0.7s;
+  // translate: -300px 0;
+  // scale: 2;
+  opacity: 0;
+}
+
+.node-focus .node {
+  transition: cubic-bezier(0.48,0,0.26,1) 1s;
+  scale: 0.3;
+}
+
+// @keyframes lift-up {
+//   from {
+//     scale: 1;
+//     opacity: 1;
+//   }
+
+//   to {
+//     scale: 1.15;
+    
+//   }
+// }
+
+// @keyframes lift-down {
+  
+// }
 
 .semantic-carry-ready .selected .node {
   outline: 2px solid #3c6792;

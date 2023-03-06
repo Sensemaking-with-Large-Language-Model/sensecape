@@ -20,12 +20,10 @@
     border-radius: 12px;
     background-color: #fff;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
-    transition: ease 0.15s;
   }
 
   .topic-node-box:hover {
     border: 2px solid #3c6792;
-    transform: scale(0.95);
   }
 
   .current-semantic-instance {

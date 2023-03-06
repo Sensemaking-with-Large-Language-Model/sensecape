@@ -615,7 +615,7 @@ const ExploreFlow = () => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeClick={onNodeClick}
-          nodeOrigin={[0.5, 0.5]}
+          nodeOrigin={[0.5, 0]}
           onConnect={onConnect}
           connectionLineComponent={TravellerConnectionLine}
           // fitViewOptions={fitViewOptions}

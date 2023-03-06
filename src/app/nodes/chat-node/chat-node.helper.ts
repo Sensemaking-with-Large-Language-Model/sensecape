@@ -22,7 +22,7 @@ export const createChatNode = (
       const width = nodeElement.clientWidth;
       position = {
         x: width / 2,
-        y: (height ?? 0) + 20,
+        y: (height/2 ?? 0) + 90,
       };
     } else {
       position = {

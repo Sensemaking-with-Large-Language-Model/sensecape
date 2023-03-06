@@ -6,9 +6,6 @@ import { InputHoverState } from "../nodes/node.model";
 import { TopicNodeData, TypeTopicNode } from "../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../utils";
 
-import * as htmlToImage from 'html-to-image';
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
-
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
 
@@ -54,6 +51,43 @@ export const semanticDiveIn = (
   [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
+
+  if (
+    nodeMouseOver &&
+    nodeMouseOver.type === 'topic' &&
+    currentTopicId !== nodeMouseOver.id
+  ) {
+    setTimeout(() => {
+      reactFlowInstance.fitView({
+        duration: totalTransitionTime/2,
+        maxZoom: zoomLimits.max,
+        minZoom: zoomLimits.min,
+        nodes: [nodeMouseOver]
+      });
+
+      setTimeout(() => {
+        reactFlowInstance.getNodes().forEach(node => {
+          const nodeElement = document.querySelector(`[data-id="${node.id}"]`) as HTMLElement;
+          if (node.id !== nodeMouseOver.id) {
+            nodeElement.classList.add('lift-up');
+          } else {
+            nodeElement.classList.add('node-focus');
+          }
+        });
+        setInfiniteZoom(true);
+        reactFlowInstance.zoomTo(8, { duration: totalTransitionTime });
+        // setTimeout(() => {
+        //   setInfiniteZoom(false);
+        // }, totalTransitionTime+100);
+      }, totalTransitionTime/2);
+      // reactFlowInstance.getEdges().forEach(edge => {
+      //   const edgeElement = document.querySelector(`[data-id="${edge.id}"]`) as HTMLElement;
+      //   edgeElement.classList.add('lift-up');
+      // });
+    });
+  }
+  return;
+
   if (
     nodeMouseOver &&
     nodeMouseOver.type === 'topic' &&
