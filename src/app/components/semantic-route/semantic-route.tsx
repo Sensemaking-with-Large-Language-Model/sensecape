@@ -7,8 +7,8 @@ import { SemanticRouteItem } from '../../triggers/semantic-dive/semantic-dive.he
 const SemanticRoute = (props: any) => {
 
   const cappedTitle = (title: string) => {
-    if (title.length > 30) {
-      return title.substring(0, 30) + '...';
+    if (title.length > 50) {
+      return title.substring(0, 50) + '...';
     }
     return title;
   }

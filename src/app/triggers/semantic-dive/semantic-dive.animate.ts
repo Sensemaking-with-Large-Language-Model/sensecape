@@ -113,9 +113,7 @@ export const animateDiveInLanding = (
  */
 export const animateDiveOutTakeoff = (
   reactFlowInstance: ReactFlowInstance,
-) => {
-  // opacity: 0
-  // Zoom out a little, 
+) => { 
   reactFlowInstance.zoomTo(0.8, { duration: totalTransitionTime });
   styleNodesAndEdges(reactFlowInstance, [], {
     transition: 'opacity ease-in 0.5s',
@@ -131,22 +129,24 @@ export const animateDiveOutLanding = (
     opacity: 0,
   });
   reactFlowInstance.zoomTo(3);
-  const nodes = reactFlowInstance.getNodes();
-  setTimeout(() => {
-    if (nodes.length <= 1) {
+
+  // Hacky way of getting latest state of nodes
+  reactFlowInstance.setNodes(nodes => nodes.map(node => {
+    if (nodes.length <= 3) {
       reactFlowInstance.fitView({
-        duration: totalTransitionTime/2,
-        padding: 5,
+        padding: 1,
         nodes,
       });
-    } else {
-      reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
     }
+    setTimeout(() => {
+      reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+    })
     styleNodesAndEdges(reactFlowInstance, [], {
       transition: 'opacity ease-in 0.5s',
       opacity: 1,
     });
-  }, 10);
+    return node;
+  }))
 }
 
 export const animateDiveToLanding = (
@@ -157,17 +157,19 @@ export const animateDiveToLanding = (
     opacity: 0,
   });
   reactFlowInstance.zoomTo(3);
-  const nodes = reactFlowInstance.getNodes();
 
-  reactFlowInstance.fitView({
-    duration: totalTransitionTime/2,
-    padding: 1,
-    nodes,
-  });
+  reactFlowInstance.setNodes(nodes => nodes.map(node => {
+    reactFlowInstance.fitView({
+      duration: totalTransitionTime/2,
+      padding: 1,
+      nodes,
+    });
+    return node;
+  }));
   setTimeout(() => {
     styleNodesAndEdges(reactFlowInstance, [], {
       transition: 'opacity ease-in 0.5s',
       opacity: 1,
     });
-  }, 1);
+  })
 }

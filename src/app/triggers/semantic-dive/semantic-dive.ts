@@ -179,6 +179,9 @@ export const semanticDiveOut = (
     const currentInstanceName = predictedTopicName || currentInstance.name;
 
     if (!parentInstance) {
+      if (reactFlowInstance.getNodes().length <= 1) {
+        return;
+      }
 
       // Create the parent instance
       parentInstance = {
@@ -210,6 +213,8 @@ export const semanticDiveOut = (
       currentInstance.parentId = parentInstance.topicNode.id;
       currentInstance.name = predictedTopicName;
       currentInstance.topicNode.data.state.topic = predictedTopicName;
+      currentInstance.topicNode.position = reactFlowInstance.getViewport();
+      console.log('t', currentInstance.topicNode.position);
 
       setInstanceMap(map => Object.assign(map, {
         [currentInstance.topicNode.id]: currentInstance,
@@ -258,8 +263,10 @@ export const semanticDiveOut = (
         reactFlowInstance.setViewport(parentInstance.jsonObject.viewport);
       }
 
-      animateDiveOutLanding(reactFlowInstance);
-      setInfiniteZoom(false);
+      setTimeout(() => {
+        animateDiveOutLanding(reactFlowInstance);
+        setInfiniteZoom(false);
+      })
 
     }, totalTransitionTime/2);
 

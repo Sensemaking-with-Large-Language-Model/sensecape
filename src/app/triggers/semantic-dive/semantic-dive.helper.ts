@@ -37,11 +37,15 @@ export const prepareDive = (
   carryCapture.style.opacity = '0.7';
   carryCapture.style.position = 'absolute';
   carryCapture.style.transition = 'scale ease 0.5s';
+  const handles = carryCapture.querySelectorAll('.react-flow__handle');
+  handles.forEach(handle => {
+    handle.remove();
+  });
 
   setTimeout(() => {
     carryCapture.style.scale = '0.5';
     carryCapture.style.display = 'flex';
-    carryCapture.style.gap = '10px';
+    carryCapture.style.gap = '20px';
   }, 1);
 
   document.addEventListener('mousemove', (e) => {

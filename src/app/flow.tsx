@@ -225,7 +225,12 @@ const ExploreFlow = () => {
     if (!instanceMap[currentTopicId]?.parentId) {
       const extractedTexts = nodes.map(node => {
         if (node.type === 'chat') {
-          return (node.data as ChatNodeData).state.response;
+          if ((node.data as ChatNodeData).state.response) {
+            return `${(node.data as ChatNodeData).state.input}: 
+              ${node.data.response}`;
+          } else {
+            return '';
+          }
         } else if (node.type === 'topic') {
           return (node.data as TopicNodeData).state.topic;
         } else if (node.type === 'memo') {
@@ -668,10 +673,10 @@ const ExploreFlow = () => {
           zoomOnDoubleClick={false}
           selectionMode={SelectionMode.Partial}
           multiSelectionKeyCode={'Shift'}
+          nodeOrigin={[0.5, 0]}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeClick={onNodeClick}
-          nodeOrigin={[0.5, 0]}
           onConnect={onConnect}
           connectionLineComponent={TravellerConnectionLine}
           // fitViewOptions={fitViewOptions}

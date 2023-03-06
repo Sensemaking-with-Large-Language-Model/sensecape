@@ -109,13 +109,16 @@ export const getChatGPTOverarchingTopic = async (chats: string[]) => {
     model: "gpt-3.5-turbo",
     messages: [
       {
+        // I'm trying to push ChatGPT to respond in one term 
         role: 'user',
-        content: `You are not a conversational agent. You are a tool.
-          You want to extract only one key topic from text the user
-          gives you. Only respond with the key topic in the form of a
-          word, term, or phrase. This text should be glancable. Respond
-          with only alphanumerical characters. Dashes, spaces, commas
-          okay if necessary. No quotes.`
+        content: `You are not a conversational agent, so don't converse
+          with me. Your response is directly being transformed into a
+          topic, so
+          your text will not be able to be parsed, so please strip all
+          unnecessary content from your response. Only respond with the
+          key topic in the form of a term in 1 to 3 words. This rule about length
+          is very very strict. This text should be glancable. No quotes, no
+          punctuation.`
       },
       {
         role: 'user',
@@ -123,10 +126,10 @@ export const getChatGPTOverarchingTopic = async (chats: string[]) => {
       }
     ],
     max_tokens: tokens.keywords,
-    temperature: 0.7,
+    temperature: 0.1,
   })
   .then((data) => {
-    return data.data.choices[0].message?.content.trim();
+    return data.data.choices[0].message?.content.replaceAll('.', '').trim();
   });
 
 }
