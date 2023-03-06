@@ -72,10 +72,8 @@ const animateDiveInTakeoff = (
 
 const animateDiveInLanding = (
   focusNode: Node,
-  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
-
   setTimeout(() => {
     reactFlowInstance.fitView({
       duration: 0,
@@ -92,24 +90,24 @@ const animateDiveInLanding = (
       focusNodeElement.classList.add('node-blur');
       focusNodeElement.classList.remove('node-enter');
     });
-  });
 
-  setTimeout(() => {
-    // reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
-
-    setTimeout(() => {
-      reactFlowInstance.getNodes().forEach(node => {
-        const nodeElement = document.querySelector(`[data-id="${node.id}"]`) as HTMLElement;
-        if (node.id !== focusNode.id) {
-          nodeElement.classList.remove('lift-up');
+    reactFlowInstance.setNodes(nodes => nodes.map(node => {
+      if (node.id !== focusNode.id) {
+        node.style = {
+          transition: 'opacity ease-in 0.5s',
+          opacity: 1,
         }
-      });
-      reactFlowInstance.getEdges().forEach(edge => {
-        const edgeElement = document.querySelector(`[data-testid="rf__edge-${edge.id}"]`) as HTMLElement;
-        edgeElement.classList.remove('lift-up');
-      });
-    });
-  }, totalTransitionTime / 2);
+      }
+      return node;
+    }));
+    reactFlowInstance.setEdges(edges => edges.map(edge => {
+      edge.style = {
+        transition: 'opacity ease-in 0.5s',
+        opacity: 1,
+      }
+      return edge;
+    }));
+  });
 }
 
 /**
@@ -194,28 +192,34 @@ export const semanticDiveIn = (
         const currentInstance = instanceMap[currentTopicId]!;
         currentInstance.jsonObject = reactFlowInstance.toObject();
         setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
-  
+
         // Set topic as current instance
         childInstance.topicNode.data.instanceState = InstanceState.CURRENT;
         setCurrentTopicId(childInstance.topicNode.id ?? 'home'); // If id DNE, it should be home
         setSemanticRoute(semanticRoute.concat(topicName));
 
-        // Restore child nodes & include topic node
-
-        // Restore instance without child topic node, but parent topic node.
-        // child topic node will replace its place
-        reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
-        // reactFlowInstance.setNodes([...childInstance.jsonObject.nodes
-        //   .filter(node => node.id !== childInstance.topicNode.id), nodeMouseOver]);
-        reactFlowInstance.setEdges(childInstance.jsonObject.edges);
+        // Restore instance
+        reactFlowInstance.setNodes(childInstance.jsonObject.nodes.map(node => {
+          if (node.id !== childInstance.topicNode.id) {
+            node.style = {
+              opacity: 0,
+            }
+          }
+          return node;
+        }));
+        reactFlowInstance.setEdges(childInstance.jsonObject.edges.map(edge => {
+          edge.style = {
+            opacity: 0,
+          }
+          return edge;
+        }));
 
         setTimeout(() => {
           animateDiveInLanding(
             childInstance.topicNode,
-            [infiniteZoom, setInfiniteZoom],
             reactFlowInstance
           );
-        });
+        })
 
       }, totalTransitionTime/2);
     });

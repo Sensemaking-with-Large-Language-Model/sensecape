@@ -19,18 +19,21 @@
   outline: 2px solid #3facff;
 }
 
-.lift-up .node {
-  transition: ease 0.7s;
+.lift-up .node, .lift-up path {
+  transition: ease 1s;
   opacity: 0;
-  // translate: -300px 0;
+  // translate: 0 calc(-1 * 60vh);
   // scale: 2;
 }
 
-.lift-up path {
-  transition: ease 0.7s;
+.lift-enter .node, .lift-enter path {
+  transition: none;
   opacity: 0;
-  // translate: -300px 0;
-  // scale: 2;
+}
+
+.lift-land .node, .lift-land path {
+  transition: ease 0.3s;
+  opacity: 1;
 }
 
 .node-focus .node {
