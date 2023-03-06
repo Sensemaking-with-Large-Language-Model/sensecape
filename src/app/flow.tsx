@@ -93,7 +93,7 @@ import FlexNode from "./nodes/flex-node/flex-node";
 import { createTravellerEdge } from "./edges/traveller-edge/traveller-edge.helper";
 import { usePrevious } from "./hooks/usePrevious";
 import { duplicateNode } from "./nodes/node.helper";
-import { clearSemanticCarry } from "./triggers/semantic-dive/semantic-dive.helper";
+import { clearSemanticCarry, SemanticRouteItem } from "./triggers/semantic-dive/semantic-dive.helper";
 
 const verbose: boolean = true;
 
@@ -161,7 +161,7 @@ const ExploreFlow = () => {
   const prevZoom = usePrevious(zoom) ?? 0;
   const [zoomRange, setZoomRange] = useState({min: 0.3, max: 3});
   const [infiniteZoom, setInfiniteZoom] = useState(false);
-  
+
   const [nodeMouseOver, setNodeMouseOver] = useState<Node | null>(null);
 
   const homeTopicNode: TypeTopicNode = {
@@ -203,8 +203,11 @@ const ExploreFlow = () => {
     }
   );
 
-  const [semanticRoute, setSemanticRoute] = useLocalStorage("semanticRoute", [
-    "home",
+  const [semanticRoute, setSemanticRoute] = useLocalStorage<SemanticRouteItem[]>("semanticRoute", [
+    {
+      title: instanceMap[currentTopicId]!.name,
+      topicId: currentTopicId,
+    },
   ]);
 
   // List of nodes and edges to carry into another semantic level

@@ -6,7 +6,7 @@ import { InputHoverState } from "../../nodes/node.model";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../../utils";
 import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff } from "./semantic-dive.animate";
-import { prepareDive } from "./semantic-dive.helper";
+import { prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
@@ -49,7 +49,7 @@ export const semanticDiveIn = (
   [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
-  [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
+  [semanticRoute, setSemanticRoute]: [SemanticRouteItem[], Dispatch<SetStateAction<SemanticRouteItem[]>>],
   [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
@@ -73,6 +73,16 @@ export const semanticDiveIn = (
         copyNode.data.state.toolbarViewState = InputHoverState.OUT;
         copyNode.data.state.toolbarAvailable = true;
         copyNode.data.parentId = '';
+        copyNode.data.chatHistory = [
+          ...copyNode.data.chatHistory,
+          {
+            role: 'system',
+            content: `The user has started a new conversation
+              and would like to dive deeper into ${copyNode.data.state.topic}.
+              Keep in mind of the context behind this topic, but allow
+              the conversation to hold independently of the chat history.`
+          },
+        ];
 
         // Create New Instance
         childInstance = {
@@ -121,8 +131,11 @@ export const semanticDiveIn = (
 
         // Set topic as current instance
         childInstance.topicNode.data.instanceState = InstanceState.CURRENT;
-        setCurrentTopicId(childInstance.topicNode.id ?? 'home'); // If id DNE, it should be home
-        setSemanticRoute(semanticRoute.concat(topicName));
+        setCurrentTopicId(childInstance.topicNode.id ?? '-'); // If id DNE, it should be home
+        setSemanticRoute(semanticRoute.concat({
+          title: topicName,
+          topicId: childInstance.topicNode.id,
+        }));
 
         // Restore child instance
         reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
@@ -154,7 +167,7 @@ export const semanticDiveOut = (
   [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
-  [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
+  [semanticRoute, setSemanticRoute]: [SemanticRouteItem[], Dispatch<SetStateAction<SemanticRouteItem[]>>],
   [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
@@ -198,10 +211,16 @@ export const semanticDiveOut = (
         [currentInstance.parentId]: parentInstance,
       }))
 
-      setSemanticRoute([parentInstance.name].concat(semanticRoute));
+      setSemanticRoute([{
+        title: parentInstance.name,
+        topicId: parentInstance.topicNode.id,
+      }].concat(semanticRoute));
 
     } else {
-      setSemanticRoute([parentInstance.name]);
+      setSemanticRoute([{
+        title: parentInstance.name,
+        topicId: parentInstance.topicNode.id,
+      }]);
     }
 
     prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
@@ -240,7 +259,7 @@ export const semanticDiveOut = (
 export const semanticJumpTo = (
   instanceMap: Map<string, Instance>,
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
-  [semanticRoute, setSemanticRoute]: [string[], Dispatch<SetStateAction<string[]>>],
+  [semanticRoute, setSemanticRoute]: [SemanticRouteItem[], Dispatch<SetStateAction<SemanticRouteItem[]>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
 

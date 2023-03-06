@@ -2,6 +2,7 @@ import { Breadcrumb } from 'antd';
 import './semantic-route.scss';
 import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
+import { SemanticRouteItem } from '../../triggers/semantic-dive/semantic-dive.helper';
 
 const SemanticRoute = (props: any) => {
 
@@ -9,12 +10,12 @@ const SemanticRoute = (props: any) => {
     <Popup trigger={<div className="semantic-route">
       <Breadcrumb>
         {
-          props.route.map((topic: string, index: number) => (
+          props.route.map((routeItem: SemanticRouteItem, index: number) => (
             <Breadcrumb.Item key={index}>
               {
                 index < props.route.length-1 ?
-                (<a onClick={() => console.log('jump to semantic instance', topic)}>{topic}</a>) :
-                (<>{topic}</>)
+                (<a onClick={() => console.log('jump to semantic instance', routeItem.title)}>{routeItem.title}</a>) :
+                (<>{routeItem.title}</>)
               }
             </Breadcrumb.Item>
           ))
