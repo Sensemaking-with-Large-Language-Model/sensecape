@@ -18,9 +18,17 @@ import { ReactComponent as KeyboardIcon } from '../../assets/keyboard.svg';
 import { ReactComponent as ElementIcon } from '../../assets/element.svg';
 import { ReactComponent as TeacherIcon } from '../../assets/teacher.svg';
 
-import TravellerModeImage from '../../assets/images/traveller-mode.png';
+import travellerModeImage from '../../assets/images/traveller-mode.png';
+import brainstormNode from "../../assets/tutorial/brainstorm-node.png";
+import brainstormNodeNChatNode from "../../assets/tutorial/brainstorm-node-with-chat-node.png";
+import toolkitHelp from "../../assets/tutorial/toolkit-help.png";
+import miniMap from "../../assets/tutorial/minimap.png";
+import searchNode from "../../assets/tutorial/search-node.png";
+import memoNode from "../../assets/tutorial/memo-node.png";
+
 import resetCanvasGIF from "../../assets/tutorial/reset-canvas.gif";
 import memoNodeGIF from "../../assets/tutorial/memo-node.gif";
+import brainstormNodeVideo from "../../assets/tutorial/use-brainstorm-node-faster.mp4";
 import conceptNodeGIF from "../../assets/tutorial/concept-node.gif";
 import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
@@ -29,7 +37,8 @@ import useCloseOnDocumentClick from '../../hooks/useCloseOnDocumentClick';
 
 
 const doNotShowTooltip = false; // change to true if don't want to show tool tip next to node types
-const positionToolTip = "right center";
+const positionToolTipRight = "right center";
+// const positionToolTipTop = "right top";
 const mouseLeaveDelayTime = 20;
 const offsetXValue = 15;
 // const offsetYValue = 15;
@@ -52,23 +61,26 @@ const ImageElement = (props: { title: string | number | boolean | ReactElement<a
     <>
     <h3>{props.title}</h3>
     <img src={props.url} width={props.width} alt="" />
-    <div>{props.description}</div>
+    <div className="tutorial-description">{props.description}</div>
     </>
   )
 }
 
 const VideoElement = (props: { url: string | undefined; }) => {
+  return (
+    <video width="320" height="240" controls>
+      <source src={props.url} type="video/mp4" />
+      <source src="" type="video/ogg" />
+      Your browser does not support the video tag.
+    </video>
+  )
+}
+
+
+const YTVideoElement = (props: { url: string | undefined; }) => {
 return (
   <>
   <iframe width="560" height="315" src={props.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
-  </>
-)
-}
-
-const ResetCanvas = () => {
-return (
-  <>
-  <img src={resetCanvasGIF} width="700px" alt="" />
   </>
 )
 }
@@ -254,97 +266,110 @@ const steps = [
   //   // highlightClass: 'myHighlightClass',
   // },
   {
-    // title: 'SenseCape',
-    intro: "SenseCape facilitates your information search with ChatGPT.",
+    title: 'Welcome! 👋',
+    intro: "SenseCape facilitates information search with ChatGPT.",
     tooltipClass: 'content',
   },
+  // {
+  //   intro: <YTVideoElement url={"https://www.youtube.com/embed/BzSMLP5KpjM"} />,
+  //   tooltipClass: 'video',
+  // },
   {
-    intro: <VideoElement url={"https://www.youtube.com/embed/BzSMLP5KpjM"} />,
-    tooltipClass: 'video',
-  },
-  {
+    title: 'Semantic Level',
     element: '.semantic-route',
-    title: 'Semantic route',
-    intro: '[Description]',
+    intro: 'This breadcrumb indicates at which level you are in.',
     tooltipClass: 'semantic-route-tooltip',
     position: 'right', 
   },
-  {
-    element: '.node-toolkit',
-    title: 'Toolkit',
-    intro: 'It contains nodes you can use to search.',
-    position: 'top',
-    tooltipClass: 'content',
-    // highlightClass: 'myHighlightClass',
-  },
+  // {
+  //   // title: 'Toolkit',
+  //   element: '.node-toolkit',
+  //   intro: 'It contains nodes you can use to search.',
+  //   position: 'right',
+  //   tooltipClass: 'content',
+  //   // highlightClass: 'myHighlightClass',
+  // },
   {
     element: '.traveller-mode-toggle',
-    // title: 'Traveller Mode',
-    // intro: 'It shows the path of your search process.',
-    intro: <ImageElement width={450} title={""} url={TravellerModeImage} description={"Traveller mode allows you to track your search process."}/>,
+    intro: <ImageElement width={450} title={""} url={travellerModeImage} description={"It helps you track search process with blue arrow."}/>,
     // intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
     tooltipClass: 'image',
-    position: 'right',
+    position: 'top',
   },
   {
     element: '.toolkit-brainstorm',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
+    intro: <ImageElement width={420} title={""} url={brainstormNode} description={"Brainstorm node generates questions to help you brainstorm ideas on what to explore.."}/>,
+    tooltipClass: 'image',
+    position: 'top',
   },
   {
+    element: '.toolkit-brainstorm',
+    intro: <ImageElement width={420} title={""} url={brainstormNodeNChatNode} description={"You can click on any question to generate follow up explanation."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Search node',
     element: '.toolkit-search',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
+    intro: <ImageElement width={420} title={""} url={searchNode} description={""}/>,
+    tooltipClass: 'image',
+    position: 'top',
   },
   {
+    // title: 'Concept node',
     element: '.toolkit-concept',
-    intro: <ImageElement width={500} title={""} url={conceptNodeGIF} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
+    intro: <ImageElement width={450} title={""} url={conceptNodeGIF} description={"Hierarchy node allows you to explore hierarchy of concepts."}/>,
+    tooltipClass: 'image',
+    position: 'top',
   },
   {
+    // title: 'Memo node',
     element: '.toolkit-memo',
-    intro: <ImageElement width={500} title={""} url={memoNodeGIF} description={""}/>,
+    intro: <ImageElement width={450} title={""} url={memoNode} description={"You can use memo node to write anything."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Help',
+    element: '.toolkit-help',
+    intro: <ImageElement width={450} title={""} url={toolkitHelp} description={"To see this again, you can hover over 'Help' and click 'Interface'. You will also find tutorial and keyboard shortcuts."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Reset canvas',
+    element: '.toolkit-reset-canvas',
+    intro: <ImageElement width={450} title={""} url={resetCanvasGIF} description={"Clicking this deletes everything on canvas."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    title: 'Zoom Slider',
+    element: '.zoom-slider',
+    // intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
+    intro: 'Slider represents at which zoom level you are at.',
+    // tooltipClass: 'image',
+    position: 'left',
+  },
+  {
+    // title: 'Mini Map',
+    element: '.minimap',
+    intro: <ImageElement width={450} title={""} url={miniMap} description={"Mini map appears when there is more than one node."}/>,
     position: 'top',
     tooltipClass: 'image',
-  },
-  {
-    element: '.toolkit-help',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.toolkit-reset-canvas',
-    intro: <ResetCanvas/>,
-    position: 'top',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.zoom-slider',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'left',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.minimap',
-    intro: 'Minimap<br><br>[Description]',
-    position: 'left',
   },
 ];
 
 
 const introOptions = {
   exitOnEsc: true,
-  showStepNumbers: true,
+  showStepNumbers: false,
   hidePrev: true,
   hideNext: true,
   showButtons: true,
   showBullets: true,
   keyboardNavigation: true,
-  showProgress: true,
+  showProgress: false,
   autoPosition: true,
 }
 
@@ -432,12 +457,23 @@ const NodeToolkit = (props: any) => {
 
   const closeOnDocumentClick = useCloseOnDocumentClick();
 
+  // check if opening page for the first time
+  if (sessionStorage.getItem("firstTime")) {
+    // if second time, skip intro.js
+  } else {
+    // if first time, trigger intro.js
+    // trigger intro.js
+    startIntroJS();
+    // save flag in sessionStorage so intro.js is not triggered when user refreshes
+    sessionStorage.setItem("firstTime", 'true');
+  }
+
   return (
     <div className="node-toolkit">
       <Popup
         trigger={<div className='toolkit-option traveller-mode-toggle' onClick={props.toggleTravellerMode}>
         <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />Traveller Mode</div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -453,7 +489,7 @@ const NodeToolkit = (props: any) => {
         <BrainstormIcon />
         Brainstorm
       </div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -469,7 +505,7 @@ const NodeToolkit = (props: any) => {
         <SearchIcon />
         Search
       </div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -485,7 +521,7 @@ const NodeToolkit = (props: any) => {
         <HierarchyIcon />
         Hierarchy
       </div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -501,7 +537,7 @@ const NodeToolkit = (props: any) => {
           <MemoIcon />
           Memo
         </div>} 
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -516,7 +552,7 @@ const NodeToolkit = (props: any) => {
         <HelpIcon />
         Help
       </div> */}
-      <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position={positionToolTip}
+      <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position={positionToolTipRight}
         on="hover"
         offsetX={0}
         mouseLeaveDelay={500}
