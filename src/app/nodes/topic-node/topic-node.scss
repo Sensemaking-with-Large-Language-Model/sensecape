@@ -37,6 +37,32 @@
 
 }
 
-// .topic-node:hover {
-//   user-select: text;
-// }
+.recommended-topic {
+  transition: opacity ease 0.5s, scale ease 0.5s;
+  opacity: 0.4;
+  scale: 0.9;
+}
+
+.recommended-topic:hover {
+  opacity: 1;
+  scale: 1;
+}
+
+.adding-recommendation {
+  animation: dropOnCanvas 0.5s 1;
+}
+
+@keyframes dropOnCanvas {
+  0% {
+    scale: 1;
+  }
+  30% {
+    scale: 0.9;
+  }
+  60% {
+    scale: 1.05;
+  }
+  100% {
+    scale: 1;
+  }
+}

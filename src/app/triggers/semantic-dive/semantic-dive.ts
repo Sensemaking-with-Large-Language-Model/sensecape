@@ -3,10 +3,11 @@ import { Node, Edge, getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject, Vie
 import { ResponseState } from "../../components/input.model";
 import { duplicateNode } from "../../nodes/node.helper";
 import { InputHoverState } from "../../nodes/node.model";
+import { createTopicNode } from "../../nodes/topic-node/topic-node.helper";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../../utils";
 import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff, animateDiveToLanding } from "./semantic-dive.animate";
-import { prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
+import { calculateSurroundPositions, deleteRecommendedNodes, predictRelatedTopics, prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
@@ -127,6 +128,7 @@ export const semanticDiveIn = (
         // Save current instance state to the parent instance
         const currentInstance = instanceMap[currentTopicId]!;
         currentInstance.jsonObject = reactFlowInstance.toObject();
+        currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
         setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
 
         // Set topic as current instance
@@ -142,6 +144,19 @@ export const semanticDiveIn = (
         reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
         reactFlowInstance.setEdges(childInstance.jsonObject.edges);
         reactFlowInstance.setViewport(childInstance.jsonObject.viewport);
+
+        predictRelatedTopics(childInstance.jsonObject.nodes
+          .filter(node => node.type === 'topic')
+          .map((node: TypeTopicNode) => node.data.state.topic)
+          .join(',')
+        ).then(topics => {
+          const surroundPositions = calculateSurroundPositions(topics.length, childInstance.topicNode.position);
+          topics
+          .filter((topic): topic is string => !!topic)
+          .forEach((topic, i) => {
+            createTopicNode(topic, currentTopicId, surroundPositions[i], true, reactFlowInstance);
+          });
+        });
 
         setTimeout(() => {
           animateDiveInLanding(
@@ -214,8 +229,6 @@ export const semanticDiveOut = (
       currentInstance.name = predictedTopicName;
       currentInstance.topicNode.data.state.topic = predictedTopicName;
       currentInstance.topicNode.position = reactFlowInstance.getViewport();
-      console.log('t', currentInstance.topicNode.position);
-
       setInstanceMap(map => Object.assign(map, {
         [currentInstance.topicNode.id]: currentInstance,
         [currentInstance.parentId]: parentInstance,
@@ -244,6 +257,9 @@ export const semanticDiveOut = (
       currentInstance.name = currentInstanceName;
       currentInstance.topicNode.data.state.topic = currentInstanceName;
     }
+    console.log('nodes', currentInstance.jsonObject.nodes);
+    currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
+
     setPredictedTopicName('');
     setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
 
@@ -286,37 +302,39 @@ export const semanticDiveTo = (
   reactFlowInstance: ReactFlowInstance,
 ) => {
   setTimeout(() => {
-    const currentInstance = instanceMap[currentTopicId]!;
-    let nextInstance = instanceMap[nextTopicId];
+    if (currentTopicId !== nextTopicId) {
+      const currentInstance = instanceMap[currentTopicId]!;
+      let nextInstance = instanceMap[nextTopicId];
 
-    if (nextInstance) {
-      setSemanticRoute(semanticRoute.filter(routeItem => routeItem.level <= nextInstance.level));
-  
-      prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
-  
-      // store current reactFlowInstance
-      currentInstance.jsonObject = reactFlowInstance.toObject();
-      setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
-  
-      // Set topic as parent topic
-      currentInstance.topicNode.data.instanceState = InstanceState.WAS;
-      setCurrentTopicId(nextInstance.topicNode.id);
-  
-      // Transition
-      setInfiniteZoom(true);
-      animateDiveOutTakeoff(reactFlowInstance);
-      setTimeout(() => {
+      if (nextInstance) {
+        setSemanticRoute(semanticRoute.filter(routeItem => routeItem.level <= nextInstance.level));
 
-        // recover next reactFlowInstance
-        reactFlowInstance.setNodes(nextInstance.jsonObject.nodes);
-        reactFlowInstance.setEdges(nextInstance.jsonObject.edges);
-        reactFlowInstance.setViewport(nextInstance.jsonObject.viewport);
+        prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
 
+        // store current reactFlowInstance
+        currentInstance.jsonObject = reactFlowInstance.toObject();
+        currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
+        setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
+
+        // Set topic as parent topic
+        currentInstance.topicNode.data.instanceState = InstanceState.WAS;
+        setCurrentTopicId(nextInstance.topicNode.id);
+
+        // Transition
+        setInfiniteZoom(true);
+        animateDiveOutTakeoff(reactFlowInstance);
         setTimeout(() => {
-          animateDiveToLanding(reactFlowInstance);
-          setInfiniteZoom(false);
-        })
-      }, totalTransitionTime/2);
+          // recover next reactFlowInstance
+          reactFlowInstance.setNodes(nextInstance.jsonObject.nodes);
+          reactFlowInstance.setEdges(nextInstance.jsonObject.edges);
+          reactFlowInstance.setViewport(nextInstance.jsonObject.viewport);
+
+          setTimeout(() => {
+            animateDiveToLanding(reactFlowInstance);
+            setInfiniteZoom(false);
+          })
+        }, totalTransitionTime/2);
+      }
     }
 
   })

@@ -18,6 +18,8 @@ const TopicNode = (props: NodeProps) => {
   const [topic, setTopic] = useState(props.data.state.topic ?? '');
   const [toolbarAvailable, setToolbarAvailable] = useState(props.data.state.toolbarAvailable ?? true);
   const [toolbarViewState, setToolbarViewState] = useState(props.data.state.toolbarViewState ?? InputHoverState.OUT);
+  const [isRecommended, setIsRecommended] = useState(props.data.state.isRecommended ?? false);
+  const [addingRecommendation, setAddingRecommendation] = useState(false);
   const zoom: number = useStore(zoomSelector);
 
   const updateNodeInternals = useUpdateNodeInternals();
@@ -37,11 +39,12 @@ const TopicNode = (props: NodeProps) => {
           topic,
           toolbarAvailable,
           toolbarViewState,
+          isRecommended,
         }
       }
       return node;
     }))
-  }, [reactFlowInstance, topic, toolbarAvailable, toolbarViewState]);
+  }, [reactFlowInstance, topic, toolbarAvailable, toolbarViewState, isRecommended]);
 
   const addInstantChatNode = useCallback(
     (input: string) => {
@@ -111,16 +114,23 @@ const TopicNode = (props: NodeProps) => {
 
   return (
     <div
-      className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}`}
-      onClick={() => console.log(props.id)}
+      id={props.id}
+      className={`topic-node ${zoom >= ZoomState.ALL ? '' : 'drag-handle'}
+        ${isRecommended ? 'recommended-topic' : ''}
+        ${addingRecommendation ? 'adding-recommendation' : ''}`}
+      onClick={() => {
+        if (isRecommended) {
+          setIsRecommended(false);
+          setAddingRecommendation(true);
+        }
+      }}
       // onMouseEnter={() => toolbarViewState === InputHoverState.OUT && setToolbarViewState(InputHoverState.HOVER)}
       onMouseEnter={() => {
-        if (toolbarViewState === InputHoverState.OUT) {
-          console.log('showing hover toolbar');
+        if (toolbarViewState === InputHoverState.OUT && !isRecommended) {
           setToolbarViewState(InputHoverState.HOVER);
         } 
       }}
-      onMouseLeave={() => toolbarViewState === InputHoverState.HOVER && setToolbarViewState(InputHoverState.OUT)}
+      onMouseLeave={() => (toolbarViewState === InputHoverState.HOVER  && !isRecommended) && setToolbarViewState(InputHoverState.OUT)}
       // style={{
       //   transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
       // }}

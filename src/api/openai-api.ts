@@ -12,6 +12,18 @@ const openai = new OpenAIApi(configuration);
 
 const verbose: boolean = false;
 
+const extractTopicPrompt: ChatCompletionRequestMessage = {
+  // I'm trying to push ChatGPT to respond in one term 
+  role: 'user',
+  content:
+    `You are not a conversational agent, so don't converse
+    with me. Your response is directly being transformed into a
+    topic, so your text will not be able to be parsed, so please
+    strip all unnecessary content from your response. This
+    rule about length is very very strict. This text should be
+    glancable. No quotes, no punctuation.`
+};
+
 // Object that specifies max token length by response type
 export const tokens = {
   full: 1028,
@@ -100,7 +112,7 @@ export const getChatGPTKeywords = async (text: string) => {
     });
 };
 
-export const getChatGPTOverarchingTopic = async (chats: string[]) => {
+export const getChatGPTOverarchingTopic = async (context: string[]) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("parent");
   }
@@ -108,21 +120,11 @@ export const getChatGPTOverarchingTopic = async (chats: string[]) => {
   return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
-      {
-        // I'm trying to push ChatGPT to respond in one term 
-        role: 'user',
-        content: `You are not a conversational agent, so don't converse
-          with me. Your response is directly being transformed into a
-          topic, so
-          your text will not be able to be parsed, so please strip all
-          unnecessary content from your response. Only respond with the
-          key topic in the form of a term in 1 to 3 words. This rule about length
-          is very very strict. This text should be glancable. No quotes, no
-          punctuation.`
-      },
+      extractTopicPrompt,
       {
         role: 'user',
-        content: `${chats}`,
+        content: `Give me the overarching key topic in the form of a
+          term in 1 to 3 words given this context: ${context}`,
       }
     ],
     max_tokens: tokens.keywords,
@@ -131,7 +133,31 @@ export const getChatGPTOverarchingTopic = async (chats: string[]) => {
   .then((data) => {
     return data.data.choices[0].message?.content.replaceAll('.', '').trim();
   });
+}
 
+export const getChatGPTRelatedTopics = async (context: string) => {
+  if (devFlags.disableOpenAI) {
+    return Promise.resolve(['recommendation1', 'recommendation2', 'recommendation3']);
+  }
+
+  return await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [
+      extractTopicPrompt,
+      {
+        role: 'user',
+        content: `Give me one and only one related topic in the form of a
+          term in 1 to 3 words given this context: ${context}`,
+      }
+    ],
+    max_tokens: tokens.keywords,
+    n: 5,
+    temperature: 1.5,
+  })
+  .then((data) => {
+    return data.data.choices
+      .map(choice => choice.message?.content.replaceAll('.', '').trim());
+  });
 }
 
 export const getGPT3Term = async (history: string, prompt: string) => {

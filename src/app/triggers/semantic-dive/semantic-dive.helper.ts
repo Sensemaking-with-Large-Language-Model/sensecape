@@ -1,6 +1,8 @@
 import React, { CSSProperties, Dispatch, SetStateAction } from "react";
-import { Edge, getRectOfNodes, Node, ReactFlowInstance, Rect } from "reactflow";
-import { NodeEdgeList } from "./semantic-dive";
+import { Edge, getRectOfNodes, Node, ReactFlowInstance, Rect, XYPosition } from "reactflow";
+import { getChatGPTRelatedTopics } from "../../../api/openai-api";
+import { TopicNodeData } from "../../nodes/topic-node/topic-node.model";
+import { InstanceMap, NodeEdgeList } from "./semantic-dive";
 
 export interface SemanticRouteItem {
   title: string;
@@ -117,5 +119,44 @@ export const clearSemanticCarry = (
   setSemanticCarryList({
     nodes: [],
     edges: [],
+  });
+}
+
+// Just a wrapper for now, but potentially may have more functionality
+export const predictRelatedTopics = (
+  context: string,
+) => {
+  return getChatGPTRelatedTopics(context);
+}
+
+export const calculateSurroundPositions = (
+  n: number,
+  {x, y}: XYPosition
+) => {
+  let positions: XYPosition[] = [];
+  const radius = 200;
+  for (let i = 0; i < 5; i += 1) {
+    const theta = ((Math.PI*2)*i)/n;
+    let dx = radius * Math.cos(theta);
+    let dy = radius * Math.sin(theta);
+    positions.push({x: x+dx, y: y+dy});
+  }
+  return positions;
+}
+
+// Delete any recommended nodes that were ignored
+export const deleteRecommendedNodes = (
+  nodes: Node[]
+) => {
+  return nodes.filter(node => {
+    if (node.type === 'topic') {
+      console.log(node.data.state.isRecommended);
+      if ((node.data as TopicNodeData).state.isRecommended) {
+        console.log('deleting', node);
+      }
+      return !(node.data as TopicNodeData).state.isRecommended;
+    } else {
+      return true;
+    }
   });
 }
