@@ -17,7 +17,19 @@ import { ReactComponent as EraserIcon } from '../../assets/eraser.svg';
 import { ReactComponent as KeyboardIcon } from '../../assets/keyboard.svg';
 import { ReactComponent as ElementIcon } from '../../assets/element.svg';
 import { ReactComponent as TeacherIcon } from '../../assets/teacher.svg';
-import resetCanvas from "../../assets/tutorial/reset-canvas.gif";
+
+import travellerModeImage from '../../assets/images/traveller-mode.png';
+import brainstormNode from "../../assets/tutorial/brainstorm-node.png";
+import brainstormNodeNChatNode from "../../assets/tutorial/brainstorm-node-with-chat-node.png";
+import toolkitHelp from "../../assets/tutorial/toolkit-help.png";
+import miniMap from "../../assets/tutorial/minimap.png";
+import searchNode from "../../assets/tutorial/search-node.png";
+import memoNode from "../../assets/tutorial/memo-node.png";
+
+import resetCanvasGIF from "../../assets/tutorial/reset-canvas.gif";
+import memoNodeGIF from "../../assets/tutorial/memo-node.gif";
+import brainstormNodeVideo from "../../assets/tutorial/use-brainstorm-node-faster.mp4";
+import conceptNodeGIF from "../../assets/tutorial/concept-node.gif";
 import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
 import styled from 'styled-components';
@@ -25,7 +37,8 @@ import useCloseOnDocumentClick from '../../hooks/useCloseOnDocumentClick';
 
 
 const doNotShowTooltip = false; // change to true if don't want to show tool tip next to node types
-const positionToolTip = "right center";
+const positionToolTipRight = "right center";
+// const positionToolTipTop = "right top";
 const mouseLeaveDelayTime = 20;
 const offsetXValue = 15;
 // const offsetYValue = 15;
@@ -43,30 +56,31 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-const ImageElement = (props: { title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; url: string | undefined; description: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; }) => {
+const ImageElement = (props: { title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; width?: number; url: string | undefined; description: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; }) => {
   return (
     <>
     <h3>{props.title}</h3>
-    <img src={props.url} alt="" />
-    <span>{props.description}</span>
+    <img src={props.url} width={props.width} alt="" />
+    <div className="tutorial-description">{props.description}</div>
     </>
   )
 }
 
 const VideoElement = (props: { url: string | undefined; }) => {
-return (
-  <>
-  <h3>Tutorial</h3>
-  <iframe width="560" height="315" src={props.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
-  </>
-)
+  return (
+    <video width="320" height="240" controls>
+      <source src={props.url} type="video/mp4" />
+      <source src="" type="video/ogg" />
+      Your browser does not support the video tag.
+    </video>
+  )
 }
 
-const ResetCanvas = () => {
+
+const YTVideoElement = (props: { url: string | undefined; }) => {
 return (
   <>
-  <h3>Tutorial</h3>
-  <img src={resetCanvas} width="700px" alt="" />
+  <iframe width="560" height="315" src={props.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
   </>
 )
 }
@@ -88,6 +102,79 @@ const ShortcutGIF = () => {
 </Popup>
 )
 }
+
+const Tutorial:any = (close: () => void) => {
+  return (
+    <>
+      <div className="modal">
+        <button className="close" onClick={close}>
+          &times;
+        </button>
+        <div className="header"> <h3>Tutorial</h3> </div>
+        <div className="content">
+          <div className="shortcut-navigation">
+            <h2>Navigation</h2>
+            <div className="shortcut-container">              
+              <div className="shortcut">
+              <div>Move Canvas</div>
+                <div className="key-container"><kbd className="key">Space</kbd> + <kbd className="key">Drag</kbd>
+                <ShortcutGIF ></ShortcutGIF>
+                </div>
+              </div>
+              <div className="shortcut">
+                <div>Zoom in/out</div>
+                <div className="key-container"><kbd className="key">Cmd</kbd> + <kbd className="key">Scroll</kbd>
+                  <ShortcutGIF ></ShortcutGIF>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="shortcut-editor">
+            <h2>Editor</h2>
+            <div className="shortcut-container">
+            <div className="shortcut">
+                <div>Select</div>
+                <div className="key-container"><kbd className="key">Click</kbd> or <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Delete</div>
+                <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Select multiple nodes</div>
+                <div className="key-container"><kbd className="key">Shift</kbd> + <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+            </div>
+          </div>
+          <div className="shortcut-semantic-navigation">
+            <h2>Semantic Dive</h2>
+            <div className="shortcut-container">
+              <div className="shortcut">
+                <div>Dive in</div>
+                <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Dive out</div>
+                <div className="key-container"><kbd className="key">Shift</kbd> + <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <div className="actions">
+          <button
+            className="close-button"
+            onClick={() => {
+              console.log('modal closed ');
+              close();
+            }}
+          >
+            Close
+          </button>
+        </div> */}
+      </div>
+    </>
+  )
+};
 
 
 const KeyboardShortcuts:any = (close: () => void) => {
@@ -119,6 +206,10 @@ const KeyboardShortcuts:any = (close: () => void) => {
           <div className="shortcut-editor">
             <h2>Editor</h2>
             <div className="shortcut-container">
+            <div className="shortcut">
+                <div>Select</div>
+                <div className="key-container"><kbd className="key">Click</kbd> or <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
               <div className="shortcut">
                 <div>Delete</div>
                 <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
@@ -175,90 +266,111 @@ const steps = [
   //   // highlightClass: 'myHighlightClass',
   // },
   {
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    tooltipClass: 'gif',
+    title: 'Welcome! 👋',
+    intro: "SenseCape facilitates information search with ChatGPT.",
+    tooltipClass: 'content',
   },
+  // {
+  //   intro: <YTVideoElement url={"https://www.youtube.com/embed/BzSMLP5KpjM"} />,
+  //   tooltipClass: 'video',
+  // },
   {
-    intro: <VideoElement url={"https://www.youtube.com/embed/BzSMLP5KpjM"} />,
-    tooltipClass: 'video',
-  },
-  {
+    title: 'Semantic Level',
     element: '.semantic-route',
-    intro: 'Semantic route<br><br>[Description]',
+    intro: 'This breadcrumb indicates at which level you are in.',
     tooltipClass: 'semantic-route-tooltip',
     position: 'right', 
   },
-  {
-    element: '.node-toolkit',
-    intro: 'Node Toolkit<br><br>[Description]',
-    position: 'right',
-    // tooltipClass: 'myTooltipClass',
-    // highlightClass: 'myHighlightClass',
-  },
+  // {
+  //   // title: 'Toolkit',
+  //   element: '.node-toolkit',
+  //   intro: 'It contains nodes you can use to search.',
+  //   position: 'right',
+  //   tooltipClass: 'content',
+  //   // highlightClass: 'myHighlightClass',
+  // },
   {
     element: '.traveller-mode-toggle',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
+    intro: <ImageElement width={450} title={""} url={travellerModeImage} description={"It helps you track search process with blue arrow."}/>,
+    // intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
+    tooltipClass: 'image',
+    position: 'top',
   },
   {
     element: '.toolkit-brainstorm',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.toolkit-search',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.toolkit-concept',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.toolkit-memo',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.toolkit-help',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
-  },
-  {
-    element: '.toolkit-reset-canvas',
-    intro: <ResetCanvas/>,
+    intro: <ImageElement width={420} title={""} url={brainstormNode} description={"Brainstorm node generates questions to help you brainstorm ideas on what to explore.."}/>,
+    tooltipClass: 'image',
     position: 'top',
-    tooltipClass: 'gif',
   },
   {
+    element: '.toolkit-brainstorm',
+    intro: <ImageElement width={420} title={""} url={brainstormNodeNChatNode} description={"You can click on any question to generate follow up explanation."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Search node',
+    element: '.toolkit-search',
+    intro: <ImageElement width={420} title={""} url={searchNode} description={""}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Concept node',
+    element: '.toolkit-concept',
+    intro: <ImageElement width={450} title={""} url={conceptNodeGIF} description={"Hierarchy node allows you to explore hierarchy of concepts."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Memo node',
+    element: '.toolkit-memo',
+    intro: <ImageElement width={450} title={""} url={memoNode} description={"You can use memo node to write anything."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Help',
+    element: '.toolkit-help',
+    intro: <ImageElement width={450} title={""} url={toolkitHelp} description={"To see this again, you can hover over 'Help' and click 'Interface'. You will also find tutorial and keyboard shortcuts."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    // title: 'Reset canvas',
+    element: '.toolkit-reset-canvas',
+    intro: <ImageElement width={450} title={""} url={resetCanvasGIF} description={"Clicking this deletes everything on canvas."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
+  {
+    title: 'Zoom Slider',
     element: '.zoom-slider',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
+    // intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
+    intro: 'Slider represents at which zoom level you are at.',
+    // tooltipClass: 'image',
     position: 'left',
-    tooltipClass: 'gif',
   },
   {
+    // title: 'Mini Map',
     element: '.minimap',
-    intro: 'Minimap<br><br>[Description]',
-    position: 'left',
+    intro: <ImageElement width={450} title={""} url={miniMap} description={"Mini map appears when there is more than one node."}/>,
+    position: 'top',
+    tooltipClass: 'image',
   },
 ];
 
 
 const introOptions = {
   exitOnEsc: true,
-  showStepNumbers: true,
+  showStepNumbers: false,
   hidePrev: true,
   hideNext: true,
   showButtons: true,
   showBullets: true,
   keyboardNavigation: true,
-  showProgress: true,
+  showProgress: false,
+  autoPosition: true,
 }
 
 const NodeToolkit = (props: any) => {
@@ -345,12 +457,23 @@ const NodeToolkit = (props: any) => {
 
   const closeOnDocumentClick = useCloseOnDocumentClick();
 
+  // check if opening page for the first time
+  if (sessionStorage.getItem("firstTime")) {
+    // if second time, skip intro.js
+  } else {
+    // if first time, trigger intro.js
+    // trigger intro.js
+    startIntroJS();
+    // save flag in sessionStorage so intro.js is not triggered when user refreshes
+    sessionStorage.setItem("firstTime", 'true');
+  }
+
   return (
     <div className="node-toolkit">
       <Popup
-        trigger={<div className='toolkit-option traveller-mode-toggle'>
+        trigger={<div className='toolkit-option traveller-mode-toggle' onClick={props.toggleTravellerMode}>
         <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />Traveller Mode</div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -366,7 +489,7 @@ const NodeToolkit = (props: any) => {
         <BrainstormIcon />
         Brainstorm
       </div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -382,7 +505,7 @@ const NodeToolkit = (props: any) => {
         <SearchIcon />
         Search
       </div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -398,7 +521,7 @@ const NodeToolkit = (props: any) => {
         <HierarchyIcon />
         Hierarchy
       </div>}
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -414,7 +537,7 @@ const NodeToolkit = (props: any) => {
           <MemoIcon />
           Memo
         </div>} 
-        position={positionToolTip}
+        position={positionToolTipRight}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
         on="hover"
@@ -429,10 +552,10 @@ const NodeToolkit = (props: any) => {
         <HelpIcon />
         Help
       </div> */}
-      <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position={positionToolTip}
+      <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position={positionToolTipRight}
         on="hover"
         offsetX={0}
-        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseLeaveDelay={500}
         mouseEnterDelay={0}
         contentStyle={{ padding: '5px', border: 'none' }}
         arrow={showArrow}>
@@ -441,8 +564,10 @@ const NodeToolkit = (props: any) => {
           <ElementIcon/>&nbsp; Interface</div>
           {/* <div className="menu-item">Keyboard shortcuts</div> */}
           {/* <KeyboardShortcuts /> */}
-          <div onClick={startIntroJS} className="menu-item">
-          <TeacherIcon/>&nbsp; Tutorial</div>
+          <Popup trigger={<div className="menu-item">
+            <TeacherIcon/>&nbsp; Tutorial</div>}  modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
+            <Tutorial />
+          </Popup>
           <Popup trigger={<div className="menu-item">
           <KeyboardIcon/>&nbsp; Keyboard shortcuts</div>} modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
             { KeyboardShortcuts }

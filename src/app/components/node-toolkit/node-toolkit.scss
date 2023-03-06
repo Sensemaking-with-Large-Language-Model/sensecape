@@ -74,28 +74,48 @@
   stroke: #444;
 }
 
+.content {
+  // width: 600px;
+  font-size: 1.1rem;
+}
+
 .semantic-route-tooltip {
   max-width: 300px !important;
+  font-size: 1.1rem;
 }
 
 .gif {
   max-width: 1200px !important;
   text-align-last: center;
+  font-size: 1.1rem;
   width: 900px;
+}
+
+.image {
+  max-width: 550px !important;
+  font-size: 1.1rem;
+  width: 500px;
+  text-align: center;
 }
 
 .video {
   max-width: 1200px !important;
-  text-align-last: center;
   width: 1000px;
+  text-align-last: center;
+  font-size: 1.1rem;
+  padding: 0px 5px !important;
 }
+
+// .introjs-tooltip-header {
+//   padding: 0px !important;
+// }
 
 .menu {
   color: #7f7f7f;
-  width: 190px;
+  width: 165px;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background: #fff;
 }
 .menu-item {
   cursor: pointer;
@@ -109,7 +129,7 @@
 
 // popup-content is responsible for container
 .popup-content {
-  background-color: transparent;
+  background: #fff;
   max-width: 960px;
   border-radius: 10px;
   border: 0px solid white;
@@ -210,7 +230,7 @@
   right: -10px;
   top: -10px;
   font-size: 24px;
-  background: #ffffff;
+  background: #fff;
   border-radius: 18px;
   border: 1px solid #cfcece;
 }
@@ -226,4 +246,17 @@
 
 .actions > .close-button:active {
   cursor: grabbing
+}
+
+.customTooltip * {
+  color: #4a4a4a;
+  font-size: 18px
+}
+
+.customTooltip .introjs-tooltip-title {
+  color: #0a41c9;
+}
+
+.tutorial-description {
+  padding-top: 15px;
 }
