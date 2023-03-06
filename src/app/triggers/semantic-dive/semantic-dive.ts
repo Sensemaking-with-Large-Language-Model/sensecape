@@ -152,10 +152,10 @@ export const semanticDiveIn = (
           .join(',')
         ).then(topics => {
           const surroundPositions = calculateSurroundPositions(topics.length, childInstance.topicNode.position);
-          const chatHistory: ChatCompletionRequestMessage = {
+          const chatHistory: ChatCompletionRequestMessage[] = [{
             role: 'user',
             content: `The topic of the conversation is focused on ${childInstance.name}`
-          }
+          }]
           topics
           .filter((topic): topic is string => !!topic)
           .forEach((topic, i) => {
