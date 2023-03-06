@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi } from "openai";
+import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
 import { ReactFlowInstance, MarkerType, Node } from "reactflow";
 import { devFlags, uuid } from "../app/utils";
@@ -20,57 +20,30 @@ export const tokens = {
   term: 5,
 };
 
-export const getGPT3Response = async (history: string, prompt: string) => {
+export const getChatGPTResponse = async (history: ChatCompletionRequestMessage[], prompt: string) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI can't take all my money");
   }
 
-  const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
-
-  return await openai
-    .createCompletion({
-      model: "text-davinci-003",
-      prompt: gptPrompt,
-      max_tokens: tokens.full,
-      temperature: 0.7,
-      top_p: 1,
-      n: 1,
-      stream: false,
-      logprobs: null,
-      stop: "",
-    })
-    .then((data) => {
-      return data.data.choices[0].text?.trim();
-    });
-};
-
-export const getGPT3Stream = async (history: string, prompt: string) => {
-  if (devFlags.disableOpenAI) {
-    return Promise.resolve("OpenAI can't take all my money");
-  }
-  const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
-
-  return await openai
-    .createCompletion({
-      model: "text-davinci-003",
-      prompt: gptPrompt,
-      max_tokens: tokens.full,
-      temperature: 0.7,
-      top_p: 1,
-      n: 1,
-      stream: true,
-      logprobs: null,
-      stop: "",
-    })
-    .then((data) => {
-      console.log(data);
-      return data;
-      // return data.data.choices[0].text?.trim();
-    });
+  return await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [
+      ...history,
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    max_tokens: tokens.full,
+    temperature: 0.7,
+  })
+  .then((data) => {
+    return data.data.choices[0].message?.content.trim();
+  });
 };
 
 // Semantic Zoom: Summarize text if zoomed out medium amount
-export const getGPT3Summary = async (text: string) => {
+export const getChatGPTSummary = async (text: string) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("Boba for 1 dollar");
   }
@@ -99,7 +72,7 @@ export const getGPT3Summary = async (text: string) => {
 };
 
 // Semantic Zoom: Summarize text if zoomed out large amount
-export const getGPT3Keywords = async (text: string) => {
+export const getChatGPTKeywords = async (text: string) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI rich enough");
   }

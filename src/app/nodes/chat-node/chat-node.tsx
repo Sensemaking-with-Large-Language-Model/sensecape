@@ -1,7 +1,7 @@
 import { Component, useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
 import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, useStore, XYPosition } from 'reactflow';
-import { getGPT3Keywords, getGPT3Response, getGPT3Stream, getGPT3Summary } from '../../../api/openai-api';
+import { getChatGPTKeywords, getChatGPTResponse, getChatGPTSummary } from '../../../api/openai-api';
 import './chat-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { isHighlightable } from './highlighter';
@@ -76,7 +76,17 @@ const ChatNode = (props: NodeProps) => {
     (input: string, response: string) => {
       const data: ChatNodeData = {
         parentId: props.id,
-        chatReference: `${props.data.chatReference}\n\n${input}\n\n${response}\n\n`,
+        chatHistory: [
+          ...props.data.chatHistory,
+          {
+            role: 'user',
+            content: input
+          },
+          {
+            role: 'assistant',
+            content: response,
+          }
+        ],
         // We want chat node to have no response yet, since the user will ask for a response
         placeholder: 'Ask a follow up question',
         state: {},
@@ -91,8 +101,8 @@ const ChatNode = (props: NodeProps) => {
 
     setResponseInputState(ResponseState.LOADING);
 
-    const response = await getGPT3Response(
-      props.data.chatReference, prompt
+    const response = await getChatGPTResponse(
+      props.data.chatHistory, prompt
     ) || 'Error: no response received';
 
     setResponse(response);
@@ -108,11 +118,11 @@ const ChatNode = (props: NodeProps) => {
   const generateSummaries = (text: string) => {
     if (!text) return;
 
-    getGPT3Summary(text).then(data => {
+    getChatGPTSummary(text).then(data => {
       setSummary(data || 'Error: generate summary failed');
     });
 
-    getGPT3Keywords(text).then(data => {
+    getChatGPTKeywords(text).then(data => {
       setKeywords(data || 'Error: generate keywords failed');
     });
   }
@@ -127,7 +137,17 @@ const ChatNode = (props: NodeProps) => {
     }
     const data = JSON.stringify({
       parentId: props.id,
-      chatReference: `${currNode.data.chatReference}\n\n${input}\n\n${response}`,
+      chatHistory: [
+        ...currNode.data.chatHistory,
+        {
+          role: 'user',
+          content: input
+        },
+        {
+          role: 'assistant',
+          content: response,
+        }
+      ],
       instanceState: InstanceState.NONE,
       state: {
         topic: topicName

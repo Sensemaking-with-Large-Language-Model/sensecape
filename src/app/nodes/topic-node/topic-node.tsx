@@ -47,7 +47,13 @@ const TopicNode = (props: NodeProps) => {
     (input: string) => {
       const data: ChatNodeData = {
         parentId: props.id,
-        chatReference: `${props.data.chatReference}\n\nFocusing on ${topic}:\n\n`,
+        chatHistory: [
+          ...props.data.chatHistory,
+          {
+            role: 'system',
+            content: `Conversation is now focused on this topic: ${topic}`
+          }
+        ],
         // We want chat node to already show a response
         placeholder: '',
         state: {

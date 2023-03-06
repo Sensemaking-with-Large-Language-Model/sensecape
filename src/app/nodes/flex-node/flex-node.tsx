@@ -1,7 +1,7 @@
 import { Component, useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
 import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, useStore, XYPosition } from 'reactflow';
-import { getGPT3Keywords, getGPT3Response, getGPT3Stream, getGPT3Summary } from '../../../api/openai-api';
+import { getChatGPTKeywords, getChatGPTResponse, getChatGPTSummary } from '../../../api/openai-api';
 import './flex-node.scss';
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';

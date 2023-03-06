@@ -16,9 +16,9 @@ export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeDat
 
 
   const handleClick = (event: any) => {
-    const data:ChatNodeData = {  
+    const data: ChatNodeData = {  
       parentId: props.parentId,
-      chatReference: '',
+      chatHistory: [],
       placeholder:  props.question,        // If no response yet, use placeholder
       state: {
         input: props.question,

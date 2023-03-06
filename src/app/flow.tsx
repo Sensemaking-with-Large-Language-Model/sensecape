@@ -170,7 +170,7 @@ const ExploreFlow = () => {
     dragHandle: ".drag-handle",
     data: {
       parentId: "",
-      chatReference: "",
+      chatHistory: [],
       instanceState: InstanceState.NONE, // To temporarily disable dive out of home
       state: {
         topic: "home",
@@ -498,7 +498,7 @@ const ExploreFlow = () => {
   
           const data: FlexNodeData = {
             // We want chat node to have no response yet, since the user will ask for a response
-            placeholder: 'Ask GPT-3',
+            placeholder: 'Ask ChatGPT',
             state: {},
           };
   

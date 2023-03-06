@@ -175,7 +175,7 @@ export const semanticDiveOut = (
           dragHandle: '.drag-handle',
           data: {
             parentId: '',
-            chatReference: '',
+            chatHistory: [],
             instanceState: InstanceState.NONE, // To temporarily disable dive out of home
             state: {
               topic: currentInstance.name + '-parent',

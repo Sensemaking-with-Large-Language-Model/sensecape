@@ -1,9 +1,10 @@
+import { ChatCompletionRequestMessage } from 'openai';
 import { Node } from 'reactflow';
 import { ResponseState } from '../../components/input.model';
 
 export interface ChatNodeData {
   parentId: string;
-  chatReference: string;
+  chatHistory: ChatCompletionRequestMessage[];
   placeholder: string;        // If no response yet, use placeholder
   state: {
     input?: string;

@@ -12,6 +12,7 @@ import { ReactComponent as BrainstormIcon } from '../../assets/node-icons/brains
 import { ReactComponent as SearchIcon } from '../../assets/node-icons/search.svg';
 import { ReactComponent as HierarchyIcon } from '../../assets/node-icons/hierarchy.svg';
 import { ReactComponent as MemoIcon } from '../../assets/node-icons/memo.svg';
+import { BrainstormNodeData } from "../../nodes/brainstorm-node/brainstorm-node.model";
 
 const FlexInput = (props: any) => {
   const reactFlowInstance = useReactFlow();
@@ -87,17 +88,17 @@ const FlexInput = (props: any) => {
     if (clickedNodeType === 'brainstorm') {
       data = {
         parentId: '',
-        chatReference: '',
+        chatHistory: [],
         placeholder: placeholderText(clickedNodeType),
         state: {
           input: inputText,
           responseInputState: inputText === ''? ResponseState.INPUT : ResponseState.LOADING,
         },
-      };
+      } as BrainstormNodeData;
     } else if (clickedNodeType === 'chat') {
       data = {
         parentId: '',
-        chatReference: '',
+        chatHistory: [],
         placeholder: placeholderText(clickedNodeType),
         state: {
           input: inputText,
@@ -122,9 +123,6 @@ const FlexInput = (props: any) => {
     } else {
       return;
     }
-
-    console.log('data', data);
-
       const position: XYPosition = nodePosition as XYPosition;
       // Type of node denoted in id
       const type = clickedNodeType;
