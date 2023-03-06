@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { NodeProps, useStore, useReactFlow, getRectOfNodes } from "reactflow";
-import { getGPT3Keywords } from "../../../api/openai-api";
+import { getChatGPTKeywords } from "../../../api/openai-api";
 import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
 import { ZoomState } from "../node.model";
 import './memo-node.scss';
@@ -34,7 +34,7 @@ const MemoNode = (props: NodeProps) => {
 
   const generateTitle = useCallback(() => {
     if (hasUpdated) {
-      getGPT3Keywords(memo).then(data => {
+      getChatGPTKeywords(memo).then(data => {
         setTitle(data ?? 'Memo Node');
         setHasUpdated(false);
       });

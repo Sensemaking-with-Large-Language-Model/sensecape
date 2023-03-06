@@ -2,20 +2,35 @@ import { Breadcrumb } from 'antd';
 import './semantic-route.scss';
 import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
+import { SemanticRouteItem } from '../../triggers/semantic-dive/semantic-dive.helper';
 
 const SemanticRoute = (props: any) => {
+
+  const cappedTitle = (title: string) => {
+    if (title.length > 30) {
+      return title.substring(0, 30) + '...';
+    }
+    return title;
+  }
 
   return (
     <Popup trigger={<div className="semantic-route">
       <Breadcrumb>
         {
-          props.route.map((topic: string, index: number) => (
+          props.route.map((routeItem: SemanticRouteItem, index: number) => (
             <Breadcrumb.Item key={index}>
-              {
-                index < props.route.length-1 ?
-                (<a onClick={() => console.log('jump to semantic instance', topic)}>{topic}</a>) :
-                (<>{topic}</>)
-              }
+              {(
+                <a
+                  style={props.currentTopicId === routeItem.topicId ?
+                    {
+                      color: '#000',
+                      fontWeight: '500',
+                    } : {}}
+                  onClick={() => props.semanticJumpTo(routeItem.topicId)}
+                >
+                  {cappedTitle(routeItem.title)}
+                </a>
+              )}
             </Breadcrumb.Item>
           ))
         }

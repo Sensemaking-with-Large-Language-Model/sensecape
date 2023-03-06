@@ -2,6 +2,12 @@ import React, { CSSProperties, Dispatch, SetStateAction } from "react";
 import { Edge, getRectOfNodes, Node, ReactFlowInstance, Rect } from "reactflow";
 import { NodeEdgeList } from "./semantic-dive";
 
+export interface SemanticRouteItem {
+  title: string;
+  topicId: string;
+  level: number;
+}
+
 export const prepareDive = (
   reactFlowInstance: ReactFlowInstance,
   [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
@@ -34,6 +40,8 @@ export const prepareDive = (
 
   setTimeout(() => {
     carryCapture.style.scale = '0.5';
+    carryCapture.style.display = 'flex';
+    carryCapture.style.gap = '10px';
   }, 1);
 
   document.addEventListener('mousemove', (e) => {

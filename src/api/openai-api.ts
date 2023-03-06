@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi } from "openai";
+import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
 import { ReactFlowInstance, MarkerType, Node } from "reactflow";
 import { devFlags, uuid } from "../app/utils";
@@ -14,63 +14,36 @@ const verbose: boolean = false;
 
 // Object that specifies max token length by response type
 export const tokens = {
-  full: 256,
+  full: 1028,
   summary: 64,
   keywords: 16,
   term: 5,
 };
 
-export const getGPT3Response = async (history: string, prompt: string) => {
+export const getChatGPTResponse = async (history: ChatCompletionRequestMessage[], prompt: string) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI can't take all my money");
   }
 
-  const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
-
-  return await openai
-    .createCompletion({
-      model: "text-davinci-003",
-      prompt: gptPrompt,
-      max_tokens: tokens.full,
-      temperature: 0.7,
-      top_p: 1,
-      n: 1,
-      stream: false,
-      logprobs: null,
-      stop: "",
-    })
-    .then((data) => {
-      return data.data.choices[0].text?.trim();
-    });
-};
-
-export const getGPT3Stream = async (history: string, prompt: string) => {
-  if (devFlags.disableOpenAI) {
-    return Promise.resolve("OpenAI can't take all my money");
-  }
-  const gptPrompt: string = `${history}\n\n${prompt}\n\n`;
-
-  return await openai
-    .createCompletion({
-      model: "text-davinci-003",
-      prompt: gptPrompt,
-      max_tokens: tokens.full,
-      temperature: 0.7,
-      top_p: 1,
-      n: 1,
-      stream: true,
-      logprobs: null,
-      stop: "",
-    })
-    .then((data) => {
-      console.log(data);
-      return data;
-      // return data.data.choices[0].text?.trim();
-    });
+  return await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [
+      ...history,
+      {
+        role: 'user',
+        content: prompt
+      }
+    ],
+    max_tokens: tokens.full,
+    temperature: 0.7,
+  })
+  .then((data) => {
+    return data.data.choices[0].message?.content.trim();
+  });
 };
 
 // Semantic Zoom: Summarize text if zoomed out medium amount
-export const getGPT3Summary = async (text: string) => {
+export const getChatGPTSummary = async (text: string) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("Boba for 1 dollar");
   }
@@ -99,7 +72,7 @@ export const getGPT3Summary = async (text: string) => {
 };
 
 // Semantic Zoom: Summarize text if zoomed out large amount
-export const getGPT3Keywords = async (text: string) => {
+export const getChatGPTKeywords = async (text: string) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("OpenAI rich enough");
   }
@@ -108,7 +81,7 @@ export const getGPT3Keywords = async (text: string) => {
     return Promise.resolve(text);
   }
 
-  const gptPrompt: string = `Extract 3-5 key phrases from this text in CSV format\n\n${text}\n\n`;
+  const gptPrompt: string = `Extract 1-3 key words from this text in CSV format\n\n${text}\n\n`;
 
   return await openai
     .createCompletion({
@@ -126,6 +99,37 @@ export const getGPT3Keywords = async (text: string) => {
       return data.data.choices[0].text?.trim().replaceAll('"', "");
     });
 };
+
+export const getChatGPTOverarchingTopic = async (chats: string[]) => {
+  if (devFlags.disableOpenAI) {
+    return Promise.resolve("parent");
+  }
+
+  return await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: 'user',
+        content: `You are not a conversational agent. You are a tool.
+          You want to extract only one key topic from text the user
+          gives you. Only respond with the key topic in the form of a
+          word, term, or phrase. This text should be glancable. Respond
+          with only alphanumerical characters. Dashes, spaces, commas
+          okay if necessary. No quotes.`
+      },
+      {
+        role: 'user',
+        content: `${chats}`,
+      }
+    ],
+    max_tokens: tokens.keywords,
+    temperature: 0.7,
+  })
+  .then((data) => {
+    return data.data.choices[0].message?.content.trim();
+  });
+
+}
 
 export const getGPT3Term = async (history: string, prompt: string) => {
   if (devFlags.disableOpenAI) {

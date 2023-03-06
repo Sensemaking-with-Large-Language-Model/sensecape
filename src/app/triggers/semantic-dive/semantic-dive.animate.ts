@@ -126,14 +126,44 @@ export const animateDiveOutTakeoff = (
 export const animateDiveOutLanding = (
   reactFlowInstance: ReactFlowInstance,
 ) => {
-  // Make nodes opacity: 1
-  // zoom out a little
   styleNodesAndEdges(reactFlowInstance, [], {
     transition: 'none',
     opacity: 0,
   });
   reactFlowInstance.zoomTo(3);
-  reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+  const nodes = reactFlowInstance.getNodes();
+  setTimeout(() => {
+    if (nodes.length <= 1) {
+      reactFlowInstance.fitView({
+        duration: totalTransitionTime/2,
+        padding: 5,
+        nodes,
+      });
+    } else {
+      reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+    }
+    styleNodesAndEdges(reactFlowInstance, [], {
+      transition: 'opacity ease-in 0.5s',
+      opacity: 1,
+    });
+  }, 10);
+}
+
+export const animateDiveToLanding = (
+  reactFlowInstance: ReactFlowInstance,
+) => {
+  styleNodesAndEdges(reactFlowInstance, [], {
+    transition: 'none',
+    opacity: 0,
+  });
+  reactFlowInstance.zoomTo(3);
+  const nodes = reactFlowInstance.getNodes();
+
+  reactFlowInstance.fitView({
+    duration: totalTransitionTime/2,
+    padding: 1,
+    nodes,
+  });
   setTimeout(() => {
     styleNodesAndEdges(reactFlowInstance, [], {
       transition: 'opacity ease-in 0.5s',
@@ -141,4 +171,3 @@ export const animateDiveOutLanding = (
     });
   }, 1);
 }
-

@@ -382,7 +382,7 @@ const NodeToolkit = (props: any) => {
     () => {
       const data: ChatNodeData = {
         parentId: '',
-        chatReference: '',
+        chatHistory: [],
         placeholder: 'Ask GPT-3',
         state: {},
       }
@@ -398,15 +398,15 @@ const NodeToolkit = (props: any) => {
     if (nodeType === 'brainstorm') {
       data = {
         parentId: '',
-        chatReference: '',
+        chatHistory: [],
         placeholder: 'Brainstorm',
         state: {},
       };
     } else if (nodeType === 'chat') {
       data = {
         parentId: '',
-        chatReference: '',
-        placeholder: 'Ask GPT-3',
+        chatHistory: [],
+        placeholder: 'Ask ChatGPT',
         state: {},
       } as ChatNodeData;
     } else if (nodeType === 'concept') {
