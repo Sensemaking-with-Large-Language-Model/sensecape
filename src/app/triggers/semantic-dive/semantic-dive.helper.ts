@@ -1,5 +1,5 @@
 import React, { CSSProperties, Dispatch, SetStateAction } from "react";
-import { getRectOfNodes, Node, ReactFlowInstance, Rect } from "reactflow";
+import { Edge, getRectOfNodes, Node, ReactFlowInstance, Rect } from "reactflow";
 import { NodeEdgeList } from "./semantic-dive";
 
 export const prepareDive = (
@@ -11,11 +11,10 @@ export const prepareDive = (
 
   // Save selected nodes & edges for semantic dives
   setSemanticCarryList({
-    nodes: nodesToCarry,
-    edges: reactFlowInstance.getEdges().filter(edge => edge.selected),
+    nodes: semanticCarryList.nodes.concat(nodesToCarry),
+    edges: semanticCarryList.edges.concat(reactFlowInstance
+      .getEdges().filter(edge => edge.selected)),
   });
-
-  console.log('nod', nodesToCarry);
 
   // Node Elements cloned to create the capture of carry nodes
   const nodeElements = (nodesToCarry
@@ -37,8 +36,6 @@ export const prepareDive = (
     carryCapture.style.scale = '0.5';
   }, 1);
 
-  console.log('capture', carryCapture, nodeElements);
-
   document.addEventListener('mousemove', (e) => {
     carryCapture.style.top = `${e.clientY - carryCapture.clientHeight/2}px`;
     carryCapture.style.left = `${e.clientX - carryCapture.clientWidth/2}px`;
@@ -58,7 +55,7 @@ export const styleNodesAndEdges = (
   reactFlowInstance: ReactFlowInstance,
   focusNodeIds: string[],
   style: CSSProperties,
-  repelOtherNodes?: boolean,
+  repelSurroundings?: boolean,
 ) => {
   const sourceRect: Rect = getRectOfNodes(
     focusNodeIds.map(nodeId => reactFlowInstance.getNode(nodeId)) as Node[]
@@ -66,9 +63,8 @@ export const styleNodesAndEdges = (
   setTimeout(() => {
     reactFlowInstance.setNodes(nodes => nodes.map(node => {
       if (!focusNodeIds.includes(node.id)) {
-        if (repelOtherNodes) {
+        if (repelSurroundings) {
           const {x, y} = getRepelDirection(sourceRect, node);
-          console.log(x, y);
           node.style = {
             ...style,
             translate: `${x*300}px ${y*300}px`
@@ -80,17 +76,34 @@ export const styleNodesAndEdges = (
       return node;
     }));
     reactFlowInstance.setEdges(edges => edges.map(edge => {
-      console.log(edge);
-      edge.style = style;
+      if (repelSurroundings) {
+        const {x, y} = getRepelDirection(sourceRect, reactFlowInstance.getNode(edge.source)!);
+        edge.style = {
+          ...style,
+          translate: `${x*300}px ${y*300}px`
+        };
+      } else {
+        edge.style = style;
+      }
       return edge;
     }));
   });
 }
 
-export const getRepelDirection = (sourceRect: Rect, targetNode: Node) => {
-  const xDiff = targetNode.position.x - sourceRect.x;
-  const yDiff = targetNode.position.y - sourceRect.y;
+export const getRepelDirection = (sourceRect: Rect, target: Node) => {
+  const xDiff = target.position.x - sourceRect.x;
+  const yDiff = target.position.y - sourceRect.y;
   const mag = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-  console.log()
   return {x: xDiff/mag, y: yDiff/mag};
+}
+
+export const clearSemanticCarry = (
+  setSemanticCarryList: Dispatch<SetStateAction<NodeEdgeList>>
+) => {
+  const carryBox = document.getElementById('semantic-carry-box');
+  carryBox?.replaceChildren();
+  setSemanticCarryList({
+    nodes: [],
+    edges: [],
+  });
 }

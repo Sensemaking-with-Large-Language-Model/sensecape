@@ -60,7 +60,7 @@ export const animateDiveInLanding = (
   setTimeout(() => {
     // Set current nodes to opacity 0
     styleNodesAndEdges(reactFlowInstance, [focusNode.id], {
-      opacity: 0
+      opacity: 0,
     });
 
     reactFlowInstance.fitView({
@@ -71,22 +71,24 @@ export const animateDiveInLanding = (
     reactFlowInstance.zoomTo(1.4);
     reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
 
-    reactFlowInstance.setNodes(nodes => nodes.map(node => {
-      if (node.id === focusNode.id) {
-        node.style = {
-          transition: 'none',
-          opacity: 1,
-          scale: 1.4,
-        }
-        setTimeout(() => {
-          node.style = {
-            transition: 'cubic-bezier(0,0,0.40,1) 0.5s',
-            scale: 1,
-          }
-        });
-      }
-      return node;
-    }))
+    // TODO: Convert css class to JS style
+    // reactFlowInstance.setNodes(nodes => nodes.map(node => {
+    //   if (node.id === focusNode.id) {
+    //     node.style = {
+    //       transition: 'none',
+    //       opacity: 1,
+    //       scale: 1.4,
+    //     }
+    //     setTimeout(() => {
+    //       node.style = {
+    //         transition: 'cubic-bezier(0,0,0.40,1) 0.5s',
+    //         opacity: 1,
+    //         scale: 1,
+    //       }
+    //     });
+    //   }
+    //   return node;
+    // }));
 
     const focusNodeElement = document.querySelector(`[data-id="${focusNode.id}"]`) as HTMLElement;
     focusNodeElement.classList.add('node-enter');

@@ -93,6 +93,7 @@ import FlexNode from "./nodes/flex-node/flex-node";
 import { createTravellerEdge } from "./edges/traveller-edge/traveller-edge.helper";
 import { usePrevious } from "./hooks/usePrevious";
 import { duplicateNode } from "./nodes/node.helper";
+import { clearSemanticCarry } from "./triggers/semantic-dive/semantic-dive.helper";
 
 const verbose: boolean = true;
 
@@ -215,7 +216,7 @@ const ExploreFlow = () => {
   // Whether semantic dive can actually be triggered
   const [semanticDivable, setSemanticDivable] = useState(true);
   const altKeyPressed = useKeyPress('Alt');
-
+  const escKeyPressed = useKeyPress('Escape');
 
   // Updates the current instance of reactflow
   useEffect(() => {
@@ -481,22 +482,17 @@ const ExploreFlow = () => {
             });
             reactFlowInstance.addNodes(carriedNodes);
 
-            const carryBox = document.getElementById('semantic-carry-box');
-            carryBox?.replaceChildren();
             // document.removeEventListener('mousemove', (e) => {
             //   carryCapture.style.top = `${e.clientY - carryCapture.clientHeight/2}px`;
             //   carryCapture.style.left = `${e.clientX - carryCapture.clientWidth/2}px`;
             // })
-            setSemanticCarryList({
-              nodes: [],
-              edges: [],
-            });
             reactFlowInstance.fitView({
               duration: 400,
               padding: 5,
               nodes: carriedNodes,
             });
           }
+          clearSemanticCarry(setSemanticCarryList);
           return;
         } else if (evt.detail === 2) { // if double click, add flex node
   
@@ -531,6 +527,13 @@ const ExploreFlow = () => {
     },
     [reactFlowInstance, semanticCarryList]
   );
+
+  // Clears semantic carry list when esc key pressed
+  useEffect(() => {
+    if (escKeyPressed) {
+      clearSemanticCarry(setSemanticCarryList);
+    }
+  }, [escKeyPressed]);
 
   // Toggle Semantic Dive Ready Mode
   useEffect(() => {
@@ -637,6 +640,7 @@ const ExploreFlow = () => {
           onNodesDelete={(event) => console.log(event)}
           maxZoom={infiniteZoom ? Infinity : zoomRange.max}
           minZoom={infiniteZoom ? -Infinity : zoomRange.min}
+          elevateNodesOnSelect
         >
           <Background />
           <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>

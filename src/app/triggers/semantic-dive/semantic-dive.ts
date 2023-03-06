@@ -135,9 +135,9 @@ export const semanticDiveIn = (
             reactFlowInstance
           );
           setInfiniteZoom(false);
+          // document.getElementById('reactFlowInstance')!.style.pointerEvents = 'unset';
           // TODO: Make animations promises, and setInfiniteZoom(false);
-        })
-
+        });
       }, totalTransitionTime/2);
     });
   }
