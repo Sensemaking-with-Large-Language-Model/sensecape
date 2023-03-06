@@ -435,8 +435,8 @@ const NodeToolkit = (props: any) => {
   return (
     <div className="node-toolkit">
       <Popup
-        trigger={<div className='toolkit-option traveller-mode-toggle'>
-        <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' /><span onClick={props.toggleTravellerMode}>Traveller Mode</span></div>}
+        trigger={<div className='toolkit-option traveller-mode-toggle' onClick={props.toggleTravellerMode}>
+        <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />Traveller Mode</div>}
         position={positionToolTip}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
