@@ -1,5 +1,5 @@
-import { CSSProperties, Dispatch, SetStateAction } from "react";
-import { ReactFlowInstance } from "reactflow";
+import React, { CSSProperties, Dispatch, SetStateAction } from "react";
+import { getRectOfNodes, Node, ReactFlowInstance, Rect } from "reactflow";
 import { NodeEdgeList } from "./semantic-dive";
 
 export const prepareDive = (
@@ -56,19 +56,41 @@ export const prepareDive = (
 
 export const styleNodesAndEdges = (
   reactFlowInstance: ReactFlowInstance,
-  excludedNodeIds: string[],
+  focusNodeIds: string[],
   style: CSSProperties,
+  repelOtherNodes?: boolean,
 ) => {
+  const sourceRect: Rect = getRectOfNodes(
+    focusNodeIds.map(nodeId => reactFlowInstance.getNode(nodeId)) as Node[]
+  );
   setTimeout(() => {
     reactFlowInstance.setNodes(nodes => nodes.map(node => {
-      if (!excludedNodeIds.includes(node.id)) {
-        node.style = style;
+      if (!focusNodeIds.includes(node.id)) {
+        if (repelOtherNodes) {
+          const {x, y} = getRepelDirection(sourceRect, node);
+          console.log(x, y);
+          node.style = {
+            ...style,
+            translate: `${x*300}px ${y*300}px`
+          };
+        } else {
+          node.style = style;
+        }
       }
       return node;
     }));
     reactFlowInstance.setEdges(edges => edges.map(edge => {
+      console.log(edge);
       edge.style = style;
       return edge;
     }));
   });
+}
+
+export const getRepelDirection = (sourceRect: Rect, targetNode: Node) => {
+  const xDiff = targetNode.position.x - sourceRect.x;
+  const yDiff = targetNode.position.y - sourceRect.y;
+  const mag = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+  console.log()
+  return {x: xDiff/mag, y: yDiff/mag};
 }

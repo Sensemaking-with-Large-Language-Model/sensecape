@@ -1,4 +1,4 @@
-import { uuid, zoomLimits } from "../../utils";
+import { zoomLimits } from "../../utils";
 import { Node, ReactFlowInstance } from "reactflow";
 import { totalTransitionTime } from "./semantic-dive";
 import { styleNodesAndEdges } from "./semantic-dive.helper";
@@ -25,7 +25,7 @@ export const animateDiveInTakeoff = (
     styleNodesAndEdges(reactFlowInstance, [focusNode.id], {
       transition: 'ease 1s',
       opacity: 0,
-    })
+    }, true);
 
     reactFlowInstance.setNodes(nodes => nodes.map(node => {
       if (node.id === focusNode.id) {
@@ -58,6 +58,11 @@ export const animateDiveInLanding = (
   reactFlowInstance: ReactFlowInstance,
 ) => {
   setTimeout(() => {
+    // Set current nodes to opacity 0
+    styleNodesAndEdges(reactFlowInstance, [focusNode.id], {
+      opacity: 0
+    });
+
     reactFlowInstance.fitView({
       duration: 0,
       padding: 0,
@@ -132,6 +137,6 @@ export const animateDiveOutLanding = (
       transition: 'opacity ease-in 0.5s',
       opacity: 1,
     });
-  });
+  }, 1);
 }
 

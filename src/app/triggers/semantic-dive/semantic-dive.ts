@@ -6,7 +6,7 @@ import { InputHoverState } from "../../nodes/node.model";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../../utils";
 import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff } from "./semantic-dive.animate";
-import { prepareDive, styleNodesAndEdges } from "./semantic-dive.helper";
+import { prepareDive } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
@@ -128,11 +128,6 @@ export const semanticDiveIn = (
         reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
         reactFlowInstance.setEdges(childInstance.jsonObject.edges);
         reactFlowInstance.setViewport(childInstance.jsonObject.viewport);
-
-        // Set current nodes to opacity 0
-        styleNodesAndEdges(reactFlowInstance, [childInstance.topicNode.id], {
-          opacity: 0
-        });
 
         setTimeout(() => {
           animateDiveInLanding(
