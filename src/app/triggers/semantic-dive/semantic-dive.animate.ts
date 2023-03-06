@@ -122,6 +122,7 @@ export const animateDiveOutTakeoff = (
 }
 
 export const animateDiveOutLanding = (
+  focusNode: Node,
   reactFlowInstance: ReactFlowInstance,
 ) => {
   styleNodesAndEdges(reactFlowInstance, [], {
@@ -130,12 +131,16 @@ export const animateDiveOutLanding = (
   });
   reactFlowInstance.zoomTo(3);
 
+  console.log(reactFlowInstance.getNodes());
+
   // Hacky way of getting latest state of nodes
-  reactFlowInstance.setNodes(nodes => nodes.map(node => {
+  reactFlowInstance.setNodes(nodes => {
+    console.log(focusNode);
+    console.log(reactFlowInstance.getNodes());
     if (nodes.length <= 3) {
       reactFlowInstance.fitView({
         padding: 1,
-        nodes,
+        nodes: [focusNode],
       });
     }
     setTimeout(() => {
@@ -145,8 +150,8 @@ export const animateDiveOutLanding = (
         opacity: 1,
       });
     })
-    return node;
-  }))
+    return nodes;
+  });
 }
 
 export const animateDiveToLanding = (

@@ -131,7 +131,7 @@ export const getChatGPTOverarchingTopic = async (context: string[]) => {
     temperature: 0.1,
   })
   .then((data) => {
-    return data.data.choices[0].message?.content.replaceAll('.', '').trim();
+    return data.data.choices[0].message?.content.replaceAll(/"|\./g, '').trim();
   });
 }
 
@@ -140,23 +140,26 @@ export const getChatGPTRelatedTopics = async (context: string) => {
     return Promise.resolve(['recommendation1', 'recommendation2', 'recommendation3']);
   }
 
+  const nTopics = 5;
+
   return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
       extractTopicPrompt,
       {
         role: 'user',
-        content: `Give me one and only one related topic in the form of a
-          term in 1 to 3 words given this context: ${context}`,
+        content: `Give me ${nTopics} and only ${nTopics} related topics in the form of
+          terms in 1 to 3 words each given this context: ${context}\n\n
+          format your response in CSV (comma separated values).`,
       }
     ],
     max_tokens: tokens.keywords,
     n: 5,
-    temperature: 1.5,
+    temperature: 1.7,
   })
   .then((data) => {
-    return data.data.choices
-      .map(choice => choice.message?.content.replaceAll('.', '').trim());
+    return data.data.choices[0].message?.content
+      .split(',').map(topic => topic.replaceAll(/"/g, '').trim()) ?? [];
   });
 }
 

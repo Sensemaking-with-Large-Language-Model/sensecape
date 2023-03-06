@@ -19,18 +19,19 @@ const SemanticRoute = (props: any) => {
         {
           props.route.map((routeItem: SemanticRouteItem, index: number) => (
             <Breadcrumb.Item key={index}>
-              {(
-                <a
-                  style={props.currentTopicId === routeItem.topicId ?
-                    {
-                      color: '#000',
-                      fontWeight: '500',
-                    } : {}}
-                  onClick={() => props.semanticJumpTo(routeItem.topicId)}
-                >
-                  {cappedTitle(routeItem.title)}
-                </a>
-              )}
+              {(<a
+                style={props.currentTopicId === routeItem.topicId ?
+                  {
+                    color: '#000',
+                    fontWeight: '500',
+                    textDecoration: routeItem.topicId.startsWith('topic-home') ? 'underline': '',
+                  } : {
+                    textDecoration: routeItem.topicId.startsWith('topic-home') ? 'underline': '',
+                  }}
+                onClick={() => props.semanticJumpTo(routeItem.topicId)}
+              >
+                {cappedTitle(routeItem.title)}
+              </a>)}
             </Breadcrumb.Item>
           ))
         }

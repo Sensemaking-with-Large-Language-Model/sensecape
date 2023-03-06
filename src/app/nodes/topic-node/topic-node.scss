@@ -41,11 +41,13 @@
   transition: opacity ease 0.5s, scale ease 0.5s;
   opacity: 0.4;
   scale: 0.9;
+  z-index: -100;
 }
 
 .recommended-topic:hover {
   opacity: 1;
   scale: 1;
+  z-index: 1000;
 }
 
 .adding-recommendation {

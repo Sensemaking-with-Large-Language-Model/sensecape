@@ -14,6 +14,8 @@
 
     .default-buttons {
       padding: 0 0 10px 0;
+      display: flex;
+      gap: 10px;
       button {
         background: none;
         border: #eee 2px solid;

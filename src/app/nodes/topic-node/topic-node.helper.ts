@@ -29,6 +29,7 @@ export const createTopicNode = (
       }
     } as TopicNodeData,
     selectable: true,
+    zIndex: -100,
   };
   // TODO: Make travellerEdge show or no show depending on state
   const newTravellerEdge = createTravellerEdge(parentId, newTopicNode.id, false)

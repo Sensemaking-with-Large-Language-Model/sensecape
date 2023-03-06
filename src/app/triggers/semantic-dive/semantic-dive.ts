@@ -97,7 +97,7 @@ export const semanticDiveIn = (
             edges: [],
             viewport: reactFlowInstance.getViewport(),
           },
-          level: instanceMap[currentTopicId]?.level ?? 0 + 1,
+          level: instanceMap[currentTopicId]!.level ?? 0 + 1,
         }
 
         nodeMouseOver.data.instanceState = InstanceState.WAS;
@@ -288,12 +288,12 @@ export const semanticDiveOut = (
         reactFlowInstance.setNodes(parentInstance.jsonObject.nodes);
         reactFlowInstance.setEdges(parentInstance.jsonObject.edges);
         reactFlowInstance.setViewport(parentInstance.jsonObject.viewport);
-      }
 
-      setTimeout(() => {
-        animateDiveOutLanding(reactFlowInstance);
-        setInfiniteZoom(false);
-      })
+        setTimeout(() => {
+          animateDiveOutLanding(currentInstance.topicNode, reactFlowInstance);
+          setInfiniteZoom(false);
+        });
+      }
 
     }, totalTransitionTime/2);
 
@@ -318,7 +318,7 @@ export const semanticDiveTo = (
       let nextInstance = instanceMap[nextTopicId];
 
       if (nextInstance) {
-        setSemanticRoute(semanticRoute.filter(routeItem => routeItem.level <= nextInstance.level));
+        // setSemanticRoute(semanticRoute.filter(routeItem => routeItem.level <= nextInstance.level));
 
         prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
 
