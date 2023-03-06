@@ -140,11 +140,11 @@ export const animateDiveOutLanding = (
     }
     setTimeout(() => {
       reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+      styleNodesAndEdges(reactFlowInstance, [], {
+        transition: 'opacity ease-in 0.5s',
+        opacity: 1,
+      });
     })
-    styleNodesAndEdges(reactFlowInstance, [], {
-      transition: 'opacity ease-in 0.5s',
-      opacity: 1,
-    });
     return node;
   }))
 }

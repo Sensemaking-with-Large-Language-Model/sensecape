@@ -1,3 +1,4 @@
+import { ChatCompletionRequestMessage } from "openai";
 import React, { Dispatch, SetStateAction } from "react";
 import { Node, Edge, getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject, Viewport } from "reactflow";
 import { ResponseState } from "../../components/input.model";
@@ -151,10 +152,20 @@ export const semanticDiveIn = (
           .join(',')
         ).then(topics => {
           const surroundPositions = calculateSurroundPositions(topics.length, childInstance.topicNode.position);
+          const chatHistory: ChatCompletionRequestMessage = {
+            role: 'user',
+            content: `The topic of the conversation is focused on ${childInstance.name}`
+          }
           topics
           .filter((topic): topic is string => !!topic)
           .forEach((topic, i) => {
-            createTopicNode(topic, currentTopicId, surroundPositions[i], true, reactFlowInstance);
+            createTopicNode(
+              topic,
+              currentTopicId,
+              surroundPositions[i],
+              chatHistory,
+              true,
+              reactFlowInstance);
           });
         });
 

@@ -1,3 +1,4 @@
+import { ChatCompletionRequestMessage } from 'openai';
 import { ReactFlowInstance, XYPosition } from 'reactflow';
 import { createTravellerEdge } from '../../edges/traveller-edge/traveller-edge.helper';
 import { InstanceState } from '../../triggers/semantic-dive/semantic-dive';
@@ -9,6 +10,7 @@ export const createTopicNode = (
   topic: string,
   parentId: string,
   position: XYPosition,
+  chatHistory: ChatCompletionRequestMessage[],
   isRecommended: boolean,
   reactFlowInstance: ReactFlowInstance,
 ) => {
@@ -19,11 +21,11 @@ export const createTopicNode = (
     position,
     data: {
       parentId,
-      chatHistory: [],
+      chatHistory,
       instanceState: InstanceState.NONE,
       state: {
         topic,
-        isRecommended: isRecommended,
+        isRecommended,
       }
     } as TopicNodeData,
     selectable: true,
