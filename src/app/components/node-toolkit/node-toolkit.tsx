@@ -22,6 +22,7 @@ import travellerModeImage from '../../assets/images/traveller-mode.png';
 import brainstormNode from "../../assets/tutorial/brainstorm-node.png";
 import brainstormNodeNChatNode from "../../assets/tutorial/brainstorm-node-with-chat-node.png";
 import toolkitHelp from "../../assets/tutorial/toolkit-help.png";
+import interfaceTutorial from "../../assets/tutorial/interface-tutorial.png";
 import miniMap from "../../assets/tutorial/minimap.png";
 import searchNode from "../../assets/tutorial/search-node.png";
 import memoNode from "../../assets/tutorial/memo-node.png";
@@ -38,7 +39,7 @@ import useCloseOnDocumentClick from '../../hooks/useCloseOnDocumentClick';
 
 const doNotShowTooltip = false; // change to true if don't want to show tool tip next to node types
 const positionToolTipRight = "right center";
-// const positionToolTipTop = "right top";
+const positionToolTipTop = "right top";
 const mouseLeaveDelayTime = 20;
 const offsetXValue = 15;
 // const offsetYValue = 15;
@@ -77,10 +78,11 @@ const VideoElement = (props: { url: string | undefined; }) => {
 }
 
 
-const YTVideoElement = (props: { url: string | undefined; }) => {
+const YTVideoElement = (props: { url: string | undefined; description?: string}) => {
 return (
   <>
-  <iframe width="560" height="315" src={props.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+  <iframe width="900" height="504" src={props.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+  <div className="tutorial-description">{ props.description }</div>
   </>
 )
 }
@@ -225,11 +227,11 @@ const KeyboardShortcuts:any = (close: () => void) => {
             <div className="shortcut-container">
               <div className="shortcut">
                 <div>Dive in</div>
-                <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
+                <div className="key-container"><kbd className="key">Opt</kbd> + <kbd className="key">Scroll Up</kbd><ShortcutGIF ></ShortcutGIF></div>
               </div>
               <div className="shortcut">
                 <div>Dive out</div>
-                <div className="key-container"><kbd className="key">Shift</kbd> + <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+                <div className="key-container"><kbd className="key">Opt</kbd> + <kbd className="key">Scroll Down</kbd><ShortcutGIF ></ShortcutGIF></div>
               </div>
             </div>
           </div>
@@ -256,24 +258,12 @@ const KeyboardShortcuts:any = (close: () => void) => {
 // intro - content
 // tooltipClass - css for tooltip
 // position - position of tooltip
-const steps = [
-  // {
-  //   // element: document.querySelector('.reactflow-wrapper') as HTMLElement,
-  //   element: '.react-flow',
-  //   intro: 'canvas',
-  //   position: 'right',
-  //   // tooltipClass: 'myTooltipClass',
-  //   // highlightClass: 'myHighlightClass',
-  // },
+const interface_steps = [
   {
     title: 'Welcome! 👋',
     intro: "SenseCape facilitates information search with ChatGPT.",
     tooltipClass: 'content',
   },
-  // {
-  //   intro: <YTVideoElement url={"https://www.youtube.com/embed/BzSMLP5KpjM"} />,
-  //   tooltipClass: 'video',
-  // },
   {
     title: 'Semantic Level',
     element: '.semantic-route',
@@ -281,14 +271,6 @@ const steps = [
     tooltipClass: 'semantic-route-tooltip',
     position: 'right', 
   },
-  // {
-  //   // title: 'Toolkit',
-  //   element: '.node-toolkit',
-  //   intro: 'It contains nodes you can use to search.',
-  //   position: 'right',
-  //   tooltipClass: 'content',
-  //   // highlightClass: 'myHighlightClass',
-  // },
   {
     element: '.traveller-mode-toggle',
     intro: <ImageElement width={450} title={""} url={travellerModeImage} description={"It helps you track search process with blue arrow."}/>,
@@ -332,7 +314,7 @@ const steps = [
   {
     // title: 'Help',
     element: '.toolkit-help',
-    intro: <ImageElement width={450} title={""} url={toolkitHelp} description={"To see this again, you can hover over 'Help' and click 'Interface'. You will also find tutorial and keyboard shortcuts."}/>,
+    intro: <ImageElement width={450} title={""} url={toolkitHelp} description={"You can hover over this to find introduction to interface, tutorial, and keyboard shortcuts."}/>,
     tooltipClass: 'image',
     position: 'top',
   },
@@ -358,8 +340,42 @@ const steps = [
     position: 'top',
     tooltipClass: 'image',
   },
+  {
+    // title: 'Help',
+    element: '.toolkit-help',
+    intro: <ImageElement width={450} title={""} url={interfaceTutorial} description={"To see this again, you can hover over 'Help' and click 'Interface'."}/>,
+    tooltipClass: 'image',
+    position: 'top',
+  },
 ];
+{/* <iframe width="560" height="315" src="https://www.youtube.com/embed/F7ldOvCXGbw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe> */}
+const flexNodeTutorial = [
+  {
+    intro: <YTVideoElement url={"https://youtube.com/embed/F7ldOvCXGbw"} description={"You can add flex node to canvas by double clicking anywhere on canvas. Flex node can transform to any node."}/>,
+    tooltipClass: 'video',
+  },
+]
 
+const semanticZoomTutorial = [
+  {
+    intro: <YTVideoElement url={"https://youtube.com/embed/lQrnySZNUpA"} description={"You can control the granularity of the information with semantic zoom. You see detailed response, summary, or keywords depending on your zoom level."}/>,
+    tooltipClass: 'video',
+  },
+]
+
+const semanticDiveTutorial = [
+  {
+    intro: <YTVideoElement url={"https://youtube.com/embed/9ZhX8mYqQBM"} description={"You can use dive into and out of topic nodes - alt (option) + scroll. You can also carry information between semantic levels by clicking nodes with alt (option) and using alt (option) + scroll"}/>,
+    tooltipClass: 'video',
+  },
+]
+
+const groupNodeTutorial = [
+  {
+    intro: <YTVideoElement url={"https://youtube.com/embed/itpmjpFiYKM"} description={"You can group relevant topic nodes together."}/>,
+    tooltipClass: 'video',
+  },
+]
 
 const introOptions = {
   exitOnEsc: true,
@@ -373,10 +389,27 @@ const introOptions = {
   autoPosition: true,
 }
 
+
+const ytVideoOptions = {
+  exitOnEsc: true,
+  showStepNumbers: false,
+  hidePrev: true,
+  hideNext: true,
+  showButtons: false,
+  showBullets: false,
+  keyboardNavigation: true,
+  showProgress: false,
+  autoPosition: true,
+}
+
 const NodeToolkit = (props: any) => {
 
   const reactFlowInstance = useReactFlow();
-  const [stepsEnabled, setStepsEnabled] = useState(false);
+  const [interfaceStepsEnabled, setInterfaceStepsEnabled] = useState(false);
+  const [flexNodeTutorialEnabled, setFlexNodeTutorialEnabled] = useState(false);
+  const [semanticZoomTutorialEnabled, setSemanticZoomTutorialEnabled] = useState(false);
+  const [semanticDiveTutorialEnabled, setSemanticDiveTutorialEnabled] = useState(false);
+  const [groupNodeTutorialEnabled, setGroupNodeTutorialEnabled] = useState(false);
 
   const addChatNode = useCallback(
     () => {
@@ -451,9 +484,17 @@ const NodeToolkit = (props: any) => {
     console.log(el);
   }
 
-  const onExit = () => { setStepsEnabled(false) };
-
-  const startIntroJS = () => {setStepsEnabled(true)};
+  const onExit = () => { setInterfaceStepsEnabled(false) };
+  const startIntroJS = () => { setInterfaceStepsEnabled(true) };
+  
+  const startFlexNodeTutorial = () => { setFlexNodeTutorialEnabled(true) };
+  const endFlexNodeTutorial = () => { setFlexNodeTutorialEnabled(false) };
+  const startSemanticZoomTutorial = () => { setSemanticZoomTutorialEnabled(true) };
+  const endSemanticZoomTutorial = () => { setSemanticZoomTutorialEnabled(false) };
+  const startSemanticDiveTutorial = () => { setSemanticDiveTutorialEnabled(true) };
+  const endSemanticDiveTutorial = () => { setSemanticDiveTutorialEnabled(false) };
+  const startGroupNodeTutorial = () => { setGroupNodeTutorialEnabled(true) };
+  const endGroupNodeTutorial = () => { setGroupNodeTutorialEnabled(false) };
 
   const closeOnDocumentClick = useCloseOnDocumentClick();
 
@@ -555,7 +596,7 @@ const NodeToolkit = (props: any) => {
       <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position={positionToolTipRight}
         on="hover"
         offsetX={0}
-        mouseLeaveDelay={500}
+        mouseLeaveDelay={100}
         mouseEnterDelay={0}
         contentStyle={{ padding: '5px', border: 'none' }}
         arrow={showArrow}>
@@ -564,10 +605,28 @@ const NodeToolkit = (props: any) => {
           <ElementIcon/>&nbsp; Interface</div>
           {/* <div className="menu-item">Keyboard shortcuts</div> */}
           {/* <KeyboardShortcuts /> */}
-          <Popup trigger={<div className="menu-item">
+          {/* <Popup trigger={<div className="menu-item">
             <TeacherIcon/>&nbsp; Tutorial</div>}  modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
             <Tutorial />
+          </Popup> */}
+          <Popup trigger={<div className="menu-item"><TeacherIcon/>&nbsp; Tutorial</div>} position={'right bottom'}
+            on="hover"
+            offsetX={0}
+            mouseLeaveDelay={300}
+            mouseEnterDelay={0}
+            contentStyle={{ padding: '5px', border: 'none' }}
+            arrow={showArrow}>
+              <div className="menu-item" onClick={startFlexNodeTutorial}>Flex Node</div>
+              <div className="menu-item" onClick={startSemanticZoomTutorial}>Semantic Zoom</div>
+              <div className="menu-item" onClick={startGroupNodeTutorial}>Group Node</div>
+              <div className="menu-item" onClick={startSemanticDiveTutorial}>Semantic Dive</div>
+              {/* <div className="menu-item">Brainstorm Node</div> */}
+              {/* <div className="menu-item">Search Node</div> */}
+              {/* <div className="menu-item">Concept Node</div> */}
+              {/* <div className="menu-item">Memo Node</div> */}
           </Popup>
+
+
           <Popup trigger={<div className="menu-item">
           <KeyboardIcon/>&nbsp; Keyboard shortcuts</div>} modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
             { KeyboardShortcuts }
@@ -580,11 +639,39 @@ const NodeToolkit = (props: any) => {
       Reset Canvas</Button>
       {/* <PopupExample /> */}
       <Steps
-        enabled={stepsEnabled}
-        steps={steps}
+        enabled={interfaceStepsEnabled}
+        steps={interface_steps}
         initialStep={0}
-        onExit={onExit}
+        onExit={startIntroJS}
         options={introOptions}
+      />
+      <Steps
+        enabled={flexNodeTutorialEnabled}
+        steps={flexNodeTutorial}
+        initialStep={0}
+        onExit={endFlexNodeTutorial}
+        options={ytVideoOptions}
+      />
+      <Steps
+        enabled={semanticZoomTutorialEnabled}
+        steps={semanticZoomTutorial}
+        initialStep={0}
+        onExit={endSemanticZoomTutorial}
+        options={ytVideoOptions}
+      />
+      <Steps
+        enabled={semanticDiveTutorialEnabled}
+        steps={semanticDiveTutorial}
+        initialStep={0}
+        onExit={endSemanticDiveTutorial}
+        options={ytVideoOptions}
+      />
+      <Steps
+        enabled={groupNodeTutorialEnabled}
+        steps={groupNodeTutorial}
+        initialStep={0}
+        onExit={endGroupNodeTutorial}
+        options={ytVideoOptions}
       />
     </div>
   )

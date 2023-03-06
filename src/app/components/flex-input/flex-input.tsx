@@ -135,6 +135,10 @@ const FlexInput = (props: any) => {
         data: data as any,
       };
 
+      // @ts-ignore
+      console.log('data', data.state.responseInputState);
+      console.log('newNode', newNode);
+
       // remove existing flex node
       await reactFlowInstance.setNodes((nodes) => nodes.filter((node) => node.id !== flexNodeId));
 
