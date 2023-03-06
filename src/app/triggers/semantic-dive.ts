@@ -33,6 +33,85 @@ export enum InstanceState {
   WAS = 'was',            // Has been the instance state
 }
 
+const animateDiveInTakeoff = (
+  focusNode: Node,
+  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
+  reactFlowInstance: ReactFlowInstance,
+) => {
+
+  setInfiniteZoom(true);
+
+  setTimeout(() => {
+    reactFlowInstance.fitView({
+      duration: totalTransitionTime/2,
+      maxZoom: zoomLimits.max,
+      minZoom: zoomLimits.min,
+      nodes: [focusNode]
+    });
+
+    reactFlowInstance.getNodes().forEach(node => {
+      const nodeElement = document.querySelector(`[data-id="${node.id}"]`) as HTMLElement;
+      if (node.id !== focusNode.id) {
+        nodeElement.classList.add('lift-up');
+      } else {
+        setTimeout(() => {
+          nodeElement.classList.add('node-focus');
+        }, totalTransitionTime/2);
+      }
+    });
+    reactFlowInstance.getEdges().forEach(edge => {
+      const edgeElement = document.querySelector(`[data-testid="rf__edge-${edge.id}"]`) as HTMLElement;
+      edgeElement.classList.add('lift-up');
+    });
+
+    setTimeout(() => {
+      reactFlowInstance.zoomTo(4, { duration: totalTransitionTime });
+    }, totalTransitionTime/2 -100);
+  });
+}
+
+const animateDiveInLanding = (
+  focusNode: Node,
+  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
+  reactFlowInstance: ReactFlowInstance,
+) => {
+
+  setTimeout(() => {
+    reactFlowInstance.fitView({
+      duration: 0,
+      padding: 0,
+      nodes: [focusNode]
+    });
+    reactFlowInstance.zoomTo(1.4);
+    reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+
+    const focusNodeElement = document.querySelector(`[data-id="${focusNode.id}"]`) as HTMLElement;
+    focusNodeElement.classList.add('node-enter');
+    focusNodeElement.classList.remove('node-focus');
+    setTimeout(() => {
+      focusNodeElement.classList.add('node-blur');
+      focusNodeElement.classList.remove('node-enter');
+    });
+  });
+
+  setTimeout(() => {
+    // reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+
+    setTimeout(() => {
+      reactFlowInstance.getNodes().forEach(node => {
+        const nodeElement = document.querySelector(`[data-id="${node.id}"]`) as HTMLElement;
+        if (node.id !== focusNode.id) {
+          nodeElement.classList.remove('lift-up');
+        }
+      });
+      reactFlowInstance.getEdges().forEach(edge => {
+        const edgeElement = document.querySelector(`[data-testid="rf__edge-${edge.id}"]`) as HTMLElement;
+        edgeElement.classList.remove('lift-up');
+      });
+    });
+  }, totalTransitionTime / 2);
+}
+
 /**
  * Dives into a topic node to open a new canvas for deeper exploration
  * @param nodeMouseOver 
@@ -57,42 +136,7 @@ export const semanticDiveIn = (
     nodeMouseOver.type === 'topic' &&
     currentTopicId !== nodeMouseOver.id
   ) {
-    setTimeout(() => {
-      reactFlowInstance.fitView({
-        duration: totalTransitionTime/2,
-        maxZoom: zoomLimits.max,
-        minZoom: zoomLimits.min,
-        nodes: [nodeMouseOver]
-      });
 
-      setTimeout(() => {
-        reactFlowInstance.getNodes().forEach(node => {
-          const nodeElement = document.querySelector(`[data-id="${node.id}"]`) as HTMLElement;
-          if (node.id !== nodeMouseOver.id) {
-            nodeElement.classList.add('lift-up');
-          } else {
-            nodeElement.classList.add('node-focus');
-          }
-        });
-        setInfiniteZoom(true);
-        reactFlowInstance.zoomTo(8, { duration: totalTransitionTime });
-        // setTimeout(() => {
-        //   setInfiniteZoom(false);
-        // }, totalTransitionTime+100);
-      }, totalTransitionTime/2);
-      // reactFlowInstance.getEdges().forEach(edge => {
-      //   const edgeElement = document.querySelector(`[data-id="${edge.id}"]`) as HTMLElement;
-      //   edgeElement.classList.add('lift-up');
-      // });
-    });
-  }
-  return;
-
-  if (
-    nodeMouseOver &&
-    nodeMouseOver.type === 'topic' &&
-    currentTopicId !== nodeMouseOver.id
-  ) {
     setTimeout(() => {
 
       // Save topic name
@@ -139,16 +183,11 @@ export const semanticDiveIn = (
         nodeMouseOver.id
       );
 
-      setInfiniteZoom(true);
-      // Initial zoom transition out before removing current nodes
-      reactFlowInstance.fitView({
-        duration: 0,
-        padding: 0,
-        maxZoom: zoomLimits.max,
-        minZoom: zoomLimits.min,
-        nodes: [nodeMouseOver]
-      });
-      reactFlowInstance.zoomTo(500, { duration: totalTransitionTime });
+      animateDiveInTakeoff(
+        nodeMouseOver,
+        [infiniteZoom, setInfiniteZoom],
+        reactFlowInstance
+      );
 
       setTimeout(() => {
         // Save current instance state to the parent instance
@@ -158,26 +197,28 @@ export const semanticDiveIn = (
   
         // Set topic as current instance
         childInstance.topicNode.data.instanceState = InstanceState.CURRENT;
-        setCurrentTopicId(childInstance.topicNode?.id ?? 'home'); // If id DNE, it should be home
+        setCurrentTopicId(childInstance.topicNode.id ?? 'home'); // If id DNE, it should be home
         setSemanticRoute(semanticRoute.concat(topicName));
 
         // Restore child nodes & include topic node
-        console.log(reactFlowInstance.getNodes());
-        reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
-        reactFlowInstance.setEdges(childInstance.jsonObject.edges);
-        console.log(childInstance.jsonObject.nodes);
 
-        reactFlowInstance.zoomTo(0.7);
-        reactFlowInstance.fitView({
-          duration: totalTransitionTime/2,
-          padding: 0,
-          maxZoom: zoomLimits.max,
-          minZoom: zoomLimits.min,
-          nodes: [nodeMouseOver]
+        // Restore instance without child topic node, but parent topic node.
+        // child topic node will replace its place
+        reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
+        // reactFlowInstance.setNodes([...childInstance.jsonObject.nodes
+        //   .filter(node => node.id !== childInstance.topicNode.id), nodeMouseOver]);
+        reactFlowInstance.setEdges(childInstance.jsonObject.edges);
+
+        setTimeout(() => {
+          animateDiveInLanding(
+            childInstance.topicNode,
+            [infiniteZoom, setInfiniteZoom],
+            reactFlowInstance
+          );
         });
-        setInfiniteZoom(false);
+
       }, totalTransitionTime/2);
-    }, 0);
+    });
   }
 }
 
