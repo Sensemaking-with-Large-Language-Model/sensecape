@@ -39,6 +39,8 @@ export const prepareDive = (
 
   setTimeout(() => {
     carryCapture.style.scale = '0.5';
+    carryCapture.style.display = 'flex';
+    carryCapture.style.gap = '10px';
   }, 1);
 
   document.addEventListener('mousemove', (e) => {
@@ -112,7 +114,3 @@ export const clearSemanticCarry = (
     edges: [],
   });
 }
-
-// export const summarizeEntireCanvas = (
-
-// )

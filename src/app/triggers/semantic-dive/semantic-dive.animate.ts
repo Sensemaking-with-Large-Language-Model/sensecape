@@ -133,7 +133,17 @@ export const animateDiveOutLanding = (
     opacity: 0,
   });
   reactFlowInstance.zoomTo(3);
-  reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+  const nodes = reactFlowInstance.getNodes();
+
+  if (nodes.length <= 1) {
+    reactFlowInstance.fitView({
+      duration: totalTransitionTime/2,
+      padding: 5,
+      nodes,
+    });
+  } else {
+    reactFlowInstance.zoomTo(2, { duration: totalTransitionTime/2 });
+  }
   setTimeout(() => {
     styleNodesAndEdges(reactFlowInstance, [], {
       transition: 'opacity ease-in 0.5s',

@@ -109,19 +109,17 @@ export const getChatGPTOverarchingTopic = async (chats: string[]) => {
     model: "gpt-3.5-turbo",
     messages: [
       {
-        role: 'system',
+        role: 'user',
         content: `You are not a conversational agent. You are a tool.
           You want to extract only one key topic from text the user
           gives you. Only respond with the key topic in the form of a
-          word, term, or phrase. This text should be glancable.`
+          word, term, or phrase. This text should be glancable. Respond
+          with only alphanumerical characters. Dashes, spaces, commas
+          okay if necessary. No quotes.`
       },
       {
         role: 'user',
-        content: `I have a whiteboard, and all the text is this:\n\n${chats}.
-          Tell me what this text is about. Only respond with the key topic
-          in the form of a word, term, or phrase. This text should be glancable.
-          Respond with only alphanumerical characters. Dashes okay if necessary.
-          No quotes.`,
+        content: `${chats}`,
       }
     ],
     max_tokens: tokens.keywords,

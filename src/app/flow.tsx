@@ -235,8 +235,7 @@ const ExploreFlow = () => {
         }
       }).filter((text): text is string => !!text);
 
-      console.log(predictedTopicName);
-      if (extractedTexts.length >= 2 && !predictedTopicName) {
+      if (extractedTexts.length >= 1 && !predictedTopicName) {
         getChatGPTOverarchingTopic(extractedTexts).then(response => {
           setPredictedTopicName(response ?? '');
           semanticRoute[0]!.title = response ?? semanticRoute[0]!.title;
@@ -584,7 +583,8 @@ const ExploreFlow = () => {
           [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
-      } else if (zoom < prevZoom && (instanceMap[currentTopicId]?.level ?? -1) >= 0) {
+      } else if (zoom < prevZoom) {
+        // Disabled:  && (instanceMap[currentTopicId]?.level ?? -1) >= 0
         setSemanticDivable(false);
         setTimeout(() => setSemanticDivable(true), totalTransitionTime);
         semanticDiveOut(
