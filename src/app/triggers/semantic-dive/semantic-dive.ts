@@ -343,7 +343,7 @@ export const semanticDiveTo = (
           setTimeout(() => {
             animateDiveToLanding(reactFlowInstance);
             setInfiniteZoom(false);
-          })
+          });
         }, totalTransitionTime/2);
       }
     }
