@@ -5,7 +5,7 @@ import { duplicateNode } from "../../nodes/node.helper";
 import { InputHoverState } from "../../nodes/node.model";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../../utils";
-import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff } from "./semantic-dive.animate";
+import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff, animateDiveToLanding } from "./semantic-dive.animate";
 import { prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
@@ -26,7 +26,7 @@ export interface Instance {
 };
 
 export type InstanceMap = {
-  [x: string]: Instance | undefined;
+  [x: string]: Instance;
 }
 
 export enum InstanceState {
@@ -76,9 +76,9 @@ export const semanticDiveIn = (
         copyNode.data.chatHistory = [
           ...copyNode.data.chatHistory,
           {
-            role: 'system',
-            content: `The user has started a new conversation
-              and would like to dive deeper into ${copyNode.data.state.topic}.
+            role: 'user',
+            content: `I would like to start a new conversation
+              and dive deeper into ${copyNode.data.state.topic}.
               Keep in mind of the context behind this topic, but allow
               the conversation to hold independently of the chat history.`
           },
@@ -135,6 +135,7 @@ export const semanticDiveIn = (
         setSemanticRoute(semanticRoute.concat({
           title: topicName,
           topicId: childInstance.topicNode.id,
+          level: childInstance.level,
         }));
 
         // Restore child instance
@@ -215,17 +216,20 @@ export const semanticDiveOut = (
         [currentInstance.parentId]: parentInstance,
       }))
 
-      // setSemanticRoute([{
-      //   title: parentInstance.name,
-      //   topicId: parentInstance.topicNode.id,
-      // }].concat(semanticRoute));
+      setSemanticRoute([{
+        title: parentInstance.name,
+        topicId: parentInstance.topicNode.id,
+        level: parentInstance.level,
+      }].concat(semanticRoute));
+    } else {
 
+      setSemanticRoute([{
+        title: parentInstance.name,
+        topicId: parentInstance.topicNode.id,
+        level: parentInstance.level
+      }]);
+      // TODO: add Ellipses
     }
-
-    setSemanticRoute([{
-      title: parentInstance.name,
-      topicId: parentInstance.topicNode.id,
-    }]);
 
     prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
 
@@ -265,11 +269,48 @@ export const semanticDiveOut = (
 /**
  * Jumps to a particular topic
  */
-export const semanticJumpTo = (
-  instanceMap: Map<string, Instance>,
+export const semanticDiveTo = (
+  nextTopicId: string,
+  [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
+  [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
   [semanticRoute, setSemanticRoute]: [SemanticRouteItem[], Dispatch<SetStateAction<SemanticRouteItem[]>>],
+  [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
+  setTimeout(() => {
+    const currentInstance = instanceMap[currentTopicId]!;
+    let nextInstance = instanceMap[nextTopicId];
 
+    if (nextInstance) {
+      setSemanticRoute(semanticRoute.filter(routeItem => routeItem.level <= nextInstance.level));
+  
+      prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
+  
+      // store current reactFlowInstance
+      currentInstance.jsonObject = reactFlowInstance.toObject();
+      setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
+  
+      // Set topic as parent topic
+      currentInstance.topicNode.data.instanceState = InstanceState.WAS;
+      setCurrentTopicId(nextInstance.topicNode.id);
+  
+      // Transition
+      setInfiniteZoom(true);
+      animateDiveOutTakeoff(reactFlowInstance);
+      setTimeout(() => {
+
+        // recover next reactFlowInstance
+        reactFlowInstance.setNodes(nextInstance.jsonObject.nodes);
+        reactFlowInstance.setEdges(nextInstance.jsonObject.edges);
+        reactFlowInstance.setViewport(nextInstance.jsonObject.viewport);
+
+        setTimeout(() => {
+          animateDiveToLanding(reactFlowInstance);
+          setInfiniteZoom(false);
+        })
+      }, totalTransitionTime/2);
+    }
+
+  })
 };

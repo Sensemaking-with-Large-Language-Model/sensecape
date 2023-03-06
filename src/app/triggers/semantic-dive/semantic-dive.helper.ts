@@ -5,6 +5,7 @@ import { NodeEdgeList } from "./semantic-dive";
 export interface SemanticRouteItem {
   title: string;
   topicId: string;
+  level: number;
 }
 
 export const prepareDive = (

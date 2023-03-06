@@ -80,6 +80,7 @@ import {
   NodeEdgeList,
   semanticDiveIn,
   semanticDiveOut,
+  semanticDiveTo,
   totalTransitionTime,
 } from "./triggers/semantic-dive/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
@@ -207,6 +208,7 @@ const ExploreFlow = () => {
     {
       title: instanceMap[currentTopicId]!.name,
       topicId: currentTopicId,
+      level: 0,
     },
   ]);
 
@@ -561,6 +563,21 @@ const ExploreFlow = () => {
     [reactFlowInstance, semanticCarryList]
   );
 
+  // Semantic Dive to 
+  const semanticDiveToInstance = useCallback((nextTopicId: string) => {
+    if (reactFlowInstance) {
+      semanticDiveTo(
+        nextTopicId,
+        [infiniteZoom, setInfiniteZoom],
+        [instanceMap, setInstanceMap],
+        [currentTopicId, setCurrentTopicId],
+        [semanticRoute, setSemanticRoute],
+        [semanticCarryList, setSemanticCarryList],
+        reactFlowInstance,
+      );
+    }
+  }, [reactFlowInstance, infiniteZoom, instanceMap, currentTopicId, semanticRoute, semanticCarryList])
+
   // Clears semantic carry list when esc key pressed
   useEffect(() => {
     if (escKeyPressed) {
@@ -694,7 +711,11 @@ const ExploreFlow = () => {
           opacity: `${altKeyPressed ? 1 : 0}`,
           transition: 'ease 0.2s',
         }} />
-        <SemanticRoute route={semanticRoute} />
+        <SemanticRoute
+          currentTopicId={currentTopicId}
+          route={semanticRoute}
+          semanticJumpTo={semanticDiveToInstance}
+        />
         <NodeToolkit 
           travellerMode={travellerMode}
           toggleTravellerMode={toggleTravellerMode}
