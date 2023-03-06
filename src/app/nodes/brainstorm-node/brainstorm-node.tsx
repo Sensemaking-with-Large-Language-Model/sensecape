@@ -42,8 +42,7 @@ const zoomSelector = (s: any) => s.transform[2];
 
 const BrainstormNode = (props: NodeProps) => {
   const [input, setInput] = useState(props.data.state.input ?? '');
-  const [response, setResponse] = useState("");
-  const [questions, setQuestions] = useState({});
+  const [questions, setQuestions] = useState(props.data.state.questions ?? {});
   const [responseInputState, setResponseInputState] = useState<ResponseState>(
     ResponseState.INPUT
   );
@@ -60,10 +59,24 @@ const BrainstormNode = (props: NodeProps) => {
     const response =
       (await getGPT3Questions(keyword)) || "Error: no response received";
 
-    setResponse(response[0]);
+    // console.log('response[1]', response[1]);
     setQuestions(response[1]);
     setResponseInputState(ResponseState.COMPLETE);
   };
+
+  useEffect(() => {
+    reactFlowInstance.setNodes((nodes) => nodes.map(node => {
+      if (node.id === props.id) {
+        node.data.state = {
+          input,
+          questions,
+          responseInputState
+        };
+      }
+      console.log('brainstorm node responseInputState', responseInputState);
+      return node;
+    }));
+  }, [reactFlowInstance, input, questions, responseInputState]);
 
   useEffect(() => {
     // console.log(props.data.state.input, props.data.state.responseInputState)
@@ -116,33 +129,22 @@ const BrainstormNode = (props: NodeProps) => {
         input={input}
         setInput={setInput}
       />
-      {response ? (
+      {questions ? (
         <>
           {showContent ? (
             // <div className="brainstorm-response">{response}</div>
             <>
-              {Object.entries(questions).map((elem: any, index: number) => (
-                <div className="brainstorm-response-block" key={index}>
+              {Object.entries(questions).map((elem: any, questionTypeIndex: number) => (
+                <div className="brainstorm-response-block" key={questionTypeIndex}>
                   {
                     // elem[1].map((question: any, index:number) => <QuestionNode id={`${input}` + "-" + {index} + "-" + elem[0]} selected={false} type={question} data={''} zIndex={100} isConnectable={true} xPos={0} yPos={0} dragging={false} keyword={input} index={index} fiveWsType={elem[0]} question={question} />)
-                    elem[1].map((question: any, index:number) => <div key={index}><QuestionNode keyword={input} index={index} fiveWsType={elem[0]} question={question} parentId={props.id} /></div>)
+                    elem[1].map((question: any, index:number) => <div key={index}><QuestionNode keyword={input} index={(questionTypeIndex * 5) + index} fiveWsType={elem[0]} question={question} parentId={props.id} /></div>)
                   }
                 </div>
               ))
               }
             </>
           ) : (
-            // <>
-            // {
-            //   Object.values(questions).map((values:any) =>
-            //       <div>
-            //         {
-            //           values.map((y:any) => <span className="brainstorm-questions">{ y }</span>)
-            //         }
-            //       </div>
-            //     )
-            // }
-            // </>
             <Placeholder />
           )}
         </>

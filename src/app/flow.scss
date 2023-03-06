@@ -26,16 +26,6 @@
   // scale: 2;
 }
 
-.lift-enter .node, .lift-enter path {
-  transition: none;
-  opacity: 0;
-}
-
-.lift-land .node, .lift-land path {
-  transition: ease 0.3s;
-  opacity: 1;
-}
-
 .node-focus .node {
   transition: cubic-bezier(0.48,0,0.26,1) 1s;
   opacity: 1;
@@ -52,22 +42,6 @@
   transition: cubic-bezier(0,0,0.40,1) 0.5s;
   scale: 1;
 }
-
-// @keyframes lift-up {
-//   from {
-//     scale: 1;
-//     opacity: 1;
-//   }
-
-//   to {
-//     scale: 1.15;
-    
-//   }
-// }
-
-// @keyframes lift-down {
-  
-// }
 
 .semantic-carry-ready .selected .node {
   outline: 2px solid #3c6792;

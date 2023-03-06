@@ -14,6 +14,7 @@ export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeDat
 // export const QuestionNode: ( props: NodeProps) => {
   const reactFlowInstance = useReactFlow();
 
+
   const handleClick = (event: any) => {
     const data:ChatNodeData = {  
       parentId: props.parentId,
@@ -25,7 +26,7 @@ export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeDat
       }
     }
     // createChatNode(reactFlowInstance, event.target.id, data);
-    createChatNodeFromDiv(reactFlowInstance, event, event.target.id, props.parentId, data);
+    createChatNodeFromDiv(reactFlowInstance, event, event.target.id, props.parentId, data, props.index);
   }
 
   return (

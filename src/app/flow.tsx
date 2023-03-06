@@ -81,7 +81,7 @@ import {
   semanticDiveIn,
   semanticDiveOut,
   totalTransitionTime,
-} from "./triggers/semantic-dive";
+} from "./triggers/semantic-dive/semantic-dive";
 import SemanticRoute from "./components/semantic-route/semantic-route";
 // import { FlowContext } from './FlowContext';
 import { FlowContext } from "./flow.model";
@@ -227,12 +227,13 @@ const ExploreFlow = () => {
       currInstance.jsonObject = {
         nodes: nodes,
         edges: edges,
+        viewport: reactFlowInstance.getViewport(),
       };
       instanceMap[currentTopicId] = currInstance;
       localStorage.setItem("instanceMap", JSON.stringify(instanceMap));
       setInstanceMap(instanceMap);
     }
-  }, [instanceMap, nodes, edges]);
+  }, [reactFlowInstance, instanceMap, nodes, edges]);
 
   // On first load, recover nodes from localstorage
   useEffect(() => {

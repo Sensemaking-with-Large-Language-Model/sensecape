@@ -3,6 +3,7 @@ import { Edge, ReactFlowInstance, XYPosition, getRectOfNodes } from "reactflow";
 import { createTravellerEdge } from '../../edges/traveller-edge/traveller-edge.helper';
 import { uuid } from "../../utils";
 import { ChatNodeData, TypeChatNode } from "./chat-node.model";
+import { scale, map } from "../../hooks/useMap";
 
 export const createChatNode = (
   reactFlowInstance: ReactFlowInstance,
@@ -56,7 +57,8 @@ export const createChatNodeFromDiv = (
   event: MouseEvent,
   questionId: string,
   brainstormNodeId: string,
-  data: ChatNodeData
+  data: ChatNodeData,
+  questionIndex: number,
 ) => {
 
   setTimeout(() => {
@@ -76,6 +78,35 @@ export const createChatNodeFromDiv = (
       x: xy_position['x'] + width + 80, // place chat node on the right of brainstorm node
       y: xy_position['y'] + nodeElement?.offsetTop! - 10, // place chat node next to question div relative to brainstorm node (offsetTop)
     };
+    
+    // place them radially 
+    // const radius = 500;
+    // console.log('radius * Math.cos(map(questionIndex, 0, 12, 90, 0)', radius * Math.cos(map(questionIndex, 0, 12, 90, 0)));
+
+    // console.log('questionIndex', questionIndex);
+
+    // if (questionIndex <= 12) {
+    //   const paddingX = radius * Math.cos(scale(questionIndex, [0, 12], [-70, 60]));
+    //   const paddingY = radius * Math.sin(scale(questionIndex, [0, 12], [-70, 60]));
+    //   console.log('paddingX', paddingX);
+    //   console.log('paddingY', paddingY);
+    //   console.log('map(questionIndex, 12, 0, 80, 0)', scale(questionIndex, [0, 12], [-70, 60]));
+    //   console.log('map(questionIndex, 12, 0, 80, 0)', scale(questionIndex, [0, 12], [-70, 60]));
+    //   position = {
+    //     x: xy_position['x'] + ( width / 2 ) - (paddingX), 
+    //     y: xy_position['y'] + ( height / 2) + (paddingY), 
+    //   };
+    // } else {
+    //   const paddingX = radius * Math.cos(scale(questionIndex, [13, 24], [0, -70]));
+    //   const paddingY = radius * Math.sin(scale(questionIndex, [13, 24], [0, -70]));
+    //   console.log('paddingX', paddingX);
+    //   console.log('paddingY', paddingY);
+    //   position = {
+    //     x: xy_position['x'] + ( width ) + (paddingX), 
+    //     y: xy_position['y'] + ( height) - (paddingY), 
+    //   };
+    // }
+    // console.log('position', position);
 
     const newNode: TypeChatNode = {
       id: `chat-${reactFlowInstance.getNodes().length}-${uuid()}`,
@@ -85,8 +116,6 @@ export const createChatNodeFromDiv = (
       data,
     };
 
-    console.log('brainstormNodeId', brainstormNodeId);
-    console.log('newNode.id', newNode.id);
     // const edge: Edge =  {
     //   type: 'default',
     //   id: `e-${reactFlowInstance.getEdges().length}-${uuid()}`,

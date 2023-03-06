@@ -196,11 +196,11 @@ export const getGPT3Questions = async (concept: string) => {
     return Promise.resolve([
       "placeholder questions",
       {
-        why: ["placeholder question"],
-        what: ["placeholder question"],
-        when: ["placeholder question"],
-        where: ["placeholder question"],
-        how: ["placeholder question"],
+        why: ["placeholder question", "placeholder question", "placeholder question", "placeholder question", "placeholder question"],
+        what: ["placeholder question", "placeholder question", "placeholder question", "placeholder question", "placeholder question"],
+        when: ["placeholder question", "placeholder question", "placeholder question", "placeholder question", "placeholder question"],
+        where: ["placeholder question", "placeholder question", "placeholder question", "placeholder question", "placeholder question"],
+        how: ["placeholder question", "placeholder question", "placeholder question", "placeholder question", "placeholder question"],
       },
     ]);
   }

@@ -88,7 +88,7 @@ const FlexInput = (props: any) => {
       data = {
         parentId: '',
         chatReference: '',
-        placeholder: inputText,
+        placeholder: placeholderText(clickedNodeType),
         state: {
           input: inputText,
           responseInputState: inputText === ''? ResponseState.INPUT : ResponseState.LOADING,
@@ -98,7 +98,7 @@ const FlexInput = (props: any) => {
       data = {
         parentId: '',
         chatReference: '',
-        placeholder: inputText,
+        placeholder: placeholderText(clickedNodeType),
         state: {
           input: inputText,
           responseInputState: inputText === ''? ResponseState.INPUT : ResponseState.LOADING,

@@ -19,6 +19,9 @@ export const createTravellerEdge = (source: string, target: string, hidden: bool
       height: 20,
       color: '#3facff',
     },
+    style: {
+      transition: 'ease',
+    },
     type: 'traveller',
   }
 }

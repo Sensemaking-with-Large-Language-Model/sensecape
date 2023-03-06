@@ -13,7 +13,6 @@
   border: 2px solid #eee;
   border-radius: 20px;
   box-shadow: 0 5px 10px rgba(154, 154, 154, 0.2);
-  
 }
 
 .node-toolkit > svg {
@@ -52,7 +51,6 @@
   }
 }
 
-
 .add-node {
   /* width: 45px; */
   transition: ease 0.15s;
@@ -90,4 +88,142 @@
   max-width: 1200px !important;
   text-align-last: center;
   width: 1000px;
+}
+
+.menu {
+  color: #7f7f7f;
+  width: 190px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+.menu-item {
+  cursor: pointer;
+  padding: 15px 7px 5px 10px;
+  height: 28px;
+  // border-bottom: 1px solid rgb(187, 187, 187);
+}
+.menu-item:hover {
+  color: #2980b9;
+}
+
+// popup-content is responsible for container
+.popup-content {
+  background-color: transparent;
+  max-width: 960px;
+  border-radius: 10px;
+  border: 0px solid white;
+  box-shadow: 0 5px 10px rgba(154, 154, 154, 0.2);
+}
+
+// popup-overlay is overlay that greys out the background
+.popup-overlay {
+  // background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.modal {
+  font-size: 12px;
+  padding: 10px 5px;
+}
+
+.modal > .header {
+  border-bottom: 1px solid gray;
+  font-size: 18px;
+  text-align: center;
+  padding: 5px;
+}
+.modal > .content {
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 1.5rem;
+  grid-row-gap: 1rem;
+  display: grid;
+  padding: 10px 10px;
+  
+  // display: flex;
+  // flex-direction: row;
+  // width: 100%;
+  // border-radius: 20px;
+}
+.modal > .content > .shortcut-navigation {
+  grid-area: 1/1/2/2
+  // display: flex;
+  // flex-direction: column;
+  // width: 50%;
+}
+.modal > .content > .shortcut-editor {
+  grid-area: 1/2/3/3;
+  // display: flex;
+  // flex-direction: column;
+  // width: 50%;
+}
+.modal > .content > .shortcut-semantic-navigation {
+  grid-area: 2/1/3/2;
+  // display: flex;
+  // flex-direction: column;
+  // width: 50%;
+}
+.shortcut-container {
+  border: 1px solid #ebebeb;
+  border-radius: 0.5rem;
+}
+.shortcut {
+  align-items: center;
+  border-bottom: 1px solid #ebebeb;
+  -webkit-column-gap: 0.5rem;
+  column-gap: 0.5rem;
+  display: flex;
+  font-size: 0.875rem;
+  justify-content: space-between;
+  padding: 0.375rem 0.75rem;
+}
+.key-container {
+  align-items: center;
+  -webkit-column-gap: 0.25rem;
+  column-gap: 0.25rem;
+  display: flex;
+  flex-shrink: 0;
+}
+.key {
+  align-items: center;
+  background-color: #e3e2fe;
+  border-radius: 0.375rem;
+  box-sizing: border-box;
+  display: flex;
+  font-family: inherit;
+  font-size: 0.625rem;
+  line-height: 1;
+  padding: 0.5rem;
+  word-break: keep-all;
+}
+.modal > .actions {
+  width: 100%;
+  padding: 10px 5px;
+  margin: auto;
+  text-align: center;
+}
+.modal > .close {
+  cursor: pointer;
+  position: absolute;
+  display: block;
+  padding: 2px 5px;
+  line-height: 20px;
+  right: -10px;
+  top: -10px;
+  font-size: 24px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #cfcece;
+}
+
+.actions > .close-button {
+  cursor: grab;
+  border-radius: 5px;
+  border: 0px solid whitee;
+  padding: 8px;
+  background: white;
+  box-shadow: 0 5px 10px rgba(154, 154, 154, 0.2);
+}
+
+.actions > .close-button:active {
+  cursor: grabbing
 }
