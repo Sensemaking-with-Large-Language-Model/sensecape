@@ -14,7 +14,7 @@ const verbose: boolean = true;
 
 // Object that specifies max token length by response type
 export const tokens = {
-  full: 256,
+  full: 1028,
   summary: 64,
   keywords: 16,
   term: 5,
@@ -81,7 +81,7 @@ export const getChatGPTKeywords = async (text: string) => {
     return Promise.resolve(text);
   }
 
-  const gptPrompt: string = `Extract 3-5 key phrases from this text in CSV format\n\n${text}\n\n`;
+  const gptPrompt: string = `Extract 1-3 key words from this text in CSV format\n\n${text}\n\n`;
 
   return await openai
     .createCompletion({
@@ -99,6 +99,39 @@ export const getChatGPTKeywords = async (text: string) => {
       return data.data.choices[0].text?.trim().replaceAll('"', "");
     });
 };
+
+export const getChatGPTOverarchingTopic = async (chats: string[]) => {
+  if (devFlags.disableOpenAI) {
+    return Promise.resolve("parent");
+  }
+
+  return await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: 'system',
+        content: `You are not a conversational agent. You are a tool.
+          You want to extract only one key topic from text the user
+          gives you. Only respond with the key topic in the form of a
+          word, term, or phrase. This text should be glancable.`
+      },
+      {
+        role: 'user',
+        content: `I have a whiteboard, and all the text is this:\n\n${chats}.
+          Tell me what this text is about. Only respond with the key topic
+          in the form of a word, term, or phrase. This text should be glancable.
+          Respond with only alphanumerical characters. Dashes okay if necessary.
+          No quotes.`,
+      }
+    ],
+    max_tokens: tokens.keywords,
+    temperature: 0.7,
+  })
+  .then((data) => {
+    return data.data.choices[0].message?.content.trim();
+  });
+
+}
 
 export const getGPT3Term = async (history: string, prompt: string) => {
   if (devFlags.disableOpenAI) {

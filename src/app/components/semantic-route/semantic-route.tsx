@@ -6,6 +6,13 @@ import { SemanticRouteItem } from '../../triggers/semantic-dive/semantic-dive.he
 
 const SemanticRoute = (props: any) => {
 
+  const cappedTitle = (title: string) => {
+    if (title.length > 30) {
+      return title.substring(0, 30) + '...';
+    }
+    return title;
+  }
+
   return (
     <Popup trigger={<div className="semantic-route">
       <Breadcrumb>
@@ -14,8 +21,8 @@ const SemanticRoute = (props: any) => {
             <Breadcrumb.Item key={index}>
               {
                 index < props.route.length-1 ?
-                (<a onClick={() => console.log('jump to semantic instance', routeItem.title)}>{routeItem.title}</a>) :
-                (<>{routeItem.title}</>)
+                (<a onClick={() => console.log('jump to semantic instance', routeItem.title)}>{cappedTitle(routeItem.title)}</a>) :
+                (<>{cappedTitle(routeItem.title)}</>)
               }
             </Breadcrumb.Item>
           ))

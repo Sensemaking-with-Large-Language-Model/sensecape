@@ -59,7 +59,6 @@ const ChatNode = (props: NodeProps) => {
   }, [reactFlowInstance, input, response, summary, keywords, responseInputState, highlightIds]);
 
   useEffect(() => {
-    console.log(props.data.state.input, props.data.state.responseInputState)
     // If a response is already given, don't take in any input.
     if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
       generateResponse(input);

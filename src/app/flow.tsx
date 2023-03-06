@@ -22,7 +22,7 @@ import ReactFlow, {
   ReactFlowJsonObject,
   useKeyPress,
 } from "reactflow";
-import { getTopics } from "../api/openai-api";
+import { getChatGPTOverarchingTopic, getChatGPTResponse, getTopics } from "../api/openai-api";
 
 import "reactflow/dist/style.css";
 import '@reactflow/node-resizer/dist/style.css';
@@ -41,9 +41,9 @@ import ChatNode from "./nodes/chat-node/chat-node";
 import { ChatNodeData, TypeChatNode } from './nodes/chat-node/chat-node.model';
 import ConceptNode from "./nodes/concept-node/concept-node";
 import { createConceptNode } from "./nodes/concept-node/concept-node.helper";
-import { TypeConceptNode } from "./nodes/concept-node/concept-node.model";
+import { ConceptNodeData, TypeConceptNode } from "./nodes/concept-node/concept-node.model";
 import MemoNode from "./nodes/memo-node/memo-node";
-import { TypeMemoNode } from "./nodes/memo-node/memo-node.model";
+import { MemoNodeData, TypeMemoNode } from "./nodes/memo-node/memo-node.model";
 import { CreativeNode, ZoomState } from "./nodes/node.model";
 import TopicNode from "./nodes/topic-node/topic-node";
 import {
@@ -173,7 +173,7 @@ const ExploreFlow = () => {
       chatHistory: [],
       instanceState: InstanceState.NONE, // To temporarily disable dive out of home
       state: {
-        topic: "home",
+        topic: "SenseCape",
       },
     } as TopicNodeData,
     position: { x: 0, y: 0 },
@@ -190,7 +190,7 @@ const ExploreFlow = () => {
     "instanceMap",
     {
       [currentTopicId]: {
-        name: "home",
+        name: "SenseCape",
         parentId: "",
         childrenId: [] as string[],
         topicNode: homeTopicNode,
@@ -210,11 +210,41 @@ const ExploreFlow = () => {
     },
   ]);
 
+  const [predictedTopicName, setPredictedTopicName] = useState<string>('');
+
   // List of nodes and edges to carry into another semantic level
   const [semanticCarryList, setSemanticCarryList] = useState<NodeEdgeList>({
     nodes: [],
     edges: [],
   });
+
+  // Ask ChatGPT for the topic from the nodes in the canvas
+  useEffect(() => {
+    if (!instanceMap[currentTopicId]?.parentId) {
+      const extractedTexts = nodes.map(node => {
+        if (node.type === 'chat') {
+          return (node.data as ChatNodeData).state.response;
+        } else if (node.type === 'topic') {
+          return (node.data as TopicNodeData).state.topic;
+        } else if (node.type === 'memo') {
+          return (node.data as MemoNodeData).state.memo;
+        } else if (node.type === 'concept') {
+          return (node.data as ConceptNodeData).state.concept;
+        } else {
+          return '';
+        }
+      }).filter((text): text is string => !!text);
+
+      console.log(predictedTopicName);
+      if (extractedTexts.length >= 2 && !predictedTopicName) {
+        getChatGPTOverarchingTopic(extractedTexts).then(response => {
+          setPredictedTopicName(response ?? '');
+          semanticRoute[0]!.title = response ?? semanticRoute[0]!.title;
+          setSemanticRoute(semanticRoute);
+        });
+      }
+    }
+  }, [reactFlowInstance, nodes, instanceMap, semanticRoute, currentTopicId]);
 
   // Whether semantic dive can actually be triggered
   const [semanticDivable, setSemanticDivable] = useState(true);
@@ -451,6 +481,7 @@ const ExploreFlow = () => {
             );
           } else {
             semanticDiveOut(
+              [predictedTopicName, setPredictedTopicName],
               [infiniteZoom, setInfiniteZoom],
               [instanceMap, setInstanceMap],
               [currentTopicId, setCurrentTopicId],
@@ -463,7 +494,7 @@ const ExploreFlow = () => {
         break;
     }
   },
-  [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
+  [reactFlowInstance, nodeMouseOver, currentTopicId, instanceMap, semanticRoute, semanticCarryList, predictedTopicName]);
 
   // add flex node when user double clicks on canvas
   const onPaneClick = useCallback(
@@ -557,6 +588,7 @@ const ExploreFlow = () => {
         setSemanticDivable(false);
         setTimeout(() => setSemanticDivable(true), totalTransitionTime);
         semanticDiveOut(
+          [predictedTopicName, setPredictedTopicName],
           [infiniteZoom, setInfiniteZoom],
           [instanceMap, setInstanceMap],
           [currentTopicId, setCurrentTopicId],
@@ -567,7 +599,7 @@ const ExploreFlow = () => {
       }
     }
   }, [altKeyPressed, zoom, prevZoom, infiniteZoom, reactFlowInstance, nodeMouseOver,
-      currentTopicId, instanceMap, semanticRoute, semanticCarryList]);
+      currentTopicId, instanceMap, semanticRoute, semanticCarryList, predictedTopicName]);
 
   /**
    * Toggles visibility of traveller edges to track progress
