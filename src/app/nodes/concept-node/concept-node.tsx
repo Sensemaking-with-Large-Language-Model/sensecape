@@ -133,24 +133,24 @@ const ConceptNode = (props: NodeProps) => {
     conceptNodes,
   } = useContext(FlowContext);
 
-  useEffect(() => {
-    console.log('useEffect1');
-    // console.log('props.id', props.id);
-    reactFlowInstance.setNodes((nodes) =>
-      nodes.map((node) => {
-        console.log('node', node);
-        if (node.id === props.id) {
-          node.data.state = {
-            responseSelfState,
-            responseInputState,
-            concept,
-            input,
-          };
-        }
-        return node;
-      })
-    );
-  }, [reactFlowInstance, concept, input, responseInputState]);
+  // useEffect(() => {
+  //   console.log('useEffect1');
+  //   // console.log('props.id', props.id);
+  //   reactFlowInstance.setNodes((nodes) =>
+  //     nodes.map((node) => {
+  //       console.log('node', node);
+  //       if (node.id === props.id) {
+  //         node.data.state = {
+  //           responseSelfState,
+  //           responseInputState,
+  //           concept,
+  //           input,
+  //         };
+  //       }
+  //       return node;
+  //     })
+  //   );
+  // }, [reactFlowInstance, concept, input, responseInputState]);
 
   useEffect(() => {
     console.log('useEffect2');
