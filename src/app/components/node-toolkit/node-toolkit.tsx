@@ -17,7 +17,11 @@ import { ReactComponent as EraserIcon } from '../../assets/eraser.svg';
 import { ReactComponent as KeyboardIcon } from '../../assets/keyboard.svg';
 import { ReactComponent as ElementIcon } from '../../assets/element.svg';
 import { ReactComponent as TeacherIcon } from '../../assets/teacher.svg';
-import resetCanvas from "../../assets/tutorial/reset-canvas.gif";
+
+import TravellerModeImage from '../../assets/images/traveller-mode.png';
+import resetCanvasGIF from "../../assets/tutorial/reset-canvas.gif";
+import memoNodeGIF from "../../assets/tutorial/memo-node.gif";
+import conceptNodeGIF from "../../assets/tutorial/concept-node.gif";
 import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
 import styled from 'styled-components';
@@ -43,12 +47,12 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-const ImageElement = (props: { title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; url: string | undefined; description: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; }) => {
+const ImageElement = (props: { title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; width?: number; url: string | undefined; description: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | ReactFragment | ReactPortal | null | undefined; }) => {
   return (
     <>
     <h3>{props.title}</h3>
-    <img src={props.url} alt="" />
-    <span>{props.description}</span>
+    <img src={props.url} width={props.width} alt="" />
+    <div>{props.description}</div>
     </>
   )
 }
@@ -56,7 +60,6 @@ const ImageElement = (props: { title: string | number | boolean | ReactElement<a
 const VideoElement = (props: { url: string | undefined; }) => {
 return (
   <>
-  <h3>Tutorial</h3>
   <iframe width="560" height="315" src={props.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
   </>
 )
@@ -65,8 +68,7 @@ return (
 const ResetCanvas = () => {
 return (
   <>
-  <h3>Tutorial</h3>
-  <img src={resetCanvas} width="700px" alt="" />
+  <img src={resetCanvasGIF} width="700px" alt="" />
   </>
 )
 }
@@ -88,6 +90,79 @@ const ShortcutGIF = () => {
 </Popup>
 )
 }
+
+const Tutorial:any = (close: () => void) => {
+  return (
+    <>
+      <div className="modal">
+        <button className="close" onClick={close}>
+          &times;
+        </button>
+        <div className="header"> <h3>Tutorial</h3> </div>
+        <div className="content">
+          <div className="shortcut-navigation">
+            <h2>Navigation</h2>
+            <div className="shortcut-container">              
+              <div className="shortcut">
+              <div>Move Canvas</div>
+                <div className="key-container"><kbd className="key">Space</kbd> + <kbd className="key">Drag</kbd>
+                <ShortcutGIF ></ShortcutGIF>
+                </div>
+              </div>
+              <div className="shortcut">
+                <div>Zoom in/out</div>
+                <div className="key-container"><kbd className="key">Cmd</kbd> + <kbd className="key">Scroll</kbd>
+                  <ShortcutGIF ></ShortcutGIF>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="shortcut-editor">
+            <h2>Editor</h2>
+            <div className="shortcut-container">
+            <div className="shortcut">
+                <div>Select</div>
+                <div className="key-container"><kbd className="key">Click</kbd> or <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Delete</div>
+                <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Select multiple nodes</div>
+                <div className="key-container"><kbd className="key">Shift</kbd> + <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+            </div>
+          </div>
+          <div className="shortcut-semantic-navigation">
+            <h2>Semantic Dive</h2>
+            <div className="shortcut-container">
+              <div className="shortcut">
+                <div>Dive in</div>
+                <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+              <div className="shortcut">
+                <div>Dive out</div>
+                <div className="key-container"><kbd className="key">Shift</kbd> + <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <div className="actions">
+          <button
+            className="close-button"
+            onClick={() => {
+              console.log('modal closed ');
+              close();
+            }}
+          >
+            Close
+          </button>
+        </div> */}
+      </div>
+    </>
+  )
+};
 
 
 const KeyboardShortcuts:any = (close: () => void) => {
@@ -119,6 +194,10 @@ const KeyboardShortcuts:any = (close: () => void) => {
           <div className="shortcut-editor">
             <h2>Editor</h2>
             <div className="shortcut-container">
+            <div className="shortcut">
+                <div>Select</div>
+                <div className="key-container"><kbd className="key">Click</kbd> or <kbd className="key">Drag</kbd><ShortcutGIF ></ShortcutGIF></div>
+              </div>
               <div className="shortcut">
                 <div>Delete</div>
                 <div className="key-container"><kbd className="key">Delete</kbd><ShortcutGIF ></ShortcutGIF></div>
@@ -175,8 +254,9 @@ const steps = [
   //   // highlightClass: 'myHighlightClass',
   // },
   {
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    tooltipClass: 'gif',
+    // title: 'SenseCape',
+    intro: "SenseCape facilitates your information search with ChatGPT.",
+    tooltipClass: 'content',
   },
   {
     intro: <VideoElement url={"https://www.youtube.com/embed/BzSMLP5KpjM"} />,
@@ -184,20 +264,26 @@ const steps = [
   },
   {
     element: '.semantic-route',
-    intro: 'Semantic route<br><br>[Description]',
+    title: 'Semantic route',
+    intro: '[Description]',
     tooltipClass: 'semantic-route-tooltip',
     position: 'right', 
   },
   {
     element: '.node-toolkit',
-    intro: 'Node Toolkit<br><br>[Description]',
-    position: 'right',
-    // tooltipClass: 'myTooltipClass',
+    title: 'Toolkit',
+    intro: 'It contains nodes you can use to search.',
+    position: 'top',
+    tooltipClass: 'content',
     // highlightClass: 'myHighlightClass',
   },
   {
     element: '.traveller-mode-toggle',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
+    // title: 'Traveller Mode',
+    // intro: 'It shows the path of your search process.',
+    intro: <ImageElement width={450} title={""} url={TravellerModeImage} description={"Traveller mode allows you to track your search process."}/>,
+    // intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
+    tooltipClass: 'image',
     position: 'right',
   },
   {
@@ -214,15 +300,15 @@ const steps = [
   },
   {
     element: '.toolkit-concept',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
+    intro: <ImageElement width={500} title={""} url={conceptNodeGIF} description={""}/>,
     position: 'right',
     tooltipClass: 'gif',
   },
   {
     element: '.toolkit-memo',
-    intro: <ImageElement title={""} url={"https://i.giphy.com/media/ujUdrdpX7Ok5W/giphy.webp"} description={""}/>,
-    position: 'right',
-    tooltipClass: 'gif',
+    intro: <ImageElement width={500} title={""} url={memoNodeGIF} description={""}/>,
+    position: 'top',
+    tooltipClass: 'image',
   },
   {
     element: '.toolkit-help',
@@ -259,6 +345,7 @@ const introOptions = {
   showBullets: true,
   keyboardNavigation: true,
   showProgress: true,
+  autoPosition: true,
 }
 
 const NodeToolkit = (props: any) => {
@@ -349,7 +436,7 @@ const NodeToolkit = (props: any) => {
     <div className="node-toolkit">
       <Popup
         trigger={<div className='toolkit-option traveller-mode-toggle'>
-        <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' />Traveller Mode</div>}
+        <Switch checked={props.travellerMode} onChange={props.toggleTravellerMode} size='small' /><span onClick={props.toggleTravellerMode}>Traveller Mode</span></div>}
         position={positionToolTip}
         offsetX={offsetXValue}
         offsetY={offsetYValue}
@@ -432,7 +519,7 @@ const NodeToolkit = (props: any) => {
       <Popup trigger={<div className='toolkit-option toolkit-help add-node'><HelpIcon />Help</div>} position={positionToolTip}
         on="hover"
         offsetX={0}
-        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseLeaveDelay={500}
         mouseEnterDelay={0}
         contentStyle={{ padding: '5px', border: 'none' }}
         arrow={showArrow}>
@@ -441,8 +528,10 @@ const NodeToolkit = (props: any) => {
           <ElementIcon/>&nbsp; Interface</div>
           {/* <div className="menu-item">Keyboard shortcuts</div> */}
           {/* <KeyboardShortcuts /> */}
-          <div onClick={startIntroJS} className="menu-item">
-          <TeacherIcon/>&nbsp; Tutorial</div>
+          <Popup trigger={<div className="menu-item">
+            <TeacherIcon/>&nbsp; Tutorial</div>}  modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
+            <Tutorial />
+          </Popup>
           <Popup trigger={<div className="menu-item">
           <KeyboardIcon/>&nbsp; Keyboard shortcuts</div>} modal nested closeOnEscape closeOnDocumentClick={closeOnDocumentClick}>
             { KeyboardShortcuts }
