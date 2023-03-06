@@ -17,15 +17,21 @@ const GPTInput = (props: any) => {
   const handleOnFocus = useCallback((event: any) => {
     props.setInputState(InputHoverState.CLICKED);
     const sourceNode = reactFlowInstance.getNode(props.sourceId);
-    if (sourceNode) {
-      reactFlowInstance.fitView({
-        duration: 900,
-        padding: 1,
-        maxZoom: zoomLimits.max,
-        minZoom: zoomLimits.min,
-        nodes: [sourceNode]
-      });
+    const parentNode = reactFlowInstance.getNode(sourceNode?.parentNode ?? '');
+    const focusNodes = [];
+    if (parentNode) {
+      focusNodes.push(parentNode);
     }
+    if (sourceNode) {
+      focusNodes.push(sourceNode);
+    }
+    reactFlowInstance.fitView({
+      duration: 900,
+      padding: focusNodes.length > 1 ? 0.2 : 1,
+      maxZoom: zoomLimits.max,
+      minZoom: zoomLimits.min,
+      nodes: focusNodes,
+    });
   },
   [reactFlowInstance]);
 
