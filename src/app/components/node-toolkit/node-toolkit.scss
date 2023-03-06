@@ -100,6 +100,7 @@
 
 .video {
   max-width: 1200px !important;
+  max-height: 1000px !important;
   width: 1000px;
   text-align-last: center;
   font-size: 1.1rem;
@@ -121,6 +122,7 @@
   cursor: pointer;
   padding: 15px 7px 5px 10px;
   height: 28px;
+  color: #7f7f7f;
   // border-bottom: 1px solid rgb(187, 187, 187);
 }
 .menu-item:hover {
@@ -258,5 +260,11 @@
 }
 
 .tutorial-description {
-  padding-top: 15px;
+  padding: 10px;
+  color: #7f7f7f;
+  text-align: center;
+}
+
+.introjs-tooltip.video {
+  width: fit-content !important;
 }
