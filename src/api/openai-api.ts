@@ -10,7 +10,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const verbose: boolean = false;
+const verbose: boolean = true;
 
 const extractTopicPrompt: ChatCompletionRequestMessage = {
   // I'm trying to push ChatGPT to respond in one term 
