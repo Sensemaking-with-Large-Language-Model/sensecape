@@ -48,7 +48,6 @@ export const createChatNode = (
     reactFlowInstance.addNodes(newNode);
     reactFlowInstance.addEdges(edge);
 
-    console.log(reactFlowInstance.getNodes());
   }, 100);
 };
 
@@ -72,41 +71,52 @@ export const createChatNodeFromDiv = (
     const xy_position = brainstormNodeElement?.position!;
     const height = brainstormNodeElement?.height!;
     const width = brainstormNodeElement?.width!;
+    const placementMethod = 'simple' // 'simple' - next to question | 'radial' - radial placement
 
     let position: XYPosition;
     position = {
       x: xy_position['x'] + width + 80, // place chat node on the right of brainstorm node
       y: xy_position['y'] + nodeElement?.offsetTop! - 10, // place chat node next to question div relative to brainstorm node (offsetTop)
     };
-    
-    // place them radially 
-    // const radius = 500;
-    // console.log('radius * Math.cos(map(questionIndex, 0, 12, 90, 0)', radius * Math.cos(map(questionIndex, 0, 12, 90, 0)));
 
-    // console.log('questionIndex', questionIndex);
+    if (placementMethod === 'simple') {
+      console.log('simple placement');
+      position = {
+        x: xy_position['x'] + width + 80, // place chat node on the right of brainstorm node
+        y: xy_position['y'] + nodeElement?.offsetTop! - 10, // place chat node next to question div relative to brainstorm node (offsetTop)
+      };
+    } else if (placementMethod === 'radial') {
+      // place them radially 
+      console.log('radial placement');
+      const radius = 500;
+      console.log('radius * Math.cos(map(questionIndex, 0, 12, 90, 0)', radius * Math.cos(map(questionIndex, 0, 12, 90, 0)));
 
-    // if (questionIndex <= 12) {
-    //   const paddingX = radius * Math.cos(scale(questionIndex, [0, 12], [-70, 60]));
-    //   const paddingY = radius * Math.sin(scale(questionIndex, [0, 12], [-70, 60]));
-    //   console.log('paddingX', paddingX);
-    //   console.log('paddingY', paddingY);
-    //   console.log('map(questionIndex, 12, 0, 80, 0)', scale(questionIndex, [0, 12], [-70, 60]));
-    //   console.log('map(questionIndex, 12, 0, 80, 0)', scale(questionIndex, [0, 12], [-70, 60]));
-    //   position = {
-    //     x: xy_position['x'] + ( width / 2 ) - (paddingX), 
-    //     y: xy_position['y'] + ( height / 2) + (paddingY), 
-    //   };
-    // } else {
-    //   const paddingX = radius * Math.cos(scale(questionIndex, [13, 24], [0, -70]));
-    //   const paddingY = radius * Math.sin(scale(questionIndex, [13, 24], [0, -70]));
-    //   console.log('paddingX', paddingX);
-    //   console.log('paddingY', paddingY);
-    //   position = {
-    //     x: xy_position['x'] + ( width ) + (paddingX), 
-    //     y: xy_position['y'] + ( height) - (paddingY), 
-    //   };
-    // }
-    // console.log('position', position);
+      console.log('questionIndex', questionIndex);
+
+      if (questionIndex <= 12) {
+        const paddingX = radius * Math.cos(scale(questionIndex, [0, 12], [-70, 60]));
+        const paddingY = radius * Math.sin(scale(questionIndex, [0, 12], [-70, 60]));
+        console.log('paddingX', paddingX);
+        console.log('paddingY', paddingY);
+        console.log('map(questionIndex, 12, 0, 80, 0)', scale(questionIndex, [0, 12], [-70, 60]));
+        console.log('map(questionIndex, 12, 0, 80, 0)', scale(questionIndex, [0, 12], [-70, 60]));
+        position = {
+          x: xy_position['x'] + ( width / 2 ) - (paddingX), 
+          y: xy_position['y'] + ( height / 2) + (paddingY), 
+        };
+      } else {
+        const paddingX = radius * Math.cos(scale(questionIndex, [13, 24], [0, -70]));
+        const paddingY = radius * Math.sin(scale(questionIndex, [13, 24], [0, -70]));
+        console.log('paddingX', paddingX);
+        console.log('paddingY', paddingY);
+        position = {
+          x: xy_position['x'] + ( width ) + (paddingX), 
+          y: xy_position['y'] + ( height) - (paddingY), 
+        };
+      }
+      console.log('position', position);
+    }
+
 
     const newNode: TypeChatNode = {
       id: `chat-${reactFlowInstance.getNodes().length}-${uuid()}`,
