@@ -15,7 +15,7 @@ import "./subtopic-node.scss";
 import { ZoomState } from "../../../nodes/node.model";
 import { stratify, tree } from "d3-hierarchy";
 
-const verbose: boolean = true; // flag for console.log() messages during devMode
+const verbose: boolean = false; // flag for console.log() messages during devMode
 const zoomSelector = (s: any) => s.transform[2];
 const use_dagre: boolean = false;
 
@@ -41,8 +41,10 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
     console.log("edges", edges);
   }
   const root_position = rootNode.position;
-  console.log("rootNode", rootNode);
-  console.log("root_position", root_position);
+  if (verbose) {
+    console.log("rootNode", rootNode);
+    console.log("root_position", root_position);
+  }
 
   const hierarchy = stratify<Node>()
     .id((d) => d.id)
@@ -50,17 +52,20 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
     // this only works if every node has one connection
     .parentId((d: Node) => edges.find((e: Edge) => e.target === d.id)?.source)(
     nodes
-  );
-  console.log("hierarchy", hierarchy);
-
-  // run the layout algorithm with the hierarchy data structure
-  const root = layout(hierarchy);
-  console.log("root", root);
+    );
+    
+    // run the layout algorithm with the hierarchy data structure
+    const root = layout(hierarchy);
+  
+  if (verbose) {
+    console.log("hierarchy", hierarchy);
+    console.log("root", root);
+    console.log("===========");
+  }
 
   root.x = root_position["x"];
   root.y = root_position["y"];
 
-  console.log("===========");
   // convert the hierarchy back to react flow nodes (the original node is stored as d.data)
   // we only extract the position from the d3 function
   return root
@@ -79,7 +84,7 @@ const SubTopicNode = (props: NodeProps) => {
     const nodes = reactFlowInstance.getNodes();
     const edges = reactFlowInstance.getEdges();
     // get nodes we want to rearrange
-    console.log("=========");
+    if (verbose) { console.log("========="); };
     // const targetNodes = nodes.filter((node) => node.type === "subtopic");
 
     const clickedNode = reactFlowInstance.getNode(props.id);
@@ -92,25 +97,29 @@ const SubTopicNode = (props: NodeProps) => {
       return;
     }
 
-    console.log("rootId_", rootId_);
-
+    
     const targetNodes = nodes.filter((node) => node.data.rootId === rootId_);
     const targetEdges = edges.filter((edge) => edge.data.rootId === rootId_);
     const otherNodes = nodes.filter((node) => node.data.rootId !== rootId_);
     const otherEdges = edges.filter((edge) => edge.data.rootId !== rootId_);
-    console.log("targetNodes", targetNodes);
     // const targetEdges = edges.filter((edge) => edge.type === "step");
     // const targetEdges = edges.filter((edge) => edge.type === "default");
-    console.log("targetEdges", targetEdges);
-    console.log("otherNodes", otherNodes);
-    console.log("otherEdges", otherEdges);
-    console.log("=========");
+    if (verbose) {
+      console.log("rootId_", rootId_);
+      console.log("targetNodes", targetNodes);
+      console.log("targetEdges", targetEdges);
+      console.log("otherNodes", otherNodes);
+      console.log("otherEdges", otherEdges);
+      console.log("=========");
+    }
 
     // dagre approach
     // get new coordinates for nodes we want to rearrange
 
-    console.log("===========");
-    console.log("d3 approach");
+    if (verbose) {
+      console.log("===========");
+      console.log("d3 approach");
+    }
     // d3 approach
     const targetNodes_ = layoutNodes(
       rootNode,
@@ -140,7 +149,7 @@ const SubTopicNode = (props: NodeProps) => {
       props.data.label,
       true
     ).then((data) => {
-      console.log("data", data);
+      if (verbose) {console.log("data", data);}
       setTimeout(layout_, 100);
     });
   };
