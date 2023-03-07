@@ -261,7 +261,7 @@ const KeyboardShortcuts:any = (close: () => void) => {
 const interface_steps = [
   {
     title: 'Welcome! 👋',
-    intro: "SenseCape facilitates information search with ChatGPT.",
+    intro: "SenseCape facilitates information exploration with ChatGPT.",
     tooltipClass: 'content',
   },
   {
