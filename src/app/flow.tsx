@@ -718,7 +718,7 @@ const ExploreFlow = () => {
         >
           <Background />
           <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
-          <div><Toaster position="bottom-center"/></div>
+          {/* <div><Toaster position="bottom-center"/></div> */}
           <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
         </ReactFlow>
         <div id='semantic-carry-box'></div>

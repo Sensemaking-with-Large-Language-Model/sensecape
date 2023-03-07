@@ -4,7 +4,7 @@ import { extendConcept } from "../../../../api/openai-api";
 import "./suptopic-node.scss";
 // import cx from 'classnames';
 // import styles from 'subtopic-node.module.scss';
-import { ZoomState } from "../../../nodes/node.model";
+import { ZoomState } from "../../node.model";
 
 const zoomSelector = (s: any) => s.transform[2];
 

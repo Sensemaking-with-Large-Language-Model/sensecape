@@ -70,7 +70,7 @@ const MemoNode = (props: NodeProps) => {
               value={memo}
               onChange={handleChange}
               // onBlur={generateTitle}
-              onFocus={handleOnFocus}
+              // onFocus={handleOnFocus}
               placeholder="Type notes here"
             ></textarea>
           </>) :

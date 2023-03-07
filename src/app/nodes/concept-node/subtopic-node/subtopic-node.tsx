@@ -12,7 +12,7 @@ import { extendConcept } from "../../../../api/openai-api";
 import "./subtopic-node.scss";
 // import cx from 'classnames';
 // import styles from 'subtopic-node.module.scss';
-import { ZoomState } from "../../../nodes/node.model";
+import { ZoomState } from "../../node.model";
 import { stratify, tree } from "d3-hierarchy";
 
 const verbose: boolean = false; // flag for console.log() messages during devMode
