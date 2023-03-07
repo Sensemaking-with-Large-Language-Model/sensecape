@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { NodeProps, useStore, useReactFlow, getRectOfNodes } from "reactflow";
 import { getChatGPTKeywords } from "../../../api/openai-api";
-import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
+import { ReactComponent as DragHandle } from '../../../assets/drag-handle.svg';
 import { ZoomState } from "../node.model";
 import './memo-node.scss';
 

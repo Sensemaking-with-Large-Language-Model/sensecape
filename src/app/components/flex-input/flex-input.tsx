@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { getRectOfNodes, useReactFlow, XYPosition } from "reactflow";
 import "./flex-input.scss";
-import loadingDots from "../../assets/loading.gif";
+import loadingDots from "../../../assets/loading.gif";
 import { ResponseState } from "../input.model";
 import { CreativeNode, CreativeNodeData, InputHoverState } from "../../nodes/node.model";
 import { uuid, zoomLimits } from "../../utils";
 import { ChatNodeData } from "../../nodes/chat-node/chat-node.model";
 import { ConceptNodeData } from "../../nodes/concept-node/concept-node.model";
 import { MemoNodeData } from "../../nodes/memo-node/memo-node.model";
-import { ReactComponent as BrainstormIcon } from '../../assets/node-icons/brainstorm.svg';
-import { ReactComponent as SearchIcon } from '../../assets/node-icons/search.svg';
-import { ReactComponent as HierarchyIcon } from '../../assets/node-icons/hierarchy.svg';
-import { ReactComponent as MemoIcon } from '../../assets/node-icons/memo.svg';
+import { ReactComponent as BrainstormIcon } from '../../../assets/node-icons/brainstorm.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/node-icons/search.svg';
+import { ReactComponent as HierarchyIcon } from '../../../assets/node-icons/hierarchy.svg';
+import { ReactComponent as MemoIcon } from '../../../assets/node-icons/memo.svg';
 import { BrainstormNodeData } from "../../nodes/brainstorm-node/brainstorm-node.model";
 
 const FlexInput = (props: any) => {

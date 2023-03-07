@@ -12,7 +12,7 @@ import { getGPT3Term, getTopics } from "../../../api/openai-api";
 import { ResponseState } from "../../components/input.model";
 import { TypeTopicNode } from "../topic-node/topic-node.model";
 
-import { ReactComponent as DragHandle } from "../../assets/drag-handle.svg";
+import { ReactComponent as DragHandle } from "../../../assets/drag-handle.svg";
 import ConceptInput from "../../components/concept-input/concept-input";
 
 import { uuid } from "../../utils";

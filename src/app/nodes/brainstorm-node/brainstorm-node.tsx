@@ -12,7 +12,7 @@ import {
 } from "reactflow";
 import { getGPT3Questions } from "../../../api/openai-api";
 import "./brainstorm-node.scss";
-import { ReactComponent as DragHandle } from "../../assets/drag-handle.svg";
+import { ReactComponent as DragHandle } from "../../../assets/drag-handle.svg";
 import { isHighlightable } from "../chat-node/highlighter";
 import HighlightTooltip from "../chat-node/highlight-tooplip/highlight-toolip";
 import { Tooltip, TooltipProvider, TooltipWrapper } from "react-tooltip";

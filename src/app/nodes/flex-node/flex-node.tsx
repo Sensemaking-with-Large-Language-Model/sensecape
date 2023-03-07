@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, useStore, XYPosition } from 'reactflow';
 import { getChatGPTKeywords, getChatGPTResponse, getChatGPTSummary } from '../../../api/openai-api';
 import './flex-node.scss';
-import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
+import { ReactComponent as DragHandle } from '../../../assets/drag-handle.svg';
 import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { FlexNodeData, TypeFlexNode } from './flex-node.model';
 import { ResponseState } from '../../components/input.model';

@@ -1,5 +1,5 @@
 import { NodeProps, Handle, Position, useReactFlow, useStore } from "reactflow";
-import { ReactComponent as DragHandle } from "../../../assets/drag-handle.svg";
+import { ReactComponent as DragHandle } from "../../../../assets/drag-handle.svg";
 import { extendConcept } from "../../../../api/openai-api";
 import "./suptopic-node.scss";
 // import cx from 'classnames';

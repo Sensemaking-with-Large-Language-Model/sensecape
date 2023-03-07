@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { getRectOfNodes, useReactFlow } from "reactflow";
 import './gpt-input.scss';
-import loadingDots from "../../assets/loading.gif";
+import loadingDots from "../../../assets/loading.gif";
 import { ResponseState } from "../input.model";
 import { InputHoverState } from "../../nodes/node.model";
 import { zoomLimits } from "../../utils";

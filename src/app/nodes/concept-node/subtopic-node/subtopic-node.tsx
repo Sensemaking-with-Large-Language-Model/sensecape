@@ -7,7 +7,7 @@ import {
   Node,
   Edge,
 } from "reactflow";
-import { ReactComponent as DragHandle } from "../../../assets/drag-handle.svg";
+import { ReactComponent as DragHandle } from "../../../../assets/drag-handle.svg";
 import { extendConcept } from "../../../../api/openai-api";
 import "./subtopic-node.scss";
 // import cx from 'classnames';

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, createContext } from "react";
+import { useCallback, useEffect, useRef, useState, createContext, useMemo } from "react";
 import ReactFlow, {
   Node,
   addEdge,
@@ -95,7 +95,8 @@ import { createTravellerEdge } from "./edges/traveller-edge/traveller-edge.helpe
 import { usePrevious } from "./hooks/usePrevious";
 import { duplicateNode } from "./nodes/node.helper";
 import { clearSemanticCarry, SemanticRouteItem } from "./triggers/semantic-dive/semantic-dive.helper";
-import toast, { Toaster } from "react-hot-toast";
+import { notification } from "antd";
+import React from "react";
 
 const verbose: boolean = true;
 
@@ -465,6 +466,19 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
+  const [api, contextHolder] = notification.useNotification();
+
+  const Context = React.createContext({ name: 'Default' });
+  const contextValue = useMemo(() => ({ name: 'Ant Design' }), []);
+
+  const notifySemanticDive = (message: string) => {
+    api.info({
+      message,
+      placement: 'bottom',
+      duration: 2,
+    });
+  }
+
   const onNodeClick = useCallback((e: any) => {
     switch (e.detail) {
       case 1:
@@ -486,6 +500,7 @@ const ExploreFlow = () => {
               [semanticCarryList, setSemanticCarryList],
               reactFlowInstance
             );
+            notifySemanticDive('⬇️ Dive in');
           } else {
             semanticDiveOut(
               [predictedTopicName, setPredictedTopicName],
@@ -496,6 +511,7 @@ const ExploreFlow = () => {
               [semanticCarryList, setSemanticCarryList],
               reactFlowInstance
             );
+            notifySemanticDive('⬆️ Dive out');
           }
         }
         break;
@@ -606,14 +622,7 @@ const ExploreFlow = () => {
           [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
-        toast('Dive in', {
-          icon: '⬇️',
-          style: {
-            borderRadius: '10px',
-            background: '#333',
-            color: '#fff',
-          },
-        });
+        notifySemanticDive('⬇️ Dive in');
       } else if (zoom < prevZoom) {
         // Disabled:  && (instanceMap[currentTopicId]?.level ?? -1) >= 0
         setSemanticDivable(false);
@@ -627,14 +636,7 @@ const ExploreFlow = () => {
           [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
-        toast('Dive out', {
-          icon: '⬆️',
-          style: {
-            borderRadius: '10px',
-            background: '#333',
-            color: '#fff',
-          },
-        });
+        notifySemanticDive('⬆️ Dive out');
       }
     }
   }, [altKeyPressed, zoom, prevZoom, infiniteZoom, reactFlowInstance, nodeMouseOver,
@@ -676,76 +678,79 @@ const ExploreFlow = () => {
 
   return (
     <div className="explore-flow">
-      <div id="reactflow-wrapper" className="reactflow-wrapper" ref={reactFlowWrapper}>
-        <ReactFlow
-          id='reactFlowInstance'
-          className={altKeyPressed ? 'semantic-carry-ready' : ''}
-          proOptions={proOptions}
-          nodes={nodes}
-          edges={edges}
-          fitView
-          zoomOnPinch
-          selectionOnDrag
-          panOnDrag={panOnDrag}
-          zoomOnDoubleClick={false}
-          selectionMode={SelectionMode.Partial}
-          multiSelectionKeyCode={'Shift'}
-          nodeOrigin={[0.5, 0]}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={onNodeClick}
-          onConnect={onConnect}
-          connectionLineComponent={TravellerConnectionLine}
-          // fitViewOptions={fitViewOptions}
-          onInit={setReactFlowInstance}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          onNodeDrag={onNodeDrag}
-          onNodeDragStop={onNodeDragStop}
-          onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
-          onNodeMouseLeave={() => setNodeMouseOver(null)}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          onConnectStart={onConnectStart}
-          // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
-          onSelectionChange={onSelectionChange}
-          panOnScroll={!altKeyPressed}
-          onPaneClick={onPaneClick}
-          onNodesDelete={(event) => console.log(event)}
-          maxZoom={infiniteZoom ? Infinity : zoomRange.max}
-          minZoom={infiniteZoom ? -Infinity : zoomRange.min}
-          elevateNodesOnSelect
-        >
-          <Background />
-          <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
-          {/* <div><Toaster position="bottom-center"/></div> */}
-          <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
-        </ReactFlow>
-        <div id='semantic-carry-box'></div>
-        <div style={{
-          boxShadow: 'inset 0 0 50px #3c6792',
-          position: 'absolute',
-          pointerEvents: 'none',
-          width: '100%',
-          height: '100%',
-          top: 0,
-          left: 0,
-          visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
-          opacity: `${altKeyPressed ? 1 : 0}`,
-          transition: 'ease 0.2s',
-        }} />
-        <SemanticRoute
-          currentTopicId={currentTopicId}
-          route={semanticRoute}
-          semanticJumpTo={semanticDiveToInstance}
-        />
-        <NodeToolkit 
-          travellerMode={travellerMode}
-          toggleTravellerMode={toggleTravellerMode}
-        />
-        <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
-        <ZoomSlider zoom={zoom} range={zoomRange} />
-      </div>
+      <Context.Provider value={contextValue}>
+        {contextHolder}
+        <div id="reactflow-wrapper" className="reactflow-wrapper" ref={reactFlowWrapper}>
+          <ReactFlow
+            id='reactFlowInstance'
+            className={altKeyPressed ? 'semantic-carry-ready' : ''}
+            proOptions={proOptions}
+            nodes={nodes}
+            edges={edges}
+            fitView
+            zoomOnPinch
+            selectionOnDrag
+            panOnDrag={panOnDrag}
+            zoomOnDoubleClick={false}
+            selectionMode={SelectionMode.Partial}
+            multiSelectionKeyCode={'Shift'}
+            nodeOrigin={[0.5, 0]}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeClick={onNodeClick}
+            onConnect={onConnect}
+            connectionLineComponent={TravellerConnectionLine}
+            // fitViewOptions={fitViewOptions}
+            onInit={setReactFlowInstance}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            onNodeDrag={onNodeDrag}
+            onNodeDragStop={onNodeDragStop}
+            onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
+            onNodeMouseLeave={() => setNodeMouseOver(null)}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onConnectStart={onConnectStart}
+            // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
+            onSelectionChange={onSelectionChange}
+            panOnScroll={!altKeyPressed}
+            onPaneClick={onPaneClick}
+            onNodesDelete={(event) => console.log(event)}
+            maxZoom={infiniteZoom ? Infinity : zoomRange.max}
+            minZoom={infiniteZoom ? -Infinity : zoomRange.min}
+            elevateNodesOnSelect
+          >
+            <Background />
+            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
+            {/* <div><Toaster position="bottom-center"/></div> */}
+            <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
+          </ReactFlow>
+          <div id='semantic-carry-box'></div>
+          <div style={{
+            boxShadow: 'inset 0 0 50px #3c6792',
+            position: 'absolute',
+            pointerEvents: 'none',
+            width: '100%',
+            height: '100%',
+            top: 0,
+            left: 0,
+            visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
+            opacity: `${altKeyPressed ? 1 : 0}`,
+            transition: 'ease 0.2s',
+          }} />
+          <SemanticRoute
+            currentTopicId={currentTopicId}
+            route={semanticRoute}
+            semanticJumpTo={semanticDiveToInstance}
+          />
+          <NodeToolkit 
+            travellerMode={travellerMode}
+            toggleTravellerMode={toggleTravellerMode}
+          />
+          <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
+          <ZoomSlider zoom={zoom} range={zoomRange} />
+        </div>
+      </Context.Provider>
     </div>
   );
 };

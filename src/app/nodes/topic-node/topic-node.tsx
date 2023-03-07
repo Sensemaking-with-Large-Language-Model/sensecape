@@ -1,6 +1,6 @@
 import { Component, useCallback, useEffect, useState } from "react";
 import { Edge, Handle, NodeProps, NodeToolbar, Position, useReactFlow, useStore, useUpdateNodeInternals, XYPosition } from "reactflow";
-import { ReactComponent as DragHandle } from '../../assets/drag-handle.svg';
+import { ReactComponent as DragHandle } from '../../../assets/drag-handle.svg';
 import ExpandToolbar from "../../components/expand-toolbar/expand-toolbar";
 import { ResponseState } from "../../components/input.model";
 import useDetachNodes from '../../hooks/useDetachNodes';

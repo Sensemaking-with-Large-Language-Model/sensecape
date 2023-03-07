@@ -1,6 +1,6 @@
 import { Component } from "react";
-import { ReactComponent as Expand } from '../../../assets/expand-to-topic.svg';
-import { ReactComponent as Delete } from '../../../assets/delete-highlight.svg';
+import { ReactComponent as Expand } from '../../../../assets/expand-to-topic.svg';
+import { ReactComponent as Delete } from '../../../../assets/delete-highlight.svg';
 import './highlight-tooltip.scss';
 
 interface TopicProps {
