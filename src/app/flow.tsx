@@ -95,6 +95,7 @@ import { createTravellerEdge } from "./edges/traveller-edge/traveller-edge.helpe
 import { usePrevious } from "./hooks/usePrevious";
 import { duplicateNode } from "./nodes/node.helper";
 import { clearSemanticCarry, SemanticRouteItem } from "./triggers/semantic-dive/semantic-dive.helper";
+import toast, { Toaster } from "react-hot-toast";
 
 const verbose: boolean = true;
 
@@ -605,6 +606,14 @@ const ExploreFlow = () => {
           [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
+        toast('Dive in', {
+          icon: '⬇️',
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        });
       } else if (zoom < prevZoom) {
         // Disabled:  && (instanceMap[currentTopicId]?.level ?? -1) >= 0
         setSemanticDivable(false);
@@ -618,6 +627,14 @@ const ExploreFlow = () => {
           [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
+        toast('Dive out', {
+          icon: '⬆️',
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        });
       }
     }
   }, [altKeyPressed, zoom, prevZoom, infiniteZoom, reactFlowInstance, nodeMouseOver,
@@ -701,6 +718,7 @@ const ExploreFlow = () => {
         >
           <Background />
           <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
+          <div><Toaster position="bottom-center"/></div>
           <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
         </ReactFlow>
         <div id='semantic-carry-box'></div>
