@@ -36,6 +36,7 @@ const ZoomSlider = (props: any) => {
         min={Math.log10(props.range.min+0.001)}
         max={Math.log10(props.range.max-0.001)}
         marks={marks}
+        reverse={true}
       />
     </div>
   )
