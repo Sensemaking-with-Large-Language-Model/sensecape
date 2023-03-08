@@ -3,6 +3,7 @@ import { Edge, ReactFlowInstance, XYPosition } from "reactflow";
 import { TypeHierarchyNode } from "../../nodes/hierarchy-node/hierarchy-node.model";
 import { uuid } from "../../utils";
 import { InstanceMap } from "../semantic-dive/semantic-dive";
+import { getInstanceName } from "../semantic-dive/semantic-dive.helper";
 
 /**
  * Saves current instance
@@ -18,7 +19,9 @@ export const showHierarchyView = (
   const currentInstance = instanceMap[currentTopicId];
 
   currentInstance.jsonObject = reactFlowInstance.toObject();
-  currentInstance.topicNode.data.state.topic = predictedTopicName || 'SenseCape';
+  if (getInstanceName(currentInstance) === 'SenseCape') {
+    currentInstance.topicNode.data.state.topic = predictedTopicName || 'SenseCape';
+  }
   setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
 
   const instances = Object.values(instanceMap);
@@ -32,7 +35,7 @@ export const showHierarchyView = (
       position: defaultPosition,
       data: {
         topicId: instance.topicNode.id,
-        topicName: instance.topicNode.data.state.topic ?? 'temp topic',
+        topicName: getInstanceName(instance),
         expanded: true,
       },
     }));
@@ -50,7 +53,8 @@ export const showHierarchyView = (
 
   setTimeout(() => {
     reactFlowInstance.fitView({
-      duration: 400,
+      duration: 800,
+      padding: 0.5,
     });
   }, 100);
 }

@@ -97,7 +97,7 @@ import { usePrevious } from "./hooks/usePrevious";
 import useAnimatedNodes from "./hooks/useAnimatedNodes";
 import useExpandCollapse from './hooks/useExpandCollapse';
 import { duplicateNode } from "./nodes/node.helper";
-import { clearSemanticCarry, SemanticRouteItem } from "./triggers/semantic-dive/semantic-dive.helper";
+import { clearSemanticCarry, getInstanceName, SemanticRouteItem } from "./triggers/semantic-dive/semantic-dive.helper";
 import { notification } from "antd";
 import React from "react";
 import HierarchyNode from "./nodes/hierarchy-node/hierarchy-node";
@@ -220,7 +220,7 @@ const ExploreFlow = () => {
 
   const [semanticRoute, setSemanticRoute] = useLocalStorage<SemanticRouteItem[]>("semanticRoute", [
     {
-      title: instanceMap[currentTopicId]!.name,
+      title: getInstanceName(instanceMap[currentTopicId]!),
       topicId: currentTopicId,
       level: 0,
     },
@@ -523,6 +523,7 @@ const ExploreFlow = () => {
           if (nodeMouseOver.id !== currentTopicId) {
             semanticDiveIn(
               nodeMouseOver,
+              [predictedTopicName, setPredictedTopicName],
               [infiniteZoom, setInfiniteZoom],
               [instanceMap, setInstanceMap],
               [currentTopicId, setCurrentTopicId],
@@ -645,6 +646,7 @@ const ExploreFlow = () => {
         setTimeout(() => setSemanticDivable(true), totalTransitionTime);
         semanticDiveIn(
           nodeMouseOver,
+          [predictedTopicName, setPredictedTopicName],
           [infiniteZoom, setInfiniteZoom],
           [instanceMap, setInstanceMap],
           [currentTopicId, setCurrentTopicId],
@@ -711,7 +713,7 @@ const ExploreFlow = () => {
       <div id="reactflow-wrapper" className="reactflow-wrapper" ref={reactFlowWrapper}>
         <ReactFlow
           id='reactFlowInstance'
-          className={altKeyPressed ? 'semantic-carry-ready' : ''}
+          className={`flow ${showingHierarchy ? 'hierarchy-flow' : altKeyPressed ? 'semantic-carry-ready' : ''}`}
           proOptions={proOptions}
           nodes={showingHierarchy ? animatedNodes : nodes}
           edges={showingHierarchy ? visibleEdges : edges}

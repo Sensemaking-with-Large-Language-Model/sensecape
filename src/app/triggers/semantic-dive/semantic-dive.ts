@@ -8,7 +8,7 @@ import { createTopicNode } from "../../nodes/topic-node/topic-node.helper";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../../utils";
 import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff, animateDiveToLanding } from "./semantic-dive.animate";
-import { calculateSurroundPositions, deleteRecommendedNodes, predictRelatedTopics, prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
+import { calculateSurroundPositions, constructRoute, deleteRecommendedNodes, getInstanceName, predictRelatedTopics, prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
@@ -19,7 +19,6 @@ export interface NodeEdgeList {
 }
 
 export interface Instance {
-  name: string;
   parentId: string;
   topicNode: TypeTopicNode;
   jsonObject: ReactFlowJsonObject;
@@ -47,6 +46,7 @@ export enum InstanceState {
  */
 export const semanticDiveIn = (
   nodeMouseOver: Node,
+  [predictedTopicName, setPredictedTopicName]: [string, Dispatch<SetStateAction<string>>],
   [infiniteZoom, setInfiniteZoom]: [boolean, Dispatch<SetStateAction<boolean>>],
   [instanceMap, setInstanceMap]: [InstanceMap, Dispatch<SetStateAction<InstanceMap>>],
   [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
@@ -87,7 +87,6 @@ export const semanticDiveIn = (
 
         // Create New Instance
         childInstance = {
-          name: topicName,
           parentId: currentTopicId,
           topicNode: copyNode,
           jsonObject: {
@@ -99,7 +98,8 @@ export const semanticDiveIn = (
         }
 
         nodeMouseOver.data.instanceState = InstanceState.WAS;
-        setInstanceMap(map => Object.assign(map, {[copyNode.id]: childInstance}));
+        instanceMap = Object.assign(instanceMap, {[copyNode.id]: childInstance})
+        setInstanceMap(instanceMap);
       } else {
         // Restore instance
         const foundChildInstance = Object.values(instanceMap)
@@ -128,16 +128,21 @@ export const semanticDiveIn = (
         const currentInstance = instanceMap[currentTopicId]!;
         currentInstance.jsonObject = reactFlowInstance.toObject();
         currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
-        setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
+
+        if (getInstanceName(currentInstance) === 'SenseCape') {
+          currentInstance.topicNode.data.state.topic = getInstanceName(currentInstance);
+        }
+
+        console.log('map', instanceMap);
+
+        instanceMap = Object.assign(instanceMap, {[currentTopicId]: currentInstance});
+        setInstanceMap(instanceMap);
 
         // Set topic as current instance
         childInstance.topicNode.data.instanceState = InstanceState.CURRENT;
         setCurrentTopicId(childInstance.topicNode.id ?? '-'); // If id DNE, it should be home
-        setSemanticRoute(semanticRoute.concat({
-          title: topicName,
-          topicId: childInstance.topicNode.id,
-          level: childInstance.level,
-        }));
+
+        setSemanticRoute(constructRoute(childInstance, instanceMap));
 
         // Restore child instance
         reactFlowInstance.setNodes(childInstance.jsonObject.nodes);
@@ -152,7 +157,7 @@ export const semanticDiveIn = (
           const surroundPositions = calculateSurroundPositions(topics.length, childInstance.topicNode.position);
           const chatHistory: ChatCompletionRequestMessage[] = [{
             role: 'user',
-            content: `The topic of the conversation is focused on ${childInstance.name}`
+            content: `The topic of the conversation is focused on ${getInstanceName(childInstance)}`
           }]
           topics
           .filter((topic): topic is string => !!topic)
@@ -200,8 +205,8 @@ export const semanticDiveOut = (
   setTimeout(() => {
     const currentInstance = instanceMap[currentTopicId]!;
     let parentInstance = instanceMap[currentInstance.parentId];
-    const currentInstanceName = predictedTopicName || currentInstance.name;
-
+    const currentInstanceName = predictedTopicName || getInstanceName(currentInstance);
+    
     if (!parentInstance) {
       if (reactFlowInstance.getNodes().length <= 1) {
         return;
@@ -209,7 +214,7 @@ export const semanticDiveOut = (
 
       // Create the parent instance
       parentInstance = {
-        name: currentInstanceName + '-parent',
+        name: 'SenseCape',
         parentId: '',
         topicNode: {
           id: `topic-${uuid()}`,
@@ -220,7 +225,7 @@ export const semanticDiveOut = (
             chatHistory: [],
             instanceState: InstanceState.NONE, // To temporarily disable dive out of home
             state: {
-              topic: currentInstanceName + '-parent',
+              topic: 'SenseCape',
             }
           } as TopicNodeData,
           position: currentInstance.topicNode.position,
@@ -234,42 +239,35 @@ export const semanticDiveOut = (
       } as Instance;
 
       currentInstance.parentId = parentInstance.topicNode.id;
-      currentInstance.name = predictedTopicName;
       currentInstance.topicNode.data.state.topic = predictedTopicName;
       currentInstance.topicNode.position = reactFlowInstance.getViewport();
-      setInstanceMap(map => Object.assign(map, {
+      instanceMap = Object.assign(instanceMap, {
         [currentInstance.topicNode.id]: currentInstance,
         [currentInstance.parentId]: parentInstance,
-      }))
-
-      setSemanticRoute([{
-        title: parentInstance.name,
-        topicId: parentInstance.topicNode.id,
-        level: parentInstance.level,
-      }].concat(semanticRoute));
-    } else {
-
-      setSemanticRoute([{
-        title: parentInstance.name,
-        topicId: parentInstance.topicNode.id,
-        level: parentInstance.level
-      }]);
-      // TODO: add Ellipses
+      });
+      setInstanceMap(instanceMap);
     }
 
-    prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
+    setSemanticRoute(constructRoute(parentInstance, instanceMap));
+
+    prepareDive(
+      reactFlowInstance,
+      [semanticCarryList, setSemanticCarryList],
+      currentTopicId,
+    );
 
     // store current reactFlowInstance
     currentInstance.jsonObject = reactFlowInstance.toObject();
-    if (currentInstance.name === 'SenseCape') {
-      currentInstance.name = currentInstanceName;
+    currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
+
+    if (getInstanceName(currentInstance) === 'SenseCape') {
       currentInstance.topicNode.data.state.topic = currentInstanceName;
     }
     console.log('nodes', currentInstance.jsonObject.nodes);
-    currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
 
     setPredictedTopicName('');
-    setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
+    instanceMap = Object.assign(instanceMap, {[currentTopicId]: currentInstance});
+    setInstanceMap(instanceMap);
 
     // Set topic as parent topic
     currentInstance.topicNode.data.instanceState = InstanceState.WAS;

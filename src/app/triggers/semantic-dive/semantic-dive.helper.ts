@@ -2,12 +2,28 @@ import React, { CSSProperties, Dispatch, SetStateAction } from "react";
 import { Edge, getRectOfNodes, Node, ReactFlowInstance, Rect, XYPosition } from "reactflow";
 import { getChatGPTRelatedTopics } from "../../../api/openai-api";
 import { TopicNodeData } from "../../nodes/topic-node/topic-node.model";
-import { InstanceMap, NodeEdgeList } from "./semantic-dive";
+import { Instance, InstanceMap, NodeEdgeList } from "./semantic-dive";
 
 export interface SemanticRouteItem {
   title: string;
   topicId: string;
   level: number;
+}
+
+/**
+ * Returns the name of the instance
+ */
+export const getInstanceName = (instance: Instance) => {
+  let toReturn = '';
+  try {
+    toReturn = instance.topicNode.data.state.topic ?? '';
+  } catch (error) {
+  }
+  return toReturn;
+}
+
+export const setInstanceName = (instance: Instance) => {
+
 }
 
 export const prepareDive = (
@@ -159,4 +175,26 @@ export const deleteRecommendedNodes = (
       return true;
     }
   });
+}
+
+/**
+ * 
+ * @param focusInstance - instance to focus on
+ * @param instanceMap - map of instances
+ * @returns the path from parent source to focus instance
+ */
+export const constructRoute = (
+  focusInstance: Instance,
+  instanceMap: InstanceMap,
+) => {
+  let path: SemanticRouteItem[] = [];
+  while (focusInstance) {
+    path.push({
+      title: getInstanceName(focusInstance),
+      topicId: focusInstance.topicNode.id,
+      level: focusInstance.level,
+    });
+    focusInstance = instanceMap[focusInstance.parentId];
+  }
+  return path.reverse();
 }

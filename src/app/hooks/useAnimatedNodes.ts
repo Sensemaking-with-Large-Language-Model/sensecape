@@ -10,37 +10,43 @@ function useAnimatedNodes(
   nodes: Node[],
   { animationDuration = 300 }: UseAnimatedNodeOptions = {}
 ) {
+  let enableAnimations = true;
+  if (!nodes.every(node => node.type === 'hierarchy')) {
+    enableAnimations = false;
+  }
   const [tmpNodes, setTmpNodes] = useState(nodes);
   const { getNode } = useReactFlow();
 
   useEffect(() => {
-    const transitions = nodes.map((node) => ({
-      id: node.id,
-      from: getNode(node.id)?.position ?? node.position,
-      to: node.position,
-      node,
-    }));
+    if (enableAnimations) {
+      const transitions = nodes.map((node) => ({
+        id: node.id,
+        from: getNode(node.id)?.position ?? node.position,
+        to: node.position,
+        node,
+      }));
 
-    const t = timer((elapsed) => {
-      const s = elapsed / animationDuration;
+      const t = timer((elapsed) => {
+        const s = elapsed / animationDuration;
 
-      const currNodes = transitions.map(({ node, from, to }) => {
-        return {
-          ...node,
-          position: { x: from.x + (to.x - from.x) * s, y: from.y + (to.y - from.y) * s },
-        };
+        const currNodes = transitions.map(({ node, from, to }) => {
+          return {
+            ...node,
+            position: { x: from.x + (to.x - from.x) * s, y: from.y + (to.y - from.y) * s },
+          };
+        });
+
+        setTmpNodes(currNodes);
+
+        if (elapsed > animationDuration) {
+          // it's important to set the final nodes here to avoid glitches
+          setTmpNodes(nodes);
+          t.stop();
+        }
       });
 
-      setTmpNodes(currNodes);
-
-      if (elapsed > animationDuration) {
-        // it's important to set the final nodes here to avoid glitches
-        setTmpNodes(nodes);
-        t.stop();
-      }
-    });
-
-    return () => t.stop();
+      return () => t.stop();
+    }
   }, [nodes, getNode, animationDuration]);
 
   return { nodes: tmpNodes };

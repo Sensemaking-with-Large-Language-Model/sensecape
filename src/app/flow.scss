@@ -5,6 +5,12 @@
     width: inherit;
     height: inherit;
     transition: ease-in 0.2s;
+    .flow {
+      transition: ease 0.5s;
+    }
+    .hierarchy-flow {
+      background-color: #eaeff4;
+    }
   }
 }
 
