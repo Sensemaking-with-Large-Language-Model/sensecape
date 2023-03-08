@@ -1,5 +1,5 @@
 import { Slider } from "antd";
-import { SliderMarks } from "antd/es/slider";
+import { Formatter, SliderMarks } from "antd/es/slider";
 import { useCallback } from "react";
 import { useReactFlow, useStore } from "reactflow";
 import { ZoomState } from "../../nodes/node.model";
@@ -8,6 +8,8 @@ import './zoom-slider.scss';
 
 const ZoomSlider = (props: any) => {
   const reactFlowInstance = useReactFlow();
+
+  const formatter: Formatter = (value: number | undefined) => `${props.zoom.toFixed(2)}`;
 
   const onChange = useCallback((value: number) => {
     reactFlowInstance.zoomTo(Math.pow(10, value));
@@ -29,6 +31,7 @@ const ZoomSlider = (props: any) => {
     <div className="zoom-slider">
       <Slider
         vertical
+        tooltip={{ formatter }}
         included={false}
         step={0.001}
         value={Math.log10(props.zoom)}
