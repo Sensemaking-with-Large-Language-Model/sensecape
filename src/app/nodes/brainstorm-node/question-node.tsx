@@ -9,13 +9,15 @@ import { createChatNode, createChatNodeFromDiv } from "../chat-node/chat-node.he
 import { ChatNodeData } from "../chat-node/chat-node.model";
 import { ResponseState } from "../../components/input.model";
 import "./question-node.scss";
+import { useState } from "react";
 
 export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeData) => {
 // export const QuestionNode: ( props: NodeProps) => {
   const reactFlowInstance = useReactFlow();
-
+  const [hasClicked, setHasClicked] = useState(false);
 
   const handleClick = (event: any) => {
+    setHasClicked(true);
     const data: ChatNodeData = {  
       parentId: props.parentId,
       chatHistory: [],
@@ -30,7 +32,13 @@ export const QuestionNode: React.FC<QuestionNodeData> = ( props: QuestionNodeDat
   }
 
   return (
-      <div onClick={ handleClick } id={`${ props.keyword}` + "-" + `${ props.fiveWsType}` + "-" +  props.index} className="brainstorm-response-question">{ props.question }</div>
+    <div
+      onClick={ handleClick }
+      id={`${ props.keyword}` + "-" + `${ props.fiveWsType}` + "-" +  props.index}
+      className={`brainstorm-response-question ${hasClicked ? 'has-clicked' : ''}`}
+    >
+      { props.question }
+    </div>
   )
 };
 
