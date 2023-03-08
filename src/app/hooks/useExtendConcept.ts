@@ -112,7 +112,7 @@ const extendConcept = async (
       "Quality Management",
     ];
   } else {
-    topics = await getTopics(prompt, concept);
+    topics = await getTopics(concept);
   }
 
   // create a unique id for the child node
