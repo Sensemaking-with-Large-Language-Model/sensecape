@@ -54,8 +54,6 @@ import useLayout from "./hooks/useLayout";
 import useAutoLayout, { Direction } from "./hooks/useAutoLayout";
 import SubTopicNode from "./nodes/concept-node/subtopic-node/subtopic-node";
 import { TypeSubTopicNode } from "./nodes/concept-node/subtopic-node/subtopic-node.model";
-import SupTopicNode from "./nodes/concept-node/suptopic-node/suptopic-node";
-import { TypeSupTopicNode } from "./nodes/concept-node/suptopic-node/suptopic-node.model";
 import WorkflowNode from "./nodes/workflow-node/WorkflowNode";
 import PlaceholderNode from "./nodes/workflow-node/PlaceholderNode";
 import BrainstormNode from "./nodes/brainstorm-node/brainstorm-node";
@@ -134,7 +132,6 @@ const nodeTypes: NodeTypes = {
   chat: ChatNode,
   topic: TopicNode,
   subtopic: SubTopicNode,
-  suptopic: SupTopicNode,
   concept: ConceptNode,
   memo: MemoNode,
   flex: FlexNode,
