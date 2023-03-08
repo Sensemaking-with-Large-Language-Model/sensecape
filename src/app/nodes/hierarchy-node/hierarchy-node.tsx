@@ -1,6 +1,7 @@
 import React, { MouseEventHandler } from 'react';
 import { Handle, NodeProps, Position, useReactFlow } from 'reactflow';
 import { uuid } from '../../utils';
+import { HierarchyNodeData } from './hierarchy-node.model';
 
 import './hierarchy-node.scss'
 
@@ -27,12 +28,28 @@ export default function HierarchyNode({ data, id, xPos, yPos }: NodeProps) {
           if (node.id === id) {
             return {
               ...node,
-              data: { ...node.data, expanded: true },
+              data: { ...node.data, expanded: true } as HierarchyNodeData,
             };
           }
           return node;
         })
-        .concat([{ id: newNodeId, position: { x: xPos, y: yPos + 100 }, data: { label: 'X' } }])
+        .concat([
+          {
+            id: newNodeId,
+            type: 'hierarchy',
+            position: {
+              x: xPos,
+              y: yPos + 100
+            },
+            data: {
+              topicId: '',
+              topicData: {
+                state: {
+                  topic: 'subtopic',
+                }
+              }
+            } as HierarchyNodeData,
+          }])
     );
 
     // the edge between the clicked node and the child node is created
@@ -41,7 +58,7 @@ export default function HierarchyNode({ data, id, xPos, yPos }: NodeProps) {
 
   return (
     <div className='hierarchy-node'>
-      <div className='topic-name'>Hierarchy</div>
+      <div className='topic-name'>{data.topicData.state.topic}</div>
       <Handle position={Position.Top} type="target" />
       <Handle position={Position.Bottom} type="source" />
       <div className='add-subtopic-button' onClick={addChildNode}>

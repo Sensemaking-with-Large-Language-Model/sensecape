@@ -101,7 +101,7 @@ import { clearSemanticCarry, SemanticRouteItem } from "./triggers/semantic-dive/
 import { notification } from "antd";
 import React from "react";
 import HierarchyNode from "./nodes/hierarchy-node/hierarchy-node";
-import { showHierarchyView } from "./triggers/show-hierarchy/show-hierarchy";
+import { hideHierarchyView, showHierarchyView } from "./triggers/show-hierarchy/show-hierarchy";
 
 const verbose: boolean = true;
 
@@ -207,7 +207,6 @@ const ExploreFlow = () => {
       [currentTopicId]: {
         name: "SenseCape",
         parentId: "",
-        childrenId: [] as string[],
         topicNode: homeTopicNode,
         jsonObject: {
           nodes: [] as Node[],
@@ -237,11 +236,25 @@ const ExploreFlow = () => {
 
   const openHierarchyView = useCallback(() => {
     if (reactFlowInstance) {
-      setShowingHierarchy(true);
-      showHierarchyView(instanceMap, reactFlowInstance);
+      if (!showingHierarchy) {
+        setShowingHierarchy(true);
+        showHierarchyView(
+          predictedTopicName,
+          currentTopicId,
+          [instanceMap, setInstanceMap],
+          reactFlowInstance
+        );
+      } else {
+        setShowingHierarchy(false);
+        hideHierarchyView(
+          currentTopicId,
+          instanceMap,
+          reactFlowInstance
+        );
+      }
     }
   },
-  [currentTopicId, instanceMap, reactFlowInstance]);
+  [predictedTopicName, currentTopicId, instanceMap, reactFlowInstance]);
 
   // Ask ChatGPT for the topic from the nodes in the canvas
   useEffect(() => {
@@ -270,6 +283,7 @@ const ExploreFlow = () => {
           setPredictedTopicName(response ?? '');
           semanticRoute[0]!.title = response ?? semanticRoute[0]!.title;
           setSemanticRoute(semanticRoute);
+
         });
       }
     }

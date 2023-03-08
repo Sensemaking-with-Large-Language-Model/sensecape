@@ -21,7 +21,6 @@ export interface NodeEdgeList {
 export interface Instance {
   name: string;
   parentId: string;
-  childrenId: string[];
   topicNode: TypeTopicNode;
   jsonObject: ReactFlowJsonObject;
   level: number;
@@ -90,7 +89,6 @@ export const semanticDiveIn = (
         childInstance = {
           name: topicName,
           parentId: currentTopicId,
-          childrenId: [],
           topicNode: copyNode,
           jsonObject: {
             nodes: [copyNode],
@@ -213,7 +211,6 @@ export const semanticDiveOut = (
       parentInstance = {
         name: currentInstanceName + '-parent',
         parentId: '',
-        childrenId: [],
         topicNode: {
           id: `topic-${uuid()}`,
           type: 'topic',
