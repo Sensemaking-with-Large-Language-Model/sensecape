@@ -52,6 +52,7 @@ const ConceptInput = (props: any) => {
           // props.setResponseInputState(ResponseState.LOADING);
           if (props.input !== '') {
             props.handleSubmit();
+            props.setConcept(props.input);
           }
           // extendConcept(
           //   reactFlowInstance,
@@ -81,6 +82,7 @@ const ConceptInput = (props: any) => {
             event.preventDefault();
             if (props.input !== '') {
               props.handleSubmit();
+              props.setConcept(props.input);
             }
             // extendConcept(
             //   reactFlowInstance,

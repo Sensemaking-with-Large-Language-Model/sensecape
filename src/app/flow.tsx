@@ -95,8 +95,6 @@ import { duplicateNode } from "./nodes/node.helper";
 import { clearSemanticCarry, SemanticRouteItem } from "./triggers/semantic-dive/semantic-dive.helper";
 import toast, { Toaster } from "react-hot-toast";
 
-const verbose: boolean = true;
-
 const nodeColor = (node: Node) => {
   switch (node.type) {
     case "brainstorm":

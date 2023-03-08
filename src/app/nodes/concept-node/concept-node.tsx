@@ -16,7 +16,7 @@ import { TypeTopicNode } from "../topic-node/topic-node.model";
 import { ReactComponent as DragHandle } from "../../assets/drag-handle.svg";
 import ConceptInput from "../../components/concept-input/concept-input";
 
-import { uuid } from "../../utils";
+import { devFlags, uuid } from "../../utils";
 
 import useNodeClick from "../../hooks/useNodeClick";
 
@@ -31,9 +31,6 @@ import useLayout from "../../hooks/useLayout";
 import { stratify, tree } from "d3-hierarchy";
 import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 import { createSubTopicNodes } from "./concept-node.helper";
-
-const verbose: boolean = true; // flag for console.log() messages during devMode
-const use_dagre: boolean = false;
 
 // ===========================
 
@@ -50,15 +47,14 @@ const options = { duration: 300 };
 // accepts current nodes and edges and returns the layouted nodes with their updated positions
 function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
   // convert nodes and edges into a hierarchical object for using it with the layout function
-  if (verbose) {
+  if (!devFlags.disableVerbose) {
     console.log("===========");
     console.log("before running hierarchy");
     console.log("nodes", nodes);
     console.log("edges", edges);
   }
   const root_position = rootNode.position;
-  // console.log(rootNode.width)
-  if (verbose) {
+  if (!devFlags.disableVerbose) {
     console.log("rootNode", rootNode);
     console.log("root_position", root_position);
   }
@@ -73,7 +69,7 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
 
   // run the layout algorithm with the hierarchy data structure
   const root = layout(hierarchy);
-  if (verbose) {
+  if (!devFlags.disableVerbose) {
     console.log("hierarchy", hierarchy);
     console.log("root", root);
     console.log("rootNode.width", rootNode.width);
@@ -82,7 +78,7 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
   root.x = root_position["x"];
   root.y = root_position["y"];
 
-  if (verbose) {
+  if (!devFlags.disableVerbose) {
     console.log("root.x", root.x);
     console.log("===========");
   }
@@ -154,13 +150,12 @@ const ConceptNode = (props: NodeProps) => {
   // }, [reactFlowInstance, concept, input, responseInputState]);
 
   useEffect(() => {
-    console.log("useEffect2");
+    if (!devFlags.disableVerbose) {
+      console.log("useEffect2");
+    }
     // console.log(props.data.state.input, props.data.state.responseInputState)
     // If a response is already given, don't take in any input.
-    if (
-      props.data.state.input &&
-      props.data.state.responseInputState === ResponseState.LOADING
-    ) {
+    if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
       handleSubmit();
     } else if (props.data.state.responseInputState === ResponseState.INPUT) {
       const currElement = document.querySelectorAll(
@@ -227,7 +222,7 @@ const ConceptNode = (props: NodeProps) => {
     const otherNodes = nodes.filter((node) => node.data.rootId !== rootId_);
     const otherEdges = edges.filter((edge) => edge.data.rootId !== rootId_);
 
-    if (verbose) {
+    if (!devFlags.disableVerbose) {
       console.log("targetNodes", targetNodes);
       console.log("targetEdges", targetEdges);
       console.log("otherNodes", otherNodes);
@@ -244,7 +239,6 @@ const ConceptNode = (props: NodeProps) => {
   };
 
   const handleSubmit = async () => {
-    setResponseInputState(ResponseState.LOADING);
 
     const parentNode = reactFlowInstance.getNode(props.id);
 
@@ -252,10 +246,18 @@ const ConceptNode = (props: NodeProps) => {
       return;
     }
 
+    if (parentNode.data.label === '') { 
+      return; // if input box is empty, don't run
+    }
+
+    setResponseInputState(ResponseState.LOADING);
+
+    setConcept(parentNode.data.label);
+
     extendConcept(reactFlowInstance, input, true).then((data) => {
       const topics = data;
 
-      if (verbose) {
+      if (!devFlags.disableVerbose) {
         console.log("topics", topics);
       }
 
@@ -265,26 +267,28 @@ const ConceptNode = (props: NodeProps) => {
         topics
       );
 
-      setResponseInputState(ResponseState.COMPLETE);
-
+      
       const childNodeArray = createdArray[0];
       const childEdgeArray = createdArray[1];
-
-      if (verbose) {
+      
+      if (!devFlags.disableVerbose) {
         console.log("childNodeArray", childNodeArray);
         console.log("childEdgeArray", childEdgeArray);
       }
-
+      
       const currNodes = reactFlowInstance.getNodes();
       const currEdges = reactFlowInstance.getEdges();
-
+      
       // @ts-ignore
       reactFlowInstance.setNodes([...currNodes, ...childNodeArray]);
       // @ts-ignore
       reactFlowInstance.setEdges([...currEdges, ...childEdgeArray]);
+      
+      setResponseInputState(ResponseState.COMPLETE);
 
       setTimeout(layout_, 100);
     });
+    setResponseSelfState(ResponseState.COMPLETE);
   };
 
   if (responseSelfState === ResponseState.INPUT) {
@@ -346,6 +350,7 @@ const ConceptNode = (props: NodeProps) => {
           handleSubmit={handleSubmit}
           input={input}
           setInput={setInput}
+          setConcept={setConcept}
         />
       </div>
     );
@@ -364,8 +369,10 @@ const ConceptNode = (props: NodeProps) => {
     return (
       <div
         className="concept-node"
-        onClick={() => setResponseSelfState(ResponseState.INPUT)}
+        // onClick={() => setResponseSelfState(ResponseState.INPUT)}
       >
+        <DragHandle className="drag-handle" />
+        <div className="concept-node-category">#category</div>
         <Handle
           type="target"
           position={Position.Left}
