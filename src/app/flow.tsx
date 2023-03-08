@@ -218,13 +218,13 @@ const ExploreFlow = () => {
     }
   );
 
-  const [semanticRoute, setSemanticRoute] = useLocalStorage<SemanticRouteItem[]>("semanticRoute", [
-    {
-      title: getInstanceName(instanceMap[currentTopicId]!),
-      topicId: currentTopicId,
-      level: 0,
-    },
-  ]);
+  const defaultRouteItem: SemanticRouteItem = {
+    title: getInstanceName(instanceMap[currentTopicId]!),
+    topicId: currentTopicId,
+    level: 0,
+  };
+
+  const [semanticRoute, setSemanticRoute] = useLocalStorage<SemanticRouteItem[]>("semanticRoute", [defaultRouteItem]);
 
   const [predictedTopicName, setPredictedTopicName] = useLocalStorage<string>('predictedTopicName', '');
 
@@ -755,31 +755,38 @@ const ExploreFlow = () => {
           {/* <div><Toaster position="bottom-center"/></div> */}
           <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
         </ReactFlow>
-        <div id='semantic-carry-box'></div>
-        <div style={{
-          boxShadow: 'inset 0 0 50px #3c6792',
-          position: 'absolute',
-          pointerEvents: 'none',
-          width: '100%',
-          height: '100%',
-          top: 0,
-          left: 0,
-          visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
-          opacity: `${altKeyPressed ? 1 : 0}`,
-          transition: 'ease 0.2s',
-        }} />
-        <SemanticRoute
-          currentTopicId={currentTopicId}
-          route={semanticRoute}
-          semanticJumpTo={semanticDiveToInstance}
-        />
-        <NodeToolkit 
+        {
+          !showingHierarchy ?
+          <>
+            <div id='semantic-carry-box'></div>
+            <div style={{
+              boxShadow: 'inset 0 0 50px #3c6792',
+              position: 'absolute',
+              pointerEvents: 'none',
+              width: '100%',
+              height: '100%',
+              top: 0,
+              left: 0,
+              visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
+              opacity: `${altKeyPressed ? 1 : 0}`,
+              transition: 'ease 0.2s',
+            }} />
+            <SemanticRoute
+              currentTopicId={currentTopicId}
+              route={semanticRoute}
+              semanticJumpTo={semanticDiveToInstance}
+            />
+            <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
+            <ZoomSlider zoom={zoom} range={zoomRange} />
+          </> : <></>
+        }
+        <NodeToolkit
+          resetSemanticRoute={() => setSemanticRoute([defaultRouteItem])}
           travellerMode={travellerMode}
           toggleTravellerMode={toggleTravellerMode}
+          showingHierarchy={showingHierarchy}
           toggleHierarchyView={toggleHierarchyView}
         />
-        <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
-        <ZoomSlider zoom={zoom} range={zoomRange} />
       </div>
     </div>
   );

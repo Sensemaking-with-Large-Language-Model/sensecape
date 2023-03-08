@@ -469,6 +469,10 @@ const NodeToolkit = (props: any) => {
 
   const clearCanvas = useCallback(() => {
     localStorage.clear();
+    if (props.showingHierarchy) {
+      props.toggleHierarchyView();
+    }
+    props.resetSemanticRoute();
     reactFlowInstance.setNodes([]);
     reactFlowInstance.setEdges([]);
     reactFlowInstance.zoomTo(1, {
@@ -525,7 +529,21 @@ const NodeToolkit = (props: any) => {
         arrow={showArrow}>
           Show or hide track history
       </Popup>
-      <Button type="text" block onClick={props.toggleHierarchyView}>View Hierarchy</Button>
+      <Popup
+        trigger={<div className='toolkit-option traveller-mode-toggle' onClick={props.toggleHierarchyView}>
+        <Switch checked={props.showingHierarchy} onChange={props.toggleHierarchyView} size='small' />View Hierarchy</div>}
+        position={positionToolTipRight}
+        offsetX={offsetXValue}
+        offsetY={offsetYValue}
+        on="hover"
+        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseEnterDelay={0}
+        disabled={doNotShowTooltip}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={showArrow}>
+          Toggle between Hierarchy View and Canvas View
+      </Popup>
+
       {/* <div className='toolkit-option toolkit-help add-node' draggable onClick={startIntroJS}>
         <HelpIcon />
         Help
