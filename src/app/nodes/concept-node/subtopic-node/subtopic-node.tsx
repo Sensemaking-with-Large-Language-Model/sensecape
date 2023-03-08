@@ -12,8 +12,9 @@ import { extendConcept } from "../../../../api/openai-api";
 import "./subtopic-node.scss";
 // import cx from 'classnames';
 // import styles from 'subtopic-node.module.scss';
-import { ZoomState } from "../../../nodes/node.model";
+import { ZoomState } from "../../node.model";
 import { stratify, tree } from "d3-hierarchy";
+import { createSubTopicNodes } from "../concept-node.helper";
 
 const verbose: boolean = false; // flag for console.log() messages during devMode
 const zoomSelector = (s: any) => s.transform[2];
@@ -142,14 +143,42 @@ const SubTopicNode = (props: NodeProps) => {
   };
 
   const handleSubTopicClick = async () => {
-    extendConcept(
-      reactFlowInstance,
-      props.id,
-      "bottom",
-      props.data.label,
-      true
-    ).then((data) => {
-      if (verbose) {console.log("data", data);}
+
+    const parentNode = reactFlowInstance.getNode(props.id);
+
+    if (!parentNode) {
+      return;
+    }
+
+    extendConcept(reactFlowInstance, props.data.label, true).then((data) => {
+      const topics = data;
+
+      if (verbose) {
+        console.log("topics", topics);
+      }
+
+      const createdArray = createSubTopicNodes(
+        reactFlowInstance,
+        parentNode,
+        topics
+      );
+
+      const childNodeArray = createdArray[0];
+      const childEdgeArray = createdArray[1];
+
+      if (verbose) {
+        console.log("childNodeArray", childNodeArray);
+        console.log("childEdgeArray", childEdgeArray);
+      }
+
+      const currNodes = reactFlowInstance.getNodes();
+      const currEdges = reactFlowInstance.getEdges();
+
+      // @ts-ignore
+      reactFlowInstance.setNodes([...currNodes, ...childNodeArray]);
+      // @ts-ignore
+      reactFlowInstance.setEdges([...currEdges, ...childEdgeArray]);
+
       setTimeout(layout_, 100);
     });
   };
@@ -172,15 +201,6 @@ const SubTopicNode = (props: NodeProps) => {
         position={Position.Bottom}
         isConnectable={true}
         onClick={handleSubTopicClick}
-        // onClick={() =>
-        //   extendConcept(
-        //     reactFlowInstance,
-        //     props.id,
-        //     "bottom",
-        //     props.data.label,
-        //     false
-        //   )
-        // }
       />
     </div>
   );

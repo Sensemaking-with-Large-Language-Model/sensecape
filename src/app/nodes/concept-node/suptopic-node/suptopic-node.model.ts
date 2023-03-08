@@ -1,7 +1,8 @@
 import { Node } from 'reactflow';
 
-export interface SupTopicNodeData {
-  
+export interface SubTopicNodeData {
+  parentId: string;
+  rootId?: string;
 }
 
-export type TypeSupTopicNode = Node<SupTopicNodeData>;
+export type TypeSubTopicNode = Node<SubTopicNodeData>;

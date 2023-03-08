@@ -7,6 +7,7 @@ export interface ConceptNodeData {
   topicNodes?: TypeTopicNode[] // optional, since we also have concept node not generated from topics
   width?: number;
   height?: number;
+  rootId?: string;
   state: {
     responseSelfState?: ResponseState;    // State when concept itself is being generated
     responseInputState?: ResponseState             // State when concept is generating

@@ -7,6 +7,7 @@ import {
   Position,
   ReactFlowInstance,
   useReactFlow,
+  MarkerType,
 } from "reactflow";
 import { getGPT3Term, getTopics } from "../../../api/openai-api";
 import { ResponseState } from "../../components/input.model";
@@ -28,8 +29,8 @@ import { FlowContext } from "../../flow.model";
 
 import useLayout from "../../hooks/useLayout";
 import { stratify, tree } from "d3-hierarchy";
-import { SubTopicNodeData } from "./subtopic-node/subtopic-node.model";
 import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
+import { createSubTopicNodes } from "./concept-node.helper";
 
 const verbose: boolean = true; // flag for console.log() messages during devMode
 const use_dagre: boolean = false;
@@ -69,20 +70,20 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
     .parentId((d: Node) => edges.find((e: Edge) => e.target === d.id)?.source)(
     nodes
   );
-  
+
   // run the layout algorithm with the hierarchy data structure
   const root = layout(hierarchy);
   if (verbose) {
     console.log("hierarchy", hierarchy);
     console.log("root", root);
-    console.log('rootNode.width', rootNode.width);
-    console.log('root.x', root.x);
+    console.log("rootNode.width", rootNode.width);
+    console.log("root.x", root.x);
   }
   root.x = root_position["x"];
   root.y = root_position["y"];
 
   if (verbose) {
-    console.log('root.x', root.x);
+    console.log("root.x", root.x);
     console.log("===========");
   }
   // convert the hierarchy back to react flow nodes (the original node is stored as d.data)
@@ -90,7 +91,7 @@ function layoutNodes(rootNode: Node, nodes: Node[], edges: Edge[]): Node[] {
   // [reverted to original anchor point] we add (rootNode.width! / 2) to d.x and (rootNode.height! / 2) to d.y to account for the change in anchor point by Bryan where the anchor point was moved from top left to center of the node
   return root
     .descendants()
-    .map((d) => ({ ...d.data, position: { x: d.x , y: d.y } })); 
+    .map((d) => ({ ...d.data, position: { x: d.x, y: d.y } }));
 }
 
 // ===========================
@@ -153,20 +154,26 @@ const ConceptNode = (props: NodeProps) => {
   // }, [reactFlowInstance, concept, input, responseInputState]);
 
   useEffect(() => {
-    console.log('useEffect2');
+    console.log("useEffect2");
     // console.log(props.data.state.input, props.data.state.responseInputState)
     // If a response is already given, don't take in any input.
-    if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
+    if (
+      props.data.state.input &&
+      props.data.state.responseInputState === ResponseState.LOADING
+    ) {
       handleSubmit();
     } else if (props.data.state.responseInputState === ResponseState.INPUT) {
-      const currElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0];
-      const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
+      const currElement = document.querySelectorAll(
+        `[data-id="${props.id}"]`
+      )[0];
+      const inputElement = currElement.getElementsByClassName(
+        "text-input"
+      )[0] as HTMLInputElement;
       setTimeout(() => {
         inputElement.focus();
       }, 100);
     }
   }, []);
-
 
   const generateConceptFromTopics = async (context: string, prompt: string) => {
     if (!prompt) return;
@@ -220,11 +227,11 @@ const ConceptNode = (props: NodeProps) => {
     const otherNodes = nodes.filter((node) => node.data.rootId !== rootId_);
     const otherEdges = edges.filter((edge) => edge.data.rootId !== rootId_);
 
-    if(verbose) {
-      console.log('targetNodes', targetNodes);
-      console.log('targetEdges', targetEdges);
-      console.log('otherNodes', otherNodes);
-      console.log('otherEdges', otherEdges);
+    if (verbose) {
+      console.log("targetNodes", targetNodes);
+      console.log("targetEdges", targetEdges);
+      console.log("otherNodes", otherNodes);
+      console.log("otherEdges", otherEdges);
     }
 
     const targetNodes_ = layoutNodes(
@@ -237,27 +244,45 @@ const ConceptNode = (props: NodeProps) => {
   };
 
   const handleSubmit = async () => {
-    extendConcept(
-      reactFlowInstance,
-      props.id,
-      "bottom",
-      input,
-      true,
-      setResponseInputState
-    ).then((data) => {
-      setTimeout(layout_, 100);
-    });
-  };
+    setResponseInputState(ResponseState.LOADING);
 
-  const handleSubTopicClick = async () => {
-    extendConcept(
-      reactFlowInstance,
-      props.id,
-      "bottom",
-      input,
-      true,
-      setResponseInputState
-    ).then((data) => {
+    const parentNode = reactFlowInstance.getNode(props.id);
+
+    if (!parentNode) {
+      return;
+    }
+
+    extendConcept(reactFlowInstance, input, true).then((data) => {
+      const topics = data;
+
+      if (verbose) {
+        console.log("topics", topics);
+      }
+
+      const createdArray = createSubTopicNodes(
+        reactFlowInstance,
+        parentNode,
+        topics
+      );
+
+      setResponseInputState(ResponseState.COMPLETE);
+
+      const childNodeArray = createdArray[0];
+      const childEdgeArray = createdArray[1];
+
+      if (verbose) {
+        console.log("childNodeArray", childNodeArray);
+        console.log("childEdgeArray", childEdgeArray);
+      }
+
+      const currNodes = reactFlowInstance.getNodes();
+      const currEdges = reactFlowInstance.getEdges();
+
+      // @ts-ignore
+      reactFlowInstance.setNodes([...currNodes, ...childNodeArray]);
+      // @ts-ignore
+      reactFlowInstance.setEdges([...currEdges, ...childEdgeArray]);
+
       setTimeout(layout_, 100);
     });
   };
@@ -289,7 +314,7 @@ const ConceptNode = (props: NodeProps) => {
               : "concept-node-handle hidden"
           }
           position={Position.Bottom}
-          onClick={handleSubTopicClick}
+          onClick={handleSubmit}
           id="b"
         />
         {/* target node for traveller edges */}
@@ -351,7 +376,7 @@ const ConceptNode = (props: NodeProps) => {
           type="source"
           className="concept-node-handle"
           position={Position.Bottom}
-          onClick={handleSubTopicClick}
+          onClick={handleSubmit}
         />
       </div>
     );

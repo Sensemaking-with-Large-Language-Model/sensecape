@@ -310,17 +310,9 @@ export const getGPT3Questions = async (concept: string) => {
 
 export const extendConcept = async (
   reactFlowInstance: ReactFlowInstance,
-  id: string,
-  pos: string,
   concept: string,
   conceptnode: boolean = true,
-  setResponseState?: Function
 ) => {
-  const parentNode = reactFlowInstance.getNode(id);
-
-  if (!parentNode) {
-    return;
-  }
 
   if (verbose) {
     console.log("=====");
@@ -328,81 +320,7 @@ export const extendConcept = async (
     console.log("=====");
   }
 
-  if (setResponseState) {
-    setResponseState(ResponseState.LOADING);
-  }
-  let prompt = "";
-  let sourceHandleId = "";
-  let targetHandleId = "";
-  let newNodePosition: { x: number; y: number };
-  let nodeType = "";
-  let edgeLabel = "";
-
-  if (!parentNode) {
-    return;
-  }
-
-  if (pos === "top") {
-    prompt = "Give me 5 higher level topics of " + concept;
-    sourceHandleId = "a";
-    targetHandleId = "b";
-    // edgeLabel = "upper-level topic";
-    if (conceptnode) {
-      newNodePosition = {
-        x: parentNode.position.x - 50,
-        y: parentNode.position.y - 200,
-      };
-    } else {
-      // if suptopic, create it above
-      newNodePosition = {
-        x: parentNode.position.x,
-        y: parentNode.position.y - 200,
-      };
-    }
-    nodeType = "suptopic";
-  } else if (pos === "bottom") {
-    prompt = "Give me 3 lower level topics of " + concept;
-    sourceHandleId = "b";
-    targetHandleId = "a";
-    // edgeLabel = "lower-level topic";
-    if (conceptnode) {
-      newNodePosition = {
-        x: parentNode.position.x - 50,
-        y: parentNode.position.y + 200,
-      };
-    } else {
-      newNodePosition = {
-        // if subtopic, create it below
-        x: parentNode.position.x,
-        y: parentNode.position.y + 200,
-      };
-    }
-    nodeType = "subtopic";
-  } else if (pos === "left") {
-    prompt =
-      "Give me 5 related topics of " +
-      concept +
-      " at this level of abstraction";
-    sourceHandleId = "c";
-    targetHandleId = "d";
-    newNodePosition = {
-      x: parentNode.position.x - 150,
-      y: parentNode.position.y,
-    };
-    nodeType = "related-topic";
-  } else if (pos === "right") {
-    prompt =
-      "Give me 5 related topics of " +
-      concept +
-      " at this level of abstraction";
-    sourceHandleId = "d";
-    targetHandleId = "c";
-    newNodePosition = {
-      x: parentNode.position.x + 250,
-      y: parentNode.position.y,
-    };
-    nodeType = "related-topic";
-  }
+  let prompt = "Give me 3 lower level topics of " + concept;
 
   let topics: string[] | any;
   if (devFlags.disableOpenAI) {
@@ -421,81 +339,14 @@ export const extendConcept = async (
     topics = await getTopics(prompt, concept);
   }
 
-  // const parentNodeLabel = parentNode.data['label'];
-  if (verbose) {
-    console.log("topics", topics);
-  }
-
-  let childNodeArray = [];
-  let childEdgeArray = [];
-
-  for (const topic of topics) {
-    // create a unique id for the child node
-    const childNodeId = uuid();
-
-    // create the child node
-    const childNode: Node = {
-      id: childNodeId,
-      parentNode: parentNode.id,
-      // we try to place the child node close to the calculated position from the layout algorithm
-      // 150 pixels below the parent node, this spacing can be adjusted in the useLayout hook
-      position: newNodePosition!,
-      type: "subtopic",
-      width: 150,
-      height: 50,
-      // type: nodeType,
-      // data: { label: randomLabel() },
-      data: { label: topic,
-        rootId: parentNode.data.rootId? parentNode.data.rootId: parentNode.id,
-      },
-    };
-
-    if (verbose) {
-      console.log("childNode", childNode);
-      console.log("======");
-    }
-
-    const childEdge = {
-      id: `${parentNode.id}=>${childNodeId}`,
-      source: parentNode.id,
-      target: childNodeId,
-      // label: edgeLabel,
-      // sourceHandle: sourceHandleId,
-      // targetHandle: targetHandleId,
-      // type: "default",
-      type: 'smoothstep',
-      markerEnd: { type: MarkerType.ArrowClosed },
-      pathOptions: { offset: 5 },
-      data: {
-        rootId: parentNode.data.rootId? parentNode.data.rootId: parentNode.id,
-      }
-    };
-
-    childNodeArray.push(childNode);
-    childEdgeArray.push(childEdge);
-  }
-
-  if (verbose) {
-    console.log("childNodeArray", childNodeArray);
-    console.log("childEdgeArray", childEdgeArray);
-  }
-
-  const currNodes = reactFlowInstance.getNodes();
-  const currEdges = reactFlowInstance.getEdges();
-
-  // await reactFlowInstance.addNodes(childNode);
-  // await reactFlowInstance.addEdges(childEdge);
-
-  await reactFlowInstance.setNodes([...currNodes, ...childNodeArray]);
-  await reactFlowInstance.setEdges([...currEdges, ...childEdgeArray]);
-
-  if (setResponseState) {
-    setResponseState(ResponseState.COMPLETE);
-  }
+  return topics;
 
   // return [childNode, childEdge];
   return;
   // return childNode;
+
+  let childNodeArray = [];
+  let childEdgeArray = [];
 
   const options = { duration: 300 };
 
