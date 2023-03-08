@@ -135,7 +135,7 @@ const TopicNode = (props: NodeProps) => {
       //   transform: `scale(${Math.max(1/(zoom*1.3), 1)}) translate(${zoom <= 1/1.3 ? '-100px' : '0'})`
       // }}
     >
-      <Handle type="target" position={Position.Left} className="node-handle-direct target-handle"/>
+      <Handle type="target" position={Position.Top} className="node-handle-direct target-handle"/>
       {
         isInGroup &&
         <NodeToolbar className="nodrag">

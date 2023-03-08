@@ -21,6 +21,7 @@ import ReactFlow, {
   NodeDragHandler,
   ReactFlowJsonObject,
   useKeyPress,
+  Viewport,
 } from "reactflow";
 import { getChatGPTOverarchingTopic, getChatGPTResponse, getTopics } from "../api/openai-api";
 
@@ -93,10 +94,14 @@ import { FlexNodeData } from "./nodes/flex-node/flex-node.model";
 import FlexNode from "./nodes/flex-node/flex-node";
 import { createTravellerEdge } from "./edges/traveller-edge/traveller-edge.helper";
 import { usePrevious } from "./hooks/usePrevious";
+import useAnimatedNodes from "./hooks/useAnimatedNodes";
+import useExpandCollapse from './hooks/useExpandCollapse';
 import { duplicateNode } from "./nodes/node.helper";
 import { clearSemanticCarry, SemanticRouteItem } from "./triggers/semantic-dive/semantic-dive.helper";
 import { notification } from "antd";
 import React from "react";
+import HierarchyNode from "./nodes/hierarchy-node/hierarchy-node";
+import { showHierarchyView } from "./triggers/show-hierarchy/show-hierarchy";
 
 const verbose: boolean = true;
 
@@ -142,6 +147,7 @@ const nodeTypes: NodeTypes = {
   workflow: WorkflowNode,
   placeholder: PlaceholderNode,
   group: GroupNode,
+  hierarchy: HierarchyNode,
 };
 
 const ExploreFlow = () => {
@@ -154,6 +160,12 @@ const ExploreFlow = () => {
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
   const [travellerMode, setTravellerMode] = useState(true);
   const connectingNodeId = useRef("");
+
+  // Hierarchy View
+  const [showingHierarchy, setShowingHierarchy] = useState(false);
+
+  const { nodes: visibleNodes, edges: visibleEdges } = useExpandCollapse(showingHierarchy, nodes, edges);
+  const { nodes: animatedNodes } = useAnimatedNodes(visibleNodes);
 
   const [numOfConceptNodes, setNumOfConceptNodes] = useState(0);
   const [conceptNodes, setConceptNodes] = useState([]);
@@ -200,6 +212,7 @@ const ExploreFlow = () => {
         jsonObject: {
           nodes: [] as Node[],
           edges: [] as Edge[],
+          viewport: {x: 0, y: 0, zoom: 1},
         },
         level: 0,
       } as Instance,
@@ -214,13 +227,21 @@ const ExploreFlow = () => {
     },
   ]);
 
-  const [predictedTopicName, setPredictedTopicName] = useState<string>('');
+  const [predictedTopicName, setPredictedTopicName] = useLocalStorage<string>('predictedTopicName', '');
 
   // List of nodes and edges to carry into another semantic level
   const [semanticCarryList, setSemanticCarryList] = useState<NodeEdgeList>({
     nodes: [],
     edges: [],
   });
+
+  const openHierarchyView = useCallback(() => {
+    if (reactFlowInstance) {
+      setShowingHierarchy(true);
+      showHierarchyView(instanceMap, reactFlowInstance);
+    }
+  },
+  [currentTopicId, instanceMap, reactFlowInstance]);
 
   // Ask ChatGPT for the topic from the nodes in the canvas
   useEffect(() => {
@@ -466,13 +487,8 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
-  const [api, contextHolder] = notification.useNotification();
-
-  const Context = React.createContext({ name: 'Default' });
-  const contextValue = useMemo(() => ({ name: 'Ant Design' }), []);
-
   const notifySemanticDive = (message: string) => {
-    api.info({
+    notification.open({
       message,
       placement: 'bottom',
       duration: 2,
@@ -678,81 +694,152 @@ const ExploreFlow = () => {
 
   return (
     <div className="explore-flow">
-      <Context.Provider value={contextValue}>
-        {contextHolder}
-        <div id="reactflow-wrapper" className="reactflow-wrapper" ref={reactFlowWrapper}>
-          <ReactFlow
-            id='reactFlowInstance'
-            className={altKeyPressed ? 'semantic-carry-ready' : ''}
-            proOptions={proOptions}
-            nodes={nodes}
-            edges={edges}
-            fitView
-            zoomOnPinch
-            selectionOnDrag
-            panOnDrag={panOnDrag}
-            zoomOnDoubleClick={false}
-            selectionMode={SelectionMode.Partial}
-            multiSelectionKeyCode={'Shift'}
-            nodeOrigin={[0.5, 0]}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onNodeClick={onNodeClick}
-            onConnect={onConnect}
-            connectionLineComponent={TravellerConnectionLine}
-            // fitViewOptions={fitViewOptions}
-            onInit={setReactFlowInstance}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            onNodeDrag={onNodeDrag}
-            onNodeDragStop={onNodeDragStop}
-            onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
-            onNodeMouseLeave={() => setNodeMouseOver(null)}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onConnectStart={onConnectStart}
-            // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
-            onSelectionChange={onSelectionChange}
-            panOnScroll={!altKeyPressed}
-            onPaneClick={onPaneClick}
-            onNodesDelete={(event) => console.log(event)}
-            maxZoom={infiniteZoom ? Infinity : zoomRange.max}
-            minZoom={infiniteZoom ? -Infinity : zoomRange.min}
-            elevateNodesOnSelect
-          >
-            <Background />
-            <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
-            {/* <div><Toaster position="bottom-center"/></div> */}
-            <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
-          </ReactFlow>
-          <div id='semantic-carry-box'></div>
-          <div style={{
-            boxShadow: 'inset 0 0 50px #3c6792',
-            position: 'absolute',
-            pointerEvents: 'none',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0,
-            visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
-            opacity: `${altKeyPressed ? 1 : 0}`,
-            transition: 'ease 0.2s',
-          }} />
-          <SemanticRoute
-            currentTopicId={currentTopicId}
-            route={semanticRoute}
-            semanticJumpTo={semanticDiveToInstance}
-          />
-          <NodeToolkit 
-            travellerMode={travellerMode}
-            toggleTravellerMode={toggleTravellerMode}
-          />
-          <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
-          <ZoomSlider zoom={zoom} range={zoomRange} />
-        </div>
-      </Context.Provider>
+      <div id="reactflow-wrapper" className="reactflow-wrapper" ref={reactFlowWrapper}>
+        <ReactFlow
+          id='reactFlowInstance'
+          className={altKeyPressed ? 'semantic-carry-ready' : ''}
+          proOptions={proOptions}
+          nodes={showingHierarchy ? animatedNodes : nodes}
+          edges={showingHierarchy ? visibleEdges : edges}
+          fitView
+          zoomOnPinch
+          selectionOnDrag
+          panOnDrag={panOnDrag}
+          zoomOnDoubleClick={false}
+          selectionMode={SelectionMode.Partial}
+          multiSelectionKeyCode={'Shift'}
+          nodeOrigin={[0.5, 0]}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={onNodeClick}
+          onConnect={onConnect}
+          connectionLineComponent={TravellerConnectionLine}
+          // fitViewOptions={fitViewOptions}
+          onInit={setReactFlowInstance}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          onNodeDrag={onNodeDrag}
+          onNodeDragStop={onNodeDragStop}
+          onNodeMouseEnter={(_, node) => setNodeMouseOver(node)}
+          onNodeMouseLeave={() => setNodeMouseOver(null)}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onConnectStart={onConnectStart}
+          // onConnectEnd={onConnectEnd} // if enabled, it generates sup- or sub- topics when user drags mouse out from handle
+          onSelectionChange={onSelectionChange}
+          panOnScroll={!altKeyPressed}
+          onPaneClick={onPaneClick}
+          onNodesDelete={(event) => console.log(event)}
+          maxZoom={infiniteZoom ? Infinity : zoomRange.max}
+          minZoom={infiniteZoom ? -Infinity : zoomRange.min}
+          elevateNodesOnSelect
+        >
+          <Background />
+          <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
+          {/* <div><Toaster position="bottom-center"/></div> */}
+          <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
+        </ReactFlow>
+        <div id='semantic-carry-box'></div>
+        <div style={{
+          boxShadow: 'inset 0 0 50px #3c6792',
+          position: 'absolute',
+          pointerEvents: 'none',
+          width: '100%',
+          height: '100%',
+          top: 0,
+          left: 0,
+          visibility: `${altKeyPressed ? 'visible' : 'hidden'}`,
+          opacity: `${altKeyPressed ? 1 : 0}`,
+          transition: 'ease 0.2s',
+        }} />
+        <SemanticRoute
+          currentTopicId={currentTopicId}
+          route={semanticRoute}
+          semanticJumpTo={semanticDiveToInstance}
+        />
+        <NodeToolkit 
+          travellerMode={travellerMode}
+          toggleTravellerMode={toggleTravellerMode}
+          showHierarchy={openHierarchyView}
+        />
+        <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
+        <ZoomSlider zoom={zoom} range={zoomRange} />
+      </div>
     </div>
   );
 };
+
+const hierarchyNodes: TypeTopicNode[] = [
+  {
+    id: 'cs',
+    position: {x:0, y:0},
+    type: 'topic',
+    data: {
+      parentId: '',
+      chatHistory: [],
+      instanceState: InstanceState.NONE,
+      state: {
+        topic: 'computer science'
+      }
+    } as TopicNodeData,
+  },
+  {
+    id: 'pl',
+    position: {x:0, y:150},
+    type: 'topic',
+    data: {
+      parentId: '',
+      chatHistory: [],
+      instanceState: InstanceState.NONE,
+      state: {
+        topic: 'programming languages'
+      }
+    } as TopicNodeData,
+  },
+  {
+    id: 'python',
+    position: {x:-100, y:300},
+    type: 'topic',
+    data: {
+      parentId: '',
+      chatHistory: [],
+      instanceState: InstanceState.NONE,
+      state: {
+        topic: 'python'
+      }
+    } as TopicNodeData,
+  },
+  {
+    id: 'javascript',
+    position: {x:100, y:300},
+    type: 'topic',
+    data: {
+      parentId: '',
+      chatHistory: [],
+      instanceState: InstanceState.NONE,
+      state: {
+        topic: 'javascript'
+      }
+    } as TopicNodeData,
+  },
+];
+
+const hierarchyEdges: Edge[] = [
+  {
+    id: '1',
+    source: 'cs',
+    target: 'pl'
+  },
+  {
+    id: '2',
+    source: 'pl',
+    target: 'python'
+  },
+  {
+    id: '3',
+    source: 'pl',
+    target: 'javascript'
+  },
+]
 
 export default ExploreFlow;

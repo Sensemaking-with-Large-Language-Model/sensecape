@@ -148,7 +148,7 @@ export const getChatGPTRelatedTopics = async (context: string) => {
       extractTopicPrompt,
       {
         role: 'user',
-        content: `Give me ${nTopics} and only ${nTopics} related topics in the form of
+        content: `Give me ${nTopics} and only ${nTopics} subtopics in the form of
           terms in 1 to 3 words each given this context: ${context}\n\n
           format your response in CSV (comma separated values).`,
       }

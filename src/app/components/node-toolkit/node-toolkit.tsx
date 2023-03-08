@@ -525,70 +525,7 @@ const NodeToolkit = (props: any) => {
         arrow={showArrow}>
           Show or hide track history
       </Popup>
-      <Popup
-        trigger={<div className='toolkit-option toolkit-brainstorm add-node' draggable onDragStart={(e) => onDragStart(e, 'brainstorm')}>
-        <BrainstormIcon />
-        Brainstorm
-      </div>}
-        position={positionToolTipRight}
-        offsetX={offsetXValue}
-        offsetY={offsetYValue}
-        on="hover"
-        mouseLeaveDelay={mouseLeaveDelayTime}
-        mouseEnterDelay={0}
-        disabled={doNotShowTooltip}
-        contentStyle={{ padding: '5px', border: 'none' }}
-        arrow={showArrow}>
-        Drag out to create this node
-      </Popup>
-      <Popup
-        trigger={<div className='toolkit-option toolkit-search add-node' draggable onDragStart={(e) => onDragStart(e, 'chat')}>
-        <SearchIcon />
-        Search
-      </div>}
-        position={positionToolTipRight}
-        offsetX={offsetXValue}
-        offsetY={offsetYValue}
-        on="hover"
-        mouseLeaveDelay={mouseLeaveDelayTime}
-        mouseEnterDelay={0}
-        disabled={doNotShowTooltip}
-        contentStyle={{ padding: '5px', border: 'none' }}
-        arrow={showArrow}>
-        Drag out to create this node
-      </Popup>
-      <Popup
-        trigger={<div className='toolkit-option toolkit-concept add-node' draggable onDragStart={(e) => onDragStart(e, 'concept')}>
-        <HierarchyIcon />
-        Hierarchy
-      </div>}
-        position={positionToolTipRight}
-        offsetX={offsetXValue}
-        offsetY={offsetYValue}
-        on="hover"
-        mouseLeaveDelay={mouseLeaveDelayTime}
-        mouseEnterDelay={0}
-        disabled={doNotShowTooltip}
-        contentStyle={{ padding: '5px', border: 'none' }}
-        arrow={showArrow}>
-        Drag out to create this node
-      </Popup>
-      <Popup
-        trigger={<div className='toolkit-option toolkit-memo add-node' draggable onDragStart={(e) => onDragStart(e, 'memo')}>
-          <MemoIcon />
-          Memo
-        </div>} 
-        position={positionToolTipRight}
-        offsetX={offsetXValue}
-        offsetY={offsetYValue}
-        on="hover"
-        mouseLeaveDelay={mouseLeaveDelayTime}
-        mouseEnterDelay={0}
-        disabled={doNotShowTooltip}
-        contentStyle={{ padding: '5px', border: 'none' }}
-        arrow={showArrow}>
-          Drag out to create this node
-      </Popup>
+      <Button type="text" block onClick={props.showHierarchy}>View Hierarchy</Button>
       {/* <div className='toolkit-option toolkit-help add-node' draggable onClick={startIntroJS}>
         <HelpIcon />
         Help
