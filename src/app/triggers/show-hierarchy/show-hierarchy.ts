@@ -18,7 +18,7 @@ export const showHierarchyView = (
   const currentInstance = instanceMap[currentTopicId];
 
   currentInstance.jsonObject = reactFlowInstance.toObject();
-  currentInstance.topicNode.data.state.topic = predictedTopicName;
+  currentInstance.topicNode.data.state.topic = predictedTopicName || 'SenseCape';
   setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
 
   const instances = Object.values(instanceMap);
@@ -32,7 +32,7 @@ export const showHierarchyView = (
       position: defaultPosition,
       data: {
         topicId: instance.topicNode.id,
-        topicData: instance.topicNode.data,
+        topicName: instance.topicNode.data.state.topic ?? 'temp topic',
         expanded: true,
       },
     }));
@@ -52,7 +52,7 @@ export const showHierarchyView = (
     reactFlowInstance.fitView({
       duration: 400,
     });
-  });
+  }, 100);
 }
 
 export const hideHierarchyView = (

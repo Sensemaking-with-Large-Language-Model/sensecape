@@ -43,11 +43,7 @@ export default function HierarchyNode({ data, id, xPos, yPos }: NodeProps) {
             },
             data: {
               topicId: '',
-              topicData: {
-                state: {
-                  topic: 'subtopic',
-                }
-              }
+              topicName: 'subtopic'
             } as HierarchyNodeData,
           }])
     );
@@ -58,7 +54,7 @@ export default function HierarchyNode({ data, id, xPos, yPos }: NodeProps) {
 
   return (
     <div className='hierarchy-node'>
-      <div className='topic-name'>{data.topicData.state.topic}</div>
+      <div className='topic-name'>{data.topicName}</div>
       <Handle position={Position.Top} type="target" />
       <Handle position={Position.Bottom} type="source" />
       <div className='add-subtopic-button' onClick={addChildNode}>

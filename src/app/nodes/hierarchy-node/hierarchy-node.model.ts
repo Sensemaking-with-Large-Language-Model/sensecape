@@ -3,7 +3,7 @@ import { TopicNodeData, TypeTopicNode } from '../topic-node/topic-node.model';
 
 export type HierarchyNodeData = {
   topicId: string;
-  topicData: TopicNodeData;
+  topicName: string;
   expanded: boolean;
   expandable?: boolean;
 };

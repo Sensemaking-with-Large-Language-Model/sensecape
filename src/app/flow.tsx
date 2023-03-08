@@ -234,7 +234,7 @@ const ExploreFlow = () => {
     edges: [],
   });
 
-  const openHierarchyView = useCallback(() => {
+  const toggleHierarchyView = useCallback(() => {
     if (reactFlowInstance) {
       if (!showingHierarchy) {
         setShowingHierarchy(true);
@@ -254,7 +254,7 @@ const ExploreFlow = () => {
       }
     }
   },
-  [predictedTopicName, currentTopicId, instanceMap, reactFlowInstance]);
+  [showingHierarchy, predictedTopicName, currentTopicId, instanceMap, reactFlowInstance]);
 
   // Ask ChatGPT for the topic from the nodes in the canvas
   useEffect(() => {
@@ -774,7 +774,7 @@ const ExploreFlow = () => {
         <NodeToolkit 
           travellerMode={travellerMode}
           toggleTravellerMode={toggleTravellerMode}
-          showHierarchy={openHierarchyView}
+          toggleHierarchyView={toggleHierarchyView}
         />
         <SelectedTopicsToolbar generateConceptNode={generateConceptNode} />
         <ZoomSlider zoom={zoom} range={zoomRange} />

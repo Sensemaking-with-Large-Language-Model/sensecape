@@ -26,6 +26,11 @@ function useExpandCollapse(
 ): { nodes: Node[]; edges: Edge[] } {
   return useMemo(() => {
 
+    // All elements need to be hierarchy
+    if (!nodes.every(node => node.type === 'hierarchy')) {
+      return { nodes, edges };
+    }
+
     // If not in hierarchy view, don't stratify
     if (!enabled) {
       return {nodes, edges};

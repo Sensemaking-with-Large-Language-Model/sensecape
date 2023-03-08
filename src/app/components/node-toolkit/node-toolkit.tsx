@@ -525,7 +525,7 @@ const NodeToolkit = (props: any) => {
         arrow={showArrow}>
           Show or hide track history
       </Popup>
-      <Button type="text" block onClick={props.showHierarchy}>View Hierarchy</Button>
+      <Button type="text" block onClick={props.toggleHierarchyView}>View Hierarchy</Button>
       {/* <div className='toolkit-option toolkit-help add-node' draggable onClick={startIntroJS}>
         <HelpIcon />
         Help
