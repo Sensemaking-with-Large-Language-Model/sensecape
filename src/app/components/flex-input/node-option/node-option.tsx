@@ -1,5 +1,5 @@
 // import { ReactComponent as BrainstormIcon } from '../../../../assets/node-icons/brainstorm.svg';
-// import { ReactComponent as SearchIcon } from '../../../../assets/node-icons/search.svg';
+// import { ReactComponent as ExploreIcon } from '../../../../assets/node-icons/search.svg';
 // import { ReactComponent as HierarchyIcon } from '../../../../assets/node-icons/hierarchy.svg';
 // import { ReactComponent as MemoIcon } from '../../../../assets/node-icons/memo.svg';
 // import { uuid } from '../../../utils';

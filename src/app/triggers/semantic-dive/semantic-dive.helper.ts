@@ -87,9 +87,10 @@ export const styleNodesAndEdges = (
   style: CSSProperties,
   repelSurroundings?: boolean,
 ) => {
-  const sourceRect: Rect = getRectOfNodes(
-    focusNodeIds.map(nodeId => reactFlowInstance.getNode(nodeId)) as Node[]
-  );
+  const focusNodes = focusNodeIds
+    .map(nodeId => reactFlowInstance.getNode(nodeId))
+    .filter((node): node is Node => !!node);
+  const sourceRect: Rect = getRectOfNodes(focusNodes);
   setTimeout(() => {
     reactFlowInstance.setNodes(nodes => nodes.map(node => {
       if (!focusNodeIds.includes(node.id)) {

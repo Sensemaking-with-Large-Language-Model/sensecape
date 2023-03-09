@@ -9,7 +9,7 @@ import { ChatNodeData } from "../../nodes/chat-node/chat-node.model";
 import { ConceptNodeData } from "../../nodes/concept-node/concept-node.model";
 import { MemoNodeData } from "../../nodes/memo-node/memo-node.model";
 import { ReactComponent as BrainstormIcon } from '../../../assets/node-icons/brainstorm.svg';
-import { ReactComponent as SearchIcon } from '../../../assets/node-icons/search.svg';
+import { ReactComponent as ExploreIcon } from '../../../assets/node-icons/search.svg';
 import { ReactComponent as HierarchyIcon } from '../../../assets/node-icons/hierarchy.svg';
 import { ReactComponent as MemoIcon } from '../../../assets/node-icons/memo.svg';
 import { BrainstormNodeData } from "../../nodes/brainstorm-node/brainstorm-node.model";
@@ -274,7 +274,7 @@ const FlexInput = (props: any) => {
               handleMouseOut(elem.id);
             }}
           >
-            <SearchIcon/>Search
+            <ExploreIcon/>Explore
           </button>
           <button
             // onClick={() => props.generateResponse(props.input.trim())}
@@ -337,7 +337,7 @@ const Icon = (selectedNodeType: string) => {
     case 'brainstorm':
       return (<BrainstormIcon />)
     case 'chat':
-      return (<SearchIcon />)
+      return (<ExploreIcon />)
     case 'concept':
       return (<HierarchyIcon />)
     case 'memo':

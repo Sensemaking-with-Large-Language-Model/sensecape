@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { getRectOfNodes, useReactFlow } from "reactflow";
 import './gpt-input.scss';
 import loadingDots from "../../../assets/loading.gif";
-import { ReactComponent as SearchIcon } from "../../../assets/node-icons/search.svg";
+import { ReactComponent as ExploreIcon } from "../../../assets/node-icons/search.svg";
 import { ResponseState } from "../input.model";
 import { InputHoverState } from "../../nodes/node.model";
 import { zoomLimits } from "../../utils";
@@ -66,7 +66,7 @@ const GPTInput = (props: any) => {
           onClick={() => props.generateResponse(props.input.trim())}
           type="button"
         >
-          <SearchIcon />
+          <ExploreIcon />
         </button>
       </form>
     );

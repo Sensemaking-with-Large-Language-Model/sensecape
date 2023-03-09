@@ -9,7 +9,7 @@ import './node-toolkit.scss';
 import 'intro.js/introjs.css';
 import { Steps, Hints } from 'intro.js-react';
 import { ReactComponent as BrainstormIcon } from '../../../assets/node-icons/brainstorm.svg';
-import { ReactComponent as SearchIcon } from '../../../assets/node-icons/search.svg';
+import { ReactComponent as ExploreIcon } from '../../../assets/node-icons/search.svg';
 import { ReactComponent as HierarchyIcon } from '../../../assets/node-icons/hierarchy.svg';
 import { ReactComponent as MemoIcon } from '../../../assets/node-icons/memo.svg';
 import { ReactComponent as HelpIcon } from '../../../assets/help.svg';
@@ -291,7 +291,7 @@ const interface_steps = [
     position: 'top',
   },
   {
-    // title: 'Search node',
+    // title: 'Explore node',
     element: '.toolkit-search',
     intro: <ImageElement width={420} title={""} url={searchNode} description={""}/>,
     tooltipClass: 'image',
@@ -576,7 +576,7 @@ const NodeToolkit = (props: any) => {
               <div className="menu-item" onClick={startGroupNodeTutorial}>Group Node</div>
               <div className="menu-item" onClick={startSemanticDiveTutorial}>Semantic Dive</div>
               {/* <div className="menu-item">Brainstorm Node</div> */}
-              {/* <div className="menu-item">Search Node</div> */}
+              {/* <div className="menu-item">Explore Node</div> */}
               {/* <div className="menu-item">Concept Node</div> */}
               {/* <div className="menu-item">Memo Node</div> */}
           </Popup>

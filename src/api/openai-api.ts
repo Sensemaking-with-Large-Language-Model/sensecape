@@ -124,7 +124,8 @@ export const getChatGPTOverarchingTopic = async (context: string[]) => {
       {
         role: 'user',
         content: `Give me the overarching key topic in the form of a
-          term in 1 to 3 words given this context: ${context}`,
+          term in 1 to 3 words given this context: ${context}\n\n
+          If you can't extract a key topic, just say SenseCape`,
       }
     ],
     max_tokens: tokens.keywords,

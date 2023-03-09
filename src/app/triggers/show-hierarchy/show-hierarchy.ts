@@ -26,7 +26,7 @@ export const showHierarchyView = (
 
   const instances = Object.values(instanceMap);
 
-  const defaultPosition: XYPosition = { x: 0, y: 0 };
+  const defaultPosition: XYPosition = { x: window.innerWidth/2, y: window.innerHeight/2 };
 
   const hierarchyNodes: TypeHierarchyNode[] = instances
     .map(instance => ({
@@ -40,15 +40,37 @@ export const showHierarchyView = (
       },
     }));
 
-  const hierarchyEdges: Edge[] = instances
-    .filter(instance => instance.parentId)
-    .map(instance => ({
-      id: `hierarchy-e-${instance.topicNode.id}`,
-      source: `hierarchy-${instance.parentId}`,
-      target: `hierarchy-${instance.topicNode.id}`,
-    }));
+  const hierarchyRoot: TypeHierarchyNode = {
+    id: 'hierarchy-root',
+    type: 'hierarchy',
+    position: defaultPosition,
+    data: {
+      topicId: 'hierarhy-root',
+      topicName: 'Hierarchy Root',
+      expanded: true,
+    },
+    hidden: true,
+  };
 
-  reactFlowInstance.setNodes(hierarchyNodes);
+  const hierarchyEdges: Edge[] = instances
+    .map(instance => {
+      if (!instance.parentId) {
+        return {
+          id: `hierarchy-edge-root-${instance.topicNode.id}`,
+          source: hierarchyRoot.id,
+          target: `hierarchy-${instance.topicNode.id}`,
+          hidden: true,
+        } as Edge;
+      } else {
+        return {
+          id: `hierarchy-edge-${instance.topicNode.id}`,
+          source: `hierarchy-${instance.parentId}`,
+          target: `hierarchy-${instance.topicNode.id}`,
+        } as Edge
+      }
+    });
+
+  reactFlowInstance.setNodes([...hierarchyNodes, hierarchyRoot]);
   reactFlowInstance.setEdges(hierarchyEdges);
 
   setTimeout(() => {
