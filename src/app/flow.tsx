@@ -101,7 +101,8 @@ import { clearSemanticCarry, getInstanceName, SemanticRouteItem } from "./trigge
 import { notification } from "antd";
 import React from "react";
 import HierarchyNode from "./nodes/hierarchy-node/hierarchy-node";
-import { hideHierarchyView, showHierarchyView } from "./triggers/show-hierarchy/show-hierarchy";
+import { hideHierarchyView, showHierarchyView } from "./triggers/hierarchy-view/hierarchy-view";
+import { TypeHierarchyNode } from "./nodes/hierarchy-node/hierarchy-node.model";
 
 const verbose: boolean = true;
 
@@ -226,6 +227,7 @@ const ExploreFlow = () => {
 
   const [semanticRoute, setSemanticRoute] = useLocalStorage<SemanticRouteItem[]>("semanticRoute", [defaultRouteItem]);
 
+  const [loadingTopicPrediction, setLoadingTopicPrediction] = useState(false);
   const [predictedTopicName, setPredictedTopicName] = useLocalStorage<string>('predictedTopicName', '');
 
   // List of nodes and edges to carry into another semantic level
@@ -258,14 +260,14 @@ const ExploreFlow = () => {
 
   // Ask ChatGPT for the topic from the nodes in the canvas
   useEffect(() => {
-    if (!instanceMap[currentTopicId]?.parentId) {
+    if (!predictedTopicName && !instanceMap[currentTopicId]?.parentId) {
       const extractedTexts = nodes.map(node => {
         if (node.type === 'chat') {
           if ((node.data as ChatNodeData).state.response) {
             return `${(node.data as ChatNodeData).state.input}: 
-              ${node.data.response}`;
+              ${node.data.state.response}`;
           } else {
-            return '';
+            return node.data.state.input;
           }
         } else if (node.type === 'topic') {
           return (node.data as TopicNodeData).state.topic;
@@ -276,14 +278,21 @@ const ExploreFlow = () => {
         } else {
           return '';
         }
-      }).filter((text): text is string => !!text);
+      });
 
-      if (extractedTexts.length >= 1 && !predictedTopicName) {
-        getChatGPTOverarchingTopic(extractedTexts).then(response => {
+      console.log('extracted', extractedTexts);
+
+      if (
+        !loadingTopicPrediction &&
+        extractedTexts.length >= 2 &&
+        (!predictedTopicName)
+      ) {
+        getChatGPTOverarchingTopic(extractedTexts, setLoadingTopicPrediction).then(response => {
           setPredictedTopicName(response ?? '');
+          instanceMap[currentTopicId].topicNode.data.state.topic = response;
+          setInstanceMap(instanceMap);
           semanticRoute[0]!.title = response ?? semanticRoute[0]!.title;
           setSemanticRoute(semanticRoute);
-
         });
       }
     }
@@ -514,8 +523,14 @@ const ExploreFlow = () => {
       case 1:
         break;
       case 2:
-        // Semantic Zoom by Double Click
-        if (
+        if ( // Naviate to canvas from Hierarchy View
+          nodeMouseOver &&
+          nodeMouseOver.type === 'hierarchy' &&
+          reactFlowInstance
+        ) {
+          setShowingHierarchy(false);
+          hideHierarchyView(currentTopicId, instanceMap, reactFlowInstance);
+        } else if ( // Semantic Zoom by Double Click
           nodeMouseOver &&
           nodeMouseOver.type === 'topic' &&
           reactFlowInstance

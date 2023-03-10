@@ -112,11 +112,12 @@ export const getChatGPTKeywords = async (text: string) => {
     });
 };
 
-export const getChatGPTOverarchingTopic = async (context: string[]) => {
+export const getChatGPTOverarchingTopic = async (context: string[], setLoadingTopic: any) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve("parent");
   }
 
+  setLoadingTopic(true);
   return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
@@ -132,6 +133,7 @@ export const getChatGPTOverarchingTopic = async (context: string[]) => {
     temperature: 0.1,
   })
   .then((data) => {
+    setLoadingTopic(false);
     return data.data.choices[0].message?.content.replaceAll(/"|\./g, '').trim();
   });
 }

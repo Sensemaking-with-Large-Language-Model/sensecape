@@ -2,13 +2,14 @@ import { ChatCompletionRequestMessage } from "openai";
 import React, { Dispatch, SetStateAction } from "react";
 import { Node, Edge, getRectOfNodes, ReactFlowInstance, ReactFlowJsonObject, Viewport } from "reactflow";
 import { ResponseState } from "../../components/input.model";
+import { constructRoute } from "../../components/semantic-route/semantic-route.helper";
 import { duplicateNode } from "../../nodes/node.helper";
 import { InputHoverState } from "../../nodes/node.model";
 import { createTopicNode } from "../../nodes/topic-node/topic-node.helper";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { uuid, zoomLimits } from "../../utils";
 import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff, animateDiveToLanding } from "./semantic-dive.animate";
-import { calculateSurroundPositions, constructRoute, deleteRecommendedNodes, getInstanceName, predictRelatedTopics, prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
+import { calculateSurroundPositions, deleteRecommendedNodes, getInstanceName, predictRelatedTopics, prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
@@ -206,7 +207,7 @@ export const semanticDiveOut = (
     const currentInstance = instanceMap[currentTopicId]!;
     let parentInstance = instanceMap[currentInstance.parentId];
     const currentInstanceName = predictedTopicName || getInstanceName(currentInstance);
-    
+
     if (!parentInstance) {
       if (reactFlowInstance.getNodes().length <= 1) {
         return;
@@ -262,10 +263,11 @@ export const semanticDiveOut = (
 
     if (getInstanceName(currentInstance) === 'SenseCape') {
       currentInstance.topicNode.data.state.topic = currentInstanceName;
+      // TODO: sus?
+      // setPredictedTopicName('');
     }
     console.log('nodes', currentInstance.jsonObject.nodes);
 
-    setPredictedTopicName('');
     instanceMap = Object.assign(instanceMap, {[currentTopicId]: currentInstance});
     setInstanceMap(instanceMap);
 
@@ -315,6 +317,7 @@ export const semanticDiveTo = (
       if (nextInstance) {
         // setSemanticRoute(semanticRoute.filter(routeItem => routeItem.level <= nextInstance.level));
 
+        setSemanticRoute(constructRoute(nextInstance, instanceMap));
         prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
 
         // store current reactFlowInstance
@@ -342,6 +345,5 @@ export const semanticDiveTo = (
         }, totalTransitionTime/2);
       }
     }
-
   })
 };
