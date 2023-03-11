@@ -123,8 +123,10 @@ const nodeColor = (node: Node) => {
       return "#6865A5";
     case "memo":
       return "#FFFF00";
+    case "hierarchy":
+      return "#3c6792";
     default:
-      return "#ff0072";
+      return "#ddd";
   }
 };
 
