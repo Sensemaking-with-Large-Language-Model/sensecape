@@ -7,9 +7,9 @@ import { duplicateNode } from "../../nodes/node.helper";
 import { InputHoverState } from "../../nodes/node.model";
 import { createTopicNode } from "../../nodes/topic-node/topic-node.helper";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
-import { uuid, zoomLimits } from "../../utils";
+import { projectTitle, uuid, zoomLimits } from "../../utils";
 import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff, animateDiveToLanding } from "./semantic-dive.animate";
-import { calculateSurroundPositions, deleteRecommendedNodes, getInstanceName, predictRelatedTopics, prepareDive, SemanticRouteItem } from "./semantic-dive.helper";
+import { calculateSurroundPositions, deleteRecommendedNodes, getInstanceName, predictRelatedTopics, prepareDive, resetLoadingStates, SemanticRouteItem } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
@@ -128,9 +128,11 @@ export const semanticDiveIn = (
         // Save current instance state to the parent instance
         const currentInstance = instanceMap[currentTopicId]!;
         currentInstance.jsonObject = reactFlowInstance.toObject();
-        currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
+        currentInstance.jsonObject.nodes = deleteRecommendedNodes(
+          resetLoadingStates(currentInstance.jsonObject.nodes)
+        );
 
-        if (getInstanceName(currentInstance) === 'SenseCape') {
+        if (getInstanceName(currentInstance) === projectTitle) {
           currentInstance.topicNode.data.state.topic = getInstanceName(currentInstance);
         }
 
@@ -215,7 +217,7 @@ export const semanticDiveOut = (
 
       // Create the parent instance
       parentInstance = {
-        name: 'SenseCape',
+        name: projectTitle,
         parentId: '',
         topicNode: {
           id: `topic-${uuid()}`,
@@ -226,7 +228,7 @@ export const semanticDiveOut = (
             chatHistory: [],
             instanceState: InstanceState.NONE, // To temporarily disable dive out of home
             state: {
-              topic: 'SenseCape',
+              topic: projectTitle,
             }
           } as TopicNodeData,
           position: currentInstance.topicNode.position,
@@ -259,14 +261,13 @@ export const semanticDiveOut = (
 
     // store current reactFlowInstance
     currentInstance.jsonObject = reactFlowInstance.toObject();
-    currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
+    currentInstance.jsonObject.nodes = deleteRecommendedNodes(
+      resetLoadingStates(currentInstance.jsonObject.nodes)
+    );
 
-    if (getInstanceName(currentInstance) === 'SenseCape') {
+    if (getInstanceName(currentInstance) === projectTitle) {
       currentInstance.topicNode.data.state.topic = currentInstanceName;
-      // TODO: sus?
-      // setPredictedTopicName('');
     }
-    console.log('nodes', currentInstance.jsonObject.nodes);
 
     instanceMap = Object.assign(instanceMap, {[currentTopicId]: currentInstance});
     setInstanceMap(instanceMap);
@@ -322,7 +323,9 @@ export const semanticDiveTo = (
 
         // store current reactFlowInstance
         currentInstance.jsonObject = reactFlowInstance.toObject();
-        currentInstance.jsonObject.nodes = deleteRecommendedNodes(currentInstance.jsonObject.nodes);
+        currentInstance.jsonObject.nodes = deleteRecommendedNodes(
+          resetLoadingStates(currentInstance.jsonObject.nodes)
+        );
         setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
 
         // Set topic as parent topic

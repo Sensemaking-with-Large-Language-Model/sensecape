@@ -35,6 +35,7 @@ import 'reactjs-popup/dist/index.css';
 import Popup from 'reactjs-popup';
 import styled from 'styled-components';
 import useCloseOnDocumentClick from '../../hooks/useCloseOnDocumentClick';
+import { projectTitle } from '../../utils';
 
 
 const doNotShowTooltip = false; // change to true if don't want to show tool tip next to node types
@@ -261,7 +262,7 @@ const KeyboardShortcuts:any = (close: () => void) => {
 const interface_steps = [
   {
     title: 'Welcome! 👋',
-    intro: "SenseCape facilitates information exploration with ChatGPT.",
+    intro: projectTitle + " facilitates information exploration with ChatGPT.",
     tooltipClass: 'content',
   },
   {

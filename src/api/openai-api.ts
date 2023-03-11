@@ -1,7 +1,7 @@
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import { ResponseState } from "../app/components/input.model";
 import { ReactFlowInstance, MarkerType, Node } from "reactflow";
-import { devFlags, uuid } from "../app/utils";
+import { devFlags, projectTitle, uuid } from "../app/utils";
 import { timer } from 'd3-timer';
 
 const configuration = new Configuration({
@@ -126,7 +126,7 @@ export const getChatGPTOverarchingTopic = async (context: string[], setLoadingTo
         role: 'user',
         content: `Give me the overarching key topic in the form of a
           term in 1 to 3 words given this context: ${context}\n\n
-          If you can't extract a key topic, just say SenseCape`,
+          If you can't extract a key topic, just say ${projectTitle}`,
       }
     ],
     max_tokens: tokens.keywords,

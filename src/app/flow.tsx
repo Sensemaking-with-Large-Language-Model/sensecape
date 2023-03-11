@@ -73,7 +73,7 @@ import {
   TypeQuestionNode,
 } from "./nodes/brainstorm-node/question-node.model";
 
-import { devFlags, uuid } from "./utils";
+import { devFlags, projectTitle, uuid } from "./utils";
 import {
   Instance,
   InstanceMap,
@@ -101,7 +101,7 @@ import { clearSemanticCarry, getInstanceName, SemanticRouteItem } from "./trigge
 import { notification } from "antd";
 import React from "react";
 import HierarchyNode from "./nodes/hierarchy-node/hierarchy-node";
-import { hideHierarchyView, showHierarchyView } from "./triggers/hierarchy-view/hierarchy-view";
+import { hideHierarchyViewTo, showHierarchyView } from "./triggers/hierarchy-view/hierarchy-view";
 import { TypeHierarchyNode } from "./nodes/hierarchy-node/hierarchy-node.model";
 
 const verbose: boolean = true;
@@ -189,7 +189,7 @@ const ExploreFlow = () => {
       chatHistory: [],
       instanceState: InstanceState.NONE, // To temporarily disable dive out of home
       state: {
-        topic: "SenseCape",
+        topic: projectTitle,
       },
     } as TopicNodeData,
     position: { x: 0, y: 0 },
@@ -206,7 +206,7 @@ const ExploreFlow = () => {
     "instanceMap",
     {
       [currentTopicId]: {
-        name: "SenseCape",
+        name: projectTitle,
         parentId: "",
         topicNode: homeTopicNode,
         jsonObject: {
@@ -248,9 +248,12 @@ const ExploreFlow = () => {
         );
       } else {
         setShowingHierarchy(false);
-        hideHierarchyView(
+        hideHierarchyViewTo(
           currentTopicId,
           instanceMap,
+          [currentTopicId, setCurrentTopicId],
+          [semanticRoute, setSemanticRoute],
+          [semanticCarryList, setSemanticCarryList],
           reactFlowInstance
         );
       }
@@ -280,12 +283,10 @@ const ExploreFlow = () => {
         }
       });
 
-      console.log('extracted', extractedTexts);
-
       if (
         !loadingTopicPrediction &&
         extractedTexts.length >= 2 &&
-        (!predictedTopicName)
+        (!predictedTopicName || predictedTopicName === projectTitle)
       ) {
         getChatGPTOverarchingTopic(extractedTexts, setLoadingTopicPrediction).then(response => {
           setPredictedTopicName(response ?? '');
@@ -302,6 +303,20 @@ const ExploreFlow = () => {
   const [semanticDivable, setSemanticDivable] = useState(true);
   const altKeyPressed = useKeyPress('Alt');
   const escKeyPressed = useKeyPress('Escape');
+  const travellerPressed = useKeyPress('t');
+  const hierarchyPressed = useKeyPress('h');
+
+  useEffect(() => {
+    if (travellerPressed) {
+      toggleTravellerMode();
+    }
+  }, [travellerPressed]);
+
+  useEffect(() => {
+    if (hierarchyPressed) {
+      toggleHierarchyView();
+    }
+  }, [hierarchyPressed]);
 
   // Updates the current instance of reactflow
   useEffect(() => {
@@ -501,11 +516,11 @@ const ExploreFlow = () => {
         (node) => node.type === "topic" && node.selected
       );
 
-      if (selectedTopicNodes.length === 0) {
-        return;
+      if (selectedTopicNodes.length > 0) {
+        setSelectedTopics(selectedTopicNodes);
       }
+      return;
 
-      setSelectedTopics(selectedTopicNodes);
     },
     [reactFlowInstance]
   );
@@ -521,16 +536,24 @@ const ExploreFlow = () => {
   const onNodeClick = useCallback((e: any) => {
     switch (e.detail) {
       case 1:
-        break;
-      case 2:
         if ( // Naviate to canvas from Hierarchy View
           nodeMouseOver &&
           nodeMouseOver.type === 'hierarchy' &&
           reactFlowInstance
         ) {
           setShowingHierarchy(false);
-          hideHierarchyView(currentTopicId, instanceMap, reactFlowInstance);
-        } else if ( // Semantic Zoom by Double Click
+          hideHierarchyViewTo(
+            (nodeMouseOver as TypeHierarchyNode).data.topicId,
+            instanceMap,
+            [currentTopicId, setCurrentTopicId],
+            [semanticRoute, setSemanticRoute],
+            [semanticCarryList, setSemanticCarryList],
+            reactFlowInstance
+          );
+        }
+        return;
+      case 2:
+        if ( // Semantic Zoom by Double Click
           nodeMouseOver &&
           nodeMouseOver.type === 'topic' &&
           reactFlowInstance
@@ -767,8 +790,6 @@ const ExploreFlow = () => {
         >
           <Background />
           <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable className="minimap"/>
-          {/* <div><Toaster position="bottom-center"/></div> */}
-          <SelectedTopicsToolbar generateConceptNode={generateConceptNode}/>
         </ReactFlow>
         {
           !showingHierarchy ?
@@ -806,78 +827,5 @@ const ExploreFlow = () => {
     </div>
   );
 };
-
-const hierarchyNodes: TypeTopicNode[] = [
-  {
-    id: 'cs',
-    position: {x:0, y:0},
-    type: 'topic',
-    data: {
-      parentId: '',
-      chatHistory: [],
-      instanceState: InstanceState.NONE,
-      state: {
-        topic: 'computer science'
-      }
-    } as TopicNodeData,
-  },
-  {
-    id: 'pl',
-    position: {x:0, y:150},
-    type: 'topic',
-    data: {
-      parentId: '',
-      chatHistory: [],
-      instanceState: InstanceState.NONE,
-      state: {
-        topic: 'programming languages'
-      }
-    } as TopicNodeData,
-  },
-  {
-    id: 'python',
-    position: {x:-100, y:300},
-    type: 'topic',
-    data: {
-      parentId: '',
-      chatHistory: [],
-      instanceState: InstanceState.NONE,
-      state: {
-        topic: 'python'
-      }
-    } as TopicNodeData,
-  },
-  {
-    id: 'javascript',
-    position: {x:100, y:300},
-    type: 'topic',
-    data: {
-      parentId: '',
-      chatHistory: [],
-      instanceState: InstanceState.NONE,
-      state: {
-        topic: 'javascript'
-      }
-    } as TopicNodeData,
-  },
-];
-
-const hierarchyEdges: Edge[] = [
-  {
-    id: '1',
-    source: 'cs',
-    target: 'pl'
-  },
-  {
-    id: '2',
-    source: 'pl',
-    target: 'python'
-  },
-  {
-    id: '3',
-    source: 'pl',
-    target: 'javascript'
-  },
-]
 
 export default ExploreFlow;

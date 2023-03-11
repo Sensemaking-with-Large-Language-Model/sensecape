@@ -1,6 +1,9 @@
 import React, { CSSProperties, Dispatch, SetStateAction } from "react";
 import { Edge, getRectOfNodes, Node, ReactFlowInstance, Rect, XYPosition } from "reactflow";
 import { getChatGPTRelatedTopics } from "../../../api/openai-api";
+import { ResponseState } from "../../components/input.model";
+import { TypeChatNode } from "../../nodes/chat-node/chat-node.model";
+import { TypeConceptNode } from "../../nodes/concept-node/concept-node.model";
 import { TopicNodeData } from "../../nodes/topic-node/topic-node.model";
 import { Instance, InstanceMap, NodeEdgeList } from "./semantic-dive";
 
@@ -22,8 +25,25 @@ export const getInstanceName = (instance: Instance) => {
   return toReturn;
 }
 
-export const setInstanceName = (instance: Instance) => {
-
+/**
+ * For any node that is loading a response, cancel the API call and reset
+ * input state to IDLE
+ */
+export const resetLoadingStates = (
+  nodes: Node[],
+) => {
+  return nodes.map(node => {
+    if (
+      node.type === 'chat' ||
+      node.type === 'concept' ||
+      node.type === 'brainstorm'
+    ) {
+      if (node.data.state.responseInputState == ResponseState.LOADING) {
+        node.data.state.responseInputState = ResponseState.IDLE;
+      }
+    }
+    return node;
+  });
 }
 
 export const prepareDive = (

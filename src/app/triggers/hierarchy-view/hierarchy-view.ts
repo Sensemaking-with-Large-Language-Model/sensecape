@@ -1,9 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
 import { Edge, ReactFlowInstance, XYPosition } from "reactflow";
+import { constructRoute } from "../../components/semantic-route/semantic-route.helper";
 import { TypeHierarchyNode } from "../../nodes/hierarchy-node/hierarchy-node.model";
-import { uuid } from "../../utils";
-import { InstanceMap } from "../semantic-dive/semantic-dive";
-import { getInstanceName } from "../semantic-dive/semantic-dive.helper";
+import { projectTitle, uuid } from "../../utils";
+import { InstanceMap, NodeEdgeList, totalTransitionTime } from "../semantic-dive/semantic-dive";
+import { animateDiveOutTakeoff, animateDiveToLanding } from "../semantic-dive/semantic-dive.animate";
+import { deleteRecommendedNodes, getInstanceName, prepareDive, resetLoadingStates, SemanticRouteItem } from "../semantic-dive/semantic-dive.helper";
 
 /**
  * Saves current instance
@@ -19,9 +21,14 @@ export const showHierarchyView = (
   const currentInstance = instanceMap[currentTopicId];
 
   currentInstance.jsonObject = reactFlowInstance.toObject();
-  if (getInstanceName(currentInstance) === 'SenseCape') {
-    currentInstance.topicNode.data.state.topic = predictedTopicName || 'SenseCape';
+  if (getInstanceName(currentInstance) === projectTitle) {
+    currentInstance.topicNode.data.state.topic = predictedTopicName || projectTitle;
   }
+
+  currentInstance.jsonObject = reactFlowInstance.toObject();
+  currentInstance.jsonObject.nodes = deleteRecommendedNodes(
+    resetLoadingStates(currentInstance.jsonObject.nodes)
+  );
   setInstanceMap(map => Object.assign(map, {[currentTopicId]: currentInstance}));
 
   const instances = Object.values(instanceMap);
@@ -81,14 +88,31 @@ export const showHierarchyView = (
   }, 100);
 }
 
-export const hideHierarchyView = (
-  currentTopicId: string,
+export const hideHierarchyViewTo = (
+  nextTopicId: string,
   instanceMap: InstanceMap,
+  [currentTopicId, setCurrentTopicId]: [string, Dispatch<SetStateAction<string>>],
+  [semanticRoute, setSemanticRoute]: [SemanticRouteItem[], Dispatch<SetStateAction<SemanticRouteItem[]>>],
+  [semanticCarryList, setSemanticCarryList]: [NodeEdgeList, Dispatch<SetStateAction<NodeEdgeList>>],
   reactFlowInstance: ReactFlowInstance,
 ) => {
-  const currentInstance = instanceMap[currentTopicId];
+  const nextInstance = instanceMap[nextTopicId];
 
-  reactFlowInstance.setNodes(currentInstance.jsonObject.nodes);
-  reactFlowInstance.setEdges(currentInstance.jsonObject.edges);
-  reactFlowInstance.setViewport(currentInstance.jsonObject.viewport);
+  setSemanticRoute(constructRoute(nextInstance, instanceMap));
+  // prepareDive(reactFlowInstance, [semanticCarryList, setSemanticCarryList]);
+
+  // Set topic as parent topic
+  setCurrentTopicId(nextInstance.topicNode.id);
+
+  // Transition
+  setTimeout(() => {
+    // recover next reactFlowInstance
+    reactFlowInstance.setNodes(nextInstance.jsonObject.nodes);
+    reactFlowInstance.setEdges(nextInstance.jsonObject.edges);
+    reactFlowInstance.setViewport(nextInstance.jsonObject.viewport);
+
+    setTimeout(() => {
+      animateDiveToLanding(reactFlowInstance);
+    });
+  });
 }
