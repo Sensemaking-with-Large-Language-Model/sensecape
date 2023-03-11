@@ -1,3 +1,4 @@
+import { ChatCompletionRequestMessage } from "openai";
 import React, { CSSProperties, Dispatch, SetStateAction } from "react";
 import { Edge, getRectOfNodes, Node, ReactFlowInstance, Rect, XYPosition } from "reactflow";
 import { getChatGPTRelatedTopics } from "../../../api/openai-api";
@@ -160,10 +161,10 @@ export const clearSemanticCarry = (
 }
 
 // Just a wrapper for now, but potentially may have more functionality
-export const predictRelatedTopics = (
-  context: string,
+export const predictSubtopics = (
+  context: ChatCompletionRequestMessage[],
 ) => {
-  return getChatGPTRelatedTopics(context);
+  return getChatGPTRelatedTopics(context.map(text => text.content).join(''), 5);
 }
 
 export const calculateSurroundPositions = (

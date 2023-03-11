@@ -1,11 +1,14 @@
 import { Dispatch, SetStateAction } from "react";
 import { Edge, ReactFlowInstance, XYPosition } from "reactflow";
 import { constructRoute } from "../../components/semantic-route/semantic-route.helper";
+import { createHierarchyNode } from "../../nodes/hierarchy-node/hierarchy-node.helper";
 import { TypeHierarchyNode } from "../../nodes/hierarchy-node/hierarchy-node.model";
+import { TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { projectTitle, uuid } from "../../utils";
 import { InstanceMap, NodeEdgeList, totalTransitionTime } from "../semantic-dive/semantic-dive";
 import { animateDiveOutTakeoff, animateDiveToLanding } from "../semantic-dive/semantic-dive.animate";
 import { deleteRecommendedNodes, getInstanceName, prepareDive, resetLoadingStates, SemanticRouteItem } from "../semantic-dive/semantic-dive.helper";
+import { recommendSubtopics } from "./hierarchy-view.helper";
 
 /**
  * Saves current instance
@@ -36,16 +39,13 @@ export const showHierarchyView = (
   const defaultPosition: XYPosition = { x: window.innerWidth/2, y: window.innerHeight/2 };
 
   const hierarchyNodes: TypeHierarchyNode[] = instances
-    .map(instance => ({
-      id: `hierarchy-${instance.topicNode.id}`,
-      type: 'hierarchy',
-      position: defaultPosition,
-      data: {
-        topicId: instance.topicNode.id,
-        topicName: getInstanceName(instance),
-        expanded: true,
-      },
-    }));
+    .map(instance => createHierarchyNode(
+      getInstanceName(instance),
+      instance.topicNode.id,
+      instance.parentId || 'hierarchy-root',
+      false,
+      defaultPosition
+    ));
 
   const hierarchyRoot: TypeHierarchyNode = {
     id: 'hierarchy-root',
@@ -53,8 +53,11 @@ export const showHierarchyView = (
     position: defaultPosition,
     data: {
       topicId: 'hierarhy-root',
+      parentTopicId: '',
       topicName: 'Hierarchy Root',
-      expanded: true,
+      state: {
+        isRecommended: false,
+      }
     },
     hidden: true,
   };
@@ -79,6 +82,30 @@ export const showHierarchyView = (
 
   reactFlowInstance.setNodes([...hierarchyNodes, hierarchyRoot]);
   reactFlowInstance.setEdges(hierarchyEdges);
+
+  hierarchyNodes.forEach(hierarchyNode => {
+    console.log('topic', hierarchyNode.data.topicId);
+    const topicNode: TypeTopicNode | undefined = instanceMap[hierarchyNode.data.topicId].topicNode;
+    if (topicNode) {
+      console.log('recommending subtopics');
+      recommendSubtopics(topicNode).then(subtopics => {
+        const subTopicHierarchyNodes = subtopics.map(subtopic => createHierarchyNode(
+          subtopic,
+          `topic-${uuid()}`,
+          topicNode.id,
+          true,
+          defaultPosition,
+        ))
+        reactFlowInstance.addNodes(subTopicHierarchyNodes);
+        console.log(subtopics);
+        reactFlowInstance.addEdges(subTopicHierarchyNodes.map(subtopicNode => ({
+          id: subtopicNode.data.topicId,
+          source: `hierarchy-${subtopicNode.data.parentTopicId}`,
+          target: `hierarchy-${subtopicNode.data.topicId}`,
+        })));
+      })
+    }
+  })
 
   setTimeout(() => {
     reactFlowInstance.fitView({

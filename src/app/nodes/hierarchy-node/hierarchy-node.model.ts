@@ -3,9 +3,11 @@ import { TopicNodeData, TypeTopicNode } from '../topic-node/topic-node.model';
 
 export type HierarchyNodeData = {
   topicId: string;
+  parentTopicId: string;
   topicName: string;
-  expanded: boolean;
-  expandable?: boolean;
+  state: {
+    isRecommended?: boolean,
+  }
 };
 
 export type TypeHierarchyNode = Node<HierarchyNodeData>;

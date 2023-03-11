@@ -9,7 +9,7 @@ import { createTopicNode } from "../../nodes/topic-node/topic-node.helper";
 import { TopicNodeData, TypeTopicNode } from "../../nodes/topic-node/topic-node.model";
 import { projectTitle, uuid, zoomLimits } from "../../utils";
 import { animateDiveInLanding, animateDiveInTakeoff, animateDiveOutLanding, animateDiveOutTakeoff, animateDiveToLanding } from "./semantic-dive.animate";
-import { calculateSurroundPositions, deleteRecommendedNodes, getInstanceName, predictRelatedTopics, prepareDive, resetLoadingStates, SemanticRouteItem } from "./semantic-dive.helper";
+import { calculateSurroundPositions, deleteRecommendedNodes, getInstanceName, predictSubtopics, prepareDive, resetLoadingStates, SemanticRouteItem } from "./semantic-dive.helper";
 
 // How long dive transition will take in seconds
 export const totalTransitionTime = 1000;
@@ -152,11 +152,14 @@ export const semanticDiveIn = (
         reactFlowInstance.setEdges(childInstance.jsonObject.edges);
         reactFlowInstance.setViewport(childInstance.jsonObject.viewport);
 
-        predictRelatedTopics(childInstance.jsonObject.nodes
+        predictSubtopics([
+        {
+          role: 'user',
+          content: childInstance.jsonObject.nodes
           .filter(node => node.type === 'topic')
           .map((node: TypeTopicNode) => node.data.state.topic)
-          .join(',')
-        ).then(topics => {
+          .join(','),
+        }]).then(topics => {
           const surroundPositions = calculateSurroundPositions(topics.length, childInstance.topicNode.position);
           const chatHistory: ChatCompletionRequestMessage[] = [{
             role: 'user',

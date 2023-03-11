@@ -22,7 +22,7 @@ function useExpandCollapse(
   enabled: boolean,
   nodes: Node[],
   edges: Edge[],
-  { layoutNodes = true, treeWidth = 250, treeHeight = 100 }: UseExpandCollapseOptions = {}
+  { layoutNodes = true, treeWidth = 170, treeHeight = 100 }: UseExpandCollapseOptions = {}
 ): { nodes: Node[]; edges: Edge[] } {
   return useMemo(() => {
 
@@ -39,11 +39,6 @@ function useExpandCollapse(
     const hierarchy = stratify<TypeHierarchyNode>()
       .id((d) => d.id)
       .parentId((d: Node) => edges.find((e: Edge) => e.target === d.id)?.source)(nodes);
-
-    hierarchy.descendants().forEach((d) => {
-      d.data.data.expandable = !!d.children?.length;
-      d.children = d.data.data.expanded ? d.children : undefined;
-    });
 
     const layout = tree<TypeHierarchyNode>()
       .nodeSize([treeWidth, treeHeight])

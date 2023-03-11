@@ -529,6 +529,20 @@ const NodeToolkit = (props: any) => {
         arrow={showArrow}>
           Toggle between Hierarchy View and Canvas View
       </Popup>
+      {/* <Popup
+        trigger={<div className='toolkit-option traveller-mode-toggle' onClick={props.toggleRecommendations}>
+        <Switch checked={props.showingRecommendations} onChange={props.toggleRecommendations} size='small' />Recommendations</div>}
+        position={positionToolTipRight}
+        offsetX={offsetXValue}
+        offsetY={offsetYValue}
+        on="hover"
+        mouseLeaveDelay={mouseLeaveDelayTime}
+        mouseEnterDelay={0}
+        disabled={doNotShowTooltip}
+        contentStyle={{ padding: '5px', border: 'none' }}
+        arrow={showArrow}>
+          Show or hide recommendations
+      </Popup> */}
 
       {/* <div className='toolkit-option toolkit-help add-node' draggable onClick={startIntroJS}>
         <HelpIcon />

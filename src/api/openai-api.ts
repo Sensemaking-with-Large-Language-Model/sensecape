@@ -138,13 +138,12 @@ export const getChatGPTOverarchingTopic = async (context: string[], setLoadingTo
   });
 }
 
-export const getChatGPTRelatedTopics = async (context: string) => {
+// Overloading with Context of type ChatRequestMessage
+export const getChatGPTRelatedTopics = async (context: string, nTopics: number) => {
   if (devFlags.disableOpenAI) {
     return Promise.resolve(['recommendation1', 'recommendation2', 'recommendation3']);
   }
-
-  const nTopics = 5;
-
+  console.log(context, nTopics);
   return await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
@@ -157,8 +156,8 @@ export const getChatGPTRelatedTopics = async (context: string) => {
       }
     ],
     max_tokens: tokens.keywords,
-    n: 5,
-    temperature: 1.7,
+    n: 1,
+    temperature: 0.4,
   })
   .then((data) => {
     return data.data.choices[0].message?.content

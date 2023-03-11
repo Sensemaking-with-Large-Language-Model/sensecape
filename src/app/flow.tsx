@@ -160,19 +160,15 @@ const ExploreFlow = () => {
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
 
+    const connectingNodeId = useRef("");
   const [selectedTopics, setSelectedTopics] = useState<TypeTopicNode[]>([]);
-  const [travellerMode, setTravellerMode] = useState(true);
-  const connectingNodeId = useRef("");
 
-  // Hierarchy View
+  const [travellerMode, setTravellerMode] = useState(true);
   const [showingHierarchy, setShowingHierarchy] = useState(false);
+  const [showingRecommendations, setShowingRecommendations] = useState(true);
 
   const { nodes: visibleNodes, edges: visibleEdges } = useExpandCollapse(showingHierarchy, nodes, edges);
   const { nodes: animatedNodes } = useAnimatedNodes(visibleNodes);
-
-  const [numOfConceptNodes, setNumOfConceptNodes] = useState(0);
-  const [conceptNodes, setConceptNodes] = useState([]);
-  const [conceptEdges, setConceptEdges] = useState([]);
 
   const zoomSelector = (s: any) => s.transform[2];
   const zoom: number = useStore(zoomSelector);
@@ -263,6 +259,14 @@ const ExploreFlow = () => {
   },
   [showingHierarchy, predictedTopicName, currentTopicId, instanceMap, reactFlowInstance]);
 
+  // const toggleRecommendations = useCallback(() => {
+  //   if (reactFlowInstance) {
+  //     if (!showingRecommendations) {
+
+  //     }
+  //   }
+  // })
+
   // Ask ChatGPT for the topic from the nodes in the canvas
   useEffect(() => {
     if (!predictedTopicName && !instanceMap[currentTopicId]?.parentId) {
@@ -307,6 +311,7 @@ const ExploreFlow = () => {
   const escKeyPressed = useKeyPress('Escape');
   const travellerPressed = useKeyPress('t');
   const hierarchyPressed = useKeyPress('h');
+  const recommendationsPressed = useKeyPress('r');
 
   useEffect(() => {
     if (travellerPressed) {
@@ -319,6 +324,12 @@ const ExploreFlow = () => {
       toggleHierarchyView();
     }
   }, [hierarchyPressed]);
+
+  // useEffect(() => {
+  //   if (recommendationsPressed) {
+  //     toggleRecommendations();
+  //   }
+  // }, [recommendationsPressed]);
 
   // Updates the current instance of reactflow
   useEffect(() => {

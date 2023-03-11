@@ -16,15 +16,18 @@ type GetLabelParams = {
 export default function HierarchyNode({ data, id, xPos, yPos }: NodeProps) {
   const reactFlowInstance = useReactFlow();
   const [onHover, setOnHover] = useState(false);
+  const [isRecommended, setIsRecommended] = useState(data.state.isRecommended ?? false);
+  const [addingRecommendation, setAddingRecommendation] = useState(false);
+  const [generatedSubtopics, setGeneratedSubtopics] = useState([]);
 
-  const isParentNode = () => {
-    
-    
-  }
-
-  const addChildNode: MouseEventHandler = (evt) => {
+  const addSubtopic: MouseEventHandler = (evt) => {
     evt.preventDefault();
     evt.stopPropagation();
+
+    // Fetch subtopic names with API
+    // Create Hierarchy Nodes
+    // Create edges connecting parent node
+    // Add to reactFlowInstance
 
     const newNodeId = `hierarchy-${uuid()}`;
 
@@ -58,19 +61,27 @@ export default function HierarchyNode({ data, id, xPos, yPos }: NodeProps) {
     );
 
     // the edge between the clicked node and the child node is created
-    reactFlowInstance.addEdges({ id: `hierarchy-e-${uuid()}`, source: id, target: newNodeId });
+    reactFlowInstance.addEdges({ id: `hierarchy-edge-${uuid()}`, source: id, target: newNodeId });
   };
 
   return (
-    <div className='hierarchy-node'
+    <div className={`hierarchy-node
+      ${isRecommended ? 'recommended-topic': ''}
+      ${addingRecommendation ? 'adding-recommendation' : ''}`}
       onMouseEnter={() => setOnHover(true)}
       onMouseLeave={() => setOnHover(false)}
+      onClick={() => {
+        if (isRecommended) {
+          setIsRecommended(false);
+          setAddingRecommendation(true);
+        }
+      }}
     >
       <div className='topic-name'>{data.topicName}</div>
-      <NodeToolbar isVisible={onHover} position={Position.Top}>
+      <NodeToolbar isVisible={!isRecommended && onHover} position={Position.Top}>
         <HierarchyToolbarTop />
       </NodeToolbar>
-      <NodeToolbar isVisible={onHover} position={Position.Bottom}>
+      <NodeToolbar isVisible={!isRecommended && onHover} position={Position.Bottom}>
         <HierarchyToolbarBottom />
       </NodeToolbar>
       <Handle position={Position.Top} type="target" />
