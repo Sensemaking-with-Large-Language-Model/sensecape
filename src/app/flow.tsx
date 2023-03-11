@@ -746,6 +746,44 @@ const ExploreFlow = () => {
     [reactFlowInstance]
   );
 
+  const resetCanvas = useCallback(() => {
+    if (reactFlowInstance) {
+      localStorage.clear();
+      if (showingHierarchy) {
+        hideHierarchyViewTo(
+          currentTopicId,
+          instanceMap,
+          [currentTopicId, setCurrentTopicId],
+          [semanticRoute, setSemanticRoute],
+          [semanticCarryList, setSemanticCarryList],
+          reactFlowInstance
+        );
+        setShowingHierarchy(false);
+      }
+      setCurrentTopicId(homeTopicNode.id);
+      setInstanceMap(    {
+        [homeTopicNode.id]: {
+          name: projectTitle,
+          parentId: "",
+          topicNode: homeTopicNode,
+          jsonObject: {
+            nodes: [] as Node[],
+            edges: [] as Edge[],
+            viewport: {x: 0, y: 0, zoom: 1},
+          },
+          level: 0,
+        } as Instance,
+      })
+      setSemanticRoute([defaultRouteItem]);
+      reactFlowInstance.setNodes([]);
+      reactFlowInstance.setEdges([]);
+      reactFlowInstance.zoomTo(1, {
+        duration: 400,
+      });
+      reactFlowInstance.fitView();
+    }
+  }, [reactFlowInstance, showingHierarchy, currentTopicId, instanceMap]);
+
   return (
     <div className="explore-flow">
       <div id="reactflow-wrapper" className="reactflow-wrapper" ref={reactFlowWrapper}>
@@ -817,7 +855,7 @@ const ExploreFlow = () => {
           </> : <></>
         }
         <NodeToolkit
-          resetSemanticRoute={() => setSemanticRoute([defaultRouteItem])}
+          resetCanvas={resetCanvas}
           travellerMode={travellerMode}
           toggleTravellerMode={toggleTravellerMode}
           showingHierarchy={showingHierarchy}

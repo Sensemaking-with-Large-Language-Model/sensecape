@@ -468,21 +468,6 @@ const NodeToolkit = (props: any) => {
     event.dataTransfer.setData('dragNodeData', dataString);
   };
 
-  const clearCanvas = useCallback(() => {
-    localStorage.clear();
-    if (props.showingHierarchy) {
-      props.toggleHierarchyView();
-    }
-    props.resetSemanticRoute();
-    reactFlowInstance.setNodes([]);
-    reactFlowInstance.setEdges([]);
-    reactFlowInstance.zoomTo(1, {
-      duration: 400,
-    });
-    reactFlowInstance.fitView();
-  },
-  [reactFlowInstance]);
-
   const scale = () => {
     const el = document.getElementById('scale-it');
     el?.classList.add('scale');
@@ -590,7 +575,7 @@ const NodeToolkit = (props: any) => {
           {/* <div className="menu-item"> item 3</div> */}
         </div>
       </Popup>
-      <Button onClick={clearCanvas} className="toolkit-reset-canvas" type="text" block danger>
+      <Button onClick={props.resetCanvas} className="toolkit-reset-canvas" type="text" block danger>
       {/* <EraserIcon/>&nbsp; */}
       Reset Canvas</Button>
       {/* <PopupExample /> */}
