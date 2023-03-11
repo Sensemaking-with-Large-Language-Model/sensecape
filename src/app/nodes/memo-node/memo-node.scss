@@ -44,6 +44,22 @@
     outline: none;
   }
 
+  .text-input {
+    width: 455px;
+    max-width: 550px;
+    min-width: 200px;
+    min-height: 50px;
+    height: 150px;
+    padding: 8px;
+    // flex-grow: 2;
+    border-radius: 6px;
+    background-color: rgba(255, 253, 242, 0.463);
+    font-size: 14px;
+    white-space: pre-wrap;
+    user-select: text;
+    cursor: text;
+  }
+
   .summary {
     text-align: center;
     padding: 0 32px;

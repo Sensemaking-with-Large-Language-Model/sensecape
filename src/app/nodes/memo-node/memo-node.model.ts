@@ -4,6 +4,7 @@ export interface MemoNodeData {
   state: {
     title?: string,
     memo?: string,
+    highlightIds?: string,
   }
 }
 

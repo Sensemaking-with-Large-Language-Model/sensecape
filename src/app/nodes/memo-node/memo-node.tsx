@@ -1,8 +1,12 @@
+import { ChatCompletionRequestMessage } from "openai";
 import { useCallback, useEffect, useState } from "react";
-import { NodeProps, useStore, useReactFlow, getRectOfNodes } from "reactflow";
+import { NodeProps, useStore, useReactFlow, getRectOfNodes, Handle, Position } from "reactflow";
 import { getChatGPTKeywords } from "../../../api/openai-api";
 import { ReactComponent as DragHandle } from '../../../assets/drag-handle.svg';
+import { highlightSelection, isHighlightable } from "../../triggers/highlighter/highlighter";
+import { InstanceState } from "../../triggers/semantic-dive/semantic-dive";
 import { ZoomState } from "../node.model";
+import { TypeMemoNode } from "./memo-node.model";
 import './memo-node.scss';
 
 const zoomSelector = (s: any) => s.transform[2];
@@ -10,7 +14,10 @@ const zoomSelector = (s: any) => s.transform[2];
 const MemoNode = (props: NodeProps) => {
   const [title, setTitle] = useState(props.data.state.title ?? 'Memo');
   const [memo, setMemo] = useState(props.data.state.memo ?? '');
+  const [highlightIds, setHighlightIds] = useState<string[]>(props.data.state.highlightIds ?? []);
+
   const [hasUpdated, setHasUpdated] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const zoom: number = useStore(zoomSelector);
 
   const reactFlowInstance = useReactFlow();
@@ -56,8 +63,20 @@ const MemoNode = (props: NodeProps) => {
     }
   }
 
+  const beginEditing = useCallback(() => {
+    setIsEditing(true);
+    setTimeout(() => {
+      console.log('m', document.getElementById('memo-input'));
+      document.getElementById('memo-input')?.focus();
+    }, 1);
+  }, [isEditing]);
+
   return (
-    <div className={`node memo-node`}>
+    <div className={`node memo-node`}
+      onBlur={() => setIsEditing(false)}
+      onDoubleClick={beginEditing}
+    >
+      <Handle type="target" position={Position.Top} id="b" className="node-handle-direct "/>
       {
         zoom > ZoomState.SUMMARY ?
           (<>
@@ -65,14 +84,30 @@ const MemoNode = (props: NodeProps) => {
               <DragHandle className='drag-handle' />
               <h3>{title}</h3>
             </div>
-            <textarea
-              className="text-input"
-              value={memo}
-              onChange={handleChange}
-              // onBlur={generateTitle}
-              // onFocus={handleOnFocus}
-              placeholder="Type notes here"
-            ></textarea>
+            {
+              isEditing ?
+                (<textarea
+                  id='memo-input'
+                  value={memo}
+                  onChange={handleChange}
+                  // onBlur={generateTitle}
+                  // onFocus={handleOnFocus}
+                  placeholder="Type notes here"
+                ></textarea>) :
+                <div
+                  id='highlight-box'
+                  className="text-input"
+                  onMouseUp={(event) => highlightSelection(
+                    props.id,
+                    [{ role: 'user', content: memo }],
+                    [highlightIds, setHighlightIds],
+                    reactFlowInstance,
+                  )}
+                >
+                  { memo }
+                </div>
+
+            }
           </>) :
           (<>
             <div className="summary drag-handle">
@@ -80,6 +115,7 @@ const MemoNode = (props: NodeProps) => {
             </div>
           </>)
       }
+      <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct" />
     </div>
   )
 }

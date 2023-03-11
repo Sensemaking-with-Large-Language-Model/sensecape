@@ -4,7 +4,7 @@ import { Edge, Handle, NodeProps, Position, ReactFlowInstance, useReactFlow, use
 import { getChatGPTKeywords, getChatGPTResponse, getChatGPTSummary } from '../../../api/openai-api';
 import './chat-node.scss';
 import { ReactComponent as DragHandle } from '../../../assets/drag-handle.svg';
-import { isHighlightable } from './highlighter';
+import { isHighlightable } from '../../triggers/highlighter/highlighter';
 import HighlightTooltip from './highlight-tooplip/highlight-toolip';
 import { Tooltip, TooltipProvider, TooltipWrapper } from 'react-tooltip';
 import { createRoot } from 'react-dom/client';
