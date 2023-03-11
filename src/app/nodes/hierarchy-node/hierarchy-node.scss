@@ -11,6 +11,7 @@
   padding: 12px 15px;
   text-align: center;
   transition: ease 0.15s;
+  border: 2px solid #ddd;
 
   .topic-name {
     font-size: 12px;
@@ -33,7 +34,7 @@
 }
 
 .hierarchy-node:hover {
-  background-color: #f3f6f9;
+  border: 2px solid #3c6792;
   scale: 1.05;
 }
 

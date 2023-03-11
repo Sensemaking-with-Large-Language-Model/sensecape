@@ -102,7 +102,7 @@ import { notification } from "antd";
 import React from "react";
 import HierarchyNode from "./nodes/hierarchy-node/hierarchy-node";
 import { hideHierarchyViewTo, showHierarchyView } from "./triggers/hierarchy-view/hierarchy-view";
-import { TypeHierarchyNode } from "./nodes/hierarchy-node/hierarchy-node.model";
+import { HierarchyNodeData, TypeHierarchyNode } from "./nodes/hierarchy-node/hierarchy-node.model";
 
 const verbose: boolean = true;
 
@@ -536,6 +536,8 @@ const ExploreFlow = () => {
   const onNodeClick = useCallback((e: any) => {
     switch (e.detail) {
       case 1:
+        return;
+      case 2:
         if ( // Naviate to canvas from Hierarchy View
           nodeMouseOver &&
           nodeMouseOver.type === 'hierarchy' &&
@@ -550,10 +552,7 @@ const ExploreFlow = () => {
             [semanticCarryList, setSemanticCarryList],
             reactFlowInstance
           );
-        }
-        return;
-      case 2:
-        if ( // Semantic Zoom by Double Click
+        } else if ( // Semantic Zoom by Double Click
           nodeMouseOver &&
           nodeMouseOver.type === 'topic' &&
           reactFlowInstance
@@ -608,10 +607,6 @@ const ExploreFlow = () => {
             });
             reactFlowInstance.addNodes(carriedNodes);
 
-            // document.removeEventListener('mousemove', (e) => {
-            //   carryCapture.style.top = `${e.clientY - carryCapture.clientHeight/2}px`;
-            //   carryCapture.style.left = `${e.clientX - carryCapture.clientWidth/2}px`;
-            // })
             reactFlowInstance.fitView({
               duration: 400,
               padding: 5,
@@ -620,34 +615,42 @@ const ExploreFlow = () => {
           }
           clearSemanticCarry(setSemanticCarryList);
           return;
-        } else if (evt.detail === 2) { // if double click, add flex node
+        } else if (evt.detail === 2) {
+          if (showingHierarchy) {
+            // Hierarchy view, doule click to create new hierarchy
+            // const data: HierarchyNodeData {
+            //   topicId: 
+            // }
+          } else {
+            // Canvas, view, double click to create flex node
+            const data: FlexNodeData = {
+              // We want chat node to have no response yet, since the user will ask for a response
+              placeholder: 'Ask ChatGPT',
+              state: {},
+            };
+    
+            const nodeId = `flex-${uuid()}`;
+            reactFlowInstance.addNodes([
+              {
+                id: nodeId,
+                type: 'flex',
+                dragHandle: '.drag-handle',
+                position,
+                data,
+              },
+            ]);
+            setTimeout(() => {
+              const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
+              const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
+              inputElement.focus();
+              const buttonElements = currElement.getElementsByClassName('flex-node-button');
+              for (let i = 0; i < 4; i++) {
+                buttonElements[i].addEventListener('mouseover', () => {
+                })
+              }
+            }, 100);
+          }
   
-          const data: FlexNodeData = {
-            // We want chat node to have no response yet, since the user will ask for a response
-            placeholder: 'Ask ChatGPT',
-            state: {},
-          };
-  
-          const nodeId = `flex-${uuid()}`;
-          reactFlowInstance.addNodes([
-            {
-              id: nodeId,
-              type: 'flex',
-              dragHandle: '.drag-handle',
-              position,
-              data,
-            },
-          ]);
-          setTimeout(() => {
-            const currElement = document.querySelectorAll(`[data-id="${nodeId}"]`)[0];
-            const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
-            inputElement.focus();
-            const buttonElements = currElement.getElementsByClassName('flex-node-button');
-            for (let i = 0; i < 4; i++) {
-              buttonElements[i].addEventListener('mouseover', () => {
-              })
-            }
-          }, 100);
         }
       }
     },

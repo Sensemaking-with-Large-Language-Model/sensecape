@@ -49,6 +49,11 @@
   scale: 1;
 }
 
+.semantic-carry-ready .topic-node:hover {
+  transition: ease 0.15s;
+  scale: 1.05;
+}
+
 .semantic-carry-ready .selected .node {
   outline: 2px solid #3c6792;
   scale: 0.95;

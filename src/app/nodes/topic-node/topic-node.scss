@@ -24,6 +24,11 @@
 
   .topic-node-box:hover {
     border: 2px solid #3c6792;
+    scale: 1.05;
+  }
+
+  .topic-node-box:active {
+    scale: 1;
   }
 
   .current-semantic-instance {
