@@ -10,8 +10,6 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const verbose: boolean = true;
-
 const extractTopicPrompt: ChatCompletionRequestMessage = {
   // I'm trying to push ChatGPT to respond in one term 
   role: 'user',
@@ -362,7 +360,7 @@ export const extendConcept = async (
   conceptnode: boolean = true,
 ) => {
 
-  if (verbose) {
+  if (devFlags.disableVerbose) {
     console.log("=====");
     console.log("concept", concept);
     console.log("=====");
