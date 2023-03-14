@@ -136,14 +136,15 @@ const FlexInput = (props: any) => {
       };
 
       // @ts-ignore
-      console.log('data', data.state.responseInputState);
+      console.log('data 0', data.state.responseInputState);
       console.log('newNode', newNode);
 
       // remove existing flex node
       await reactFlowInstance.setNodes((nodes) => nodes.filter((node) => node.id !== flexNodeId));
 
       // add new node
-      reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
+      reactFlowInstance.addNodes(newNode);
+      // reactFlowInstance.setNodes((nodes) => nodes.concat(newNode));
   }
 
   // handle button click
@@ -160,6 +161,7 @@ const FlexInput = (props: any) => {
       setClickedNodeType(nodeType);
     } else if (event.detail === 2) { // if double click, trigger action and create corresponding node
       
+      props.setResponseState(ResponseState.LOADING);
       // use currentTarget because event.target was returning null (cf. https://stackoverflow.com/questions/71253604/reactjs-getattribute-return-null)
       // https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget 
       const buttonElem = event.currentTarget as HTMLInputElement;
@@ -182,7 +184,7 @@ const FlexInput = (props: any) => {
       
       // change the color of the double clicked button for a split second? 
 
-
+      console.log('inputText', inputText);
       // create node based on nodeType
       createNode(flexNodeId, inputText, flexNodePosition as XYPosition);
     }
@@ -228,6 +230,11 @@ const FlexInput = (props: any) => {
           />
           <button
             type="button"
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSubmit(event);
+              // props.generateResponse(props.input.trim());
+            }}
           >
           { Icon(clickedNodeType) }
           </button>
@@ -266,7 +273,7 @@ const FlexInput = (props: any) => {
               handleMouseOver(elem.id, 'chat');
             }}
             onClick={(event) => {
-              const elem = event.target as HTMLInputElement;
+              // const elem = event.target as HTMLInputElement;
               handleClick(event, 'chat');
             }}
             onMouseOut={(event) => {
@@ -287,7 +294,7 @@ const FlexInput = (props: any) => {
               handleMouseOver(elem.id, 'concept');
             }}
             onClick={(event) => {
-              const elem = event.target as HTMLInputElement;
+              // const elem = event.target as HTMLInputElement;
               handleClick(event, 'concept');
             }}
             onMouseOut={(event) => {

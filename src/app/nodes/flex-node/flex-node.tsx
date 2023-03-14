@@ -40,6 +40,7 @@ const FlexNode = (props: NodeProps) => {
           input={input}
           placeholder={props.data.placeholder}
           setInput={setInput}
+          setResponseState={setResponseInputState}
           setInputState={(s: InputHoverState) => {}}
         />
         <Handle type="source" position={Position.Bottom} id="a" className="node-handle-direct" />

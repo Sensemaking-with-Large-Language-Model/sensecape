@@ -48,20 +48,12 @@ const ConceptInput = (props: any) => {
         // className="concept-form"
         className={`${currentZoomState()}`}
         onSubmit={(event) => {
-          event.preventDefault();
-          // props.setResponseInputState(ResponseState.LOADING);
+          console.log('props.input', props.input);
           if (props.input !== '') {
+            props.setInput(props.input);
             props.handleSubmit();
-            props.setConcept(props.input);
+            event.preventDefault();
           }
-          // extendConcept(
-          //   reactFlowInstance,
-          //   props.id,
-          //   "bottom",
-          //   props.input.trim(),
-          //   true,
-          //   props.setResponseInputState
-          // );
         }}
       >
         <input
@@ -78,20 +70,11 @@ const ConceptInput = (props: any) => {
         />
         <button
           onClick={(event) => {
-            // props.setResponseInputState(ResponseState.LOADING);
-            event.preventDefault();
+            // event.preventDefault();
             if (props.input !== '') {
+              props.setInput(props.input);
               props.handleSubmit();
-              props.setConcept(props.input);
             }
-            // extendConcept(
-            //   reactFlowInstance,
-            //   props.id,
-            //   "bottom",
-            //   props.input.trim(),
-            //   true,
-            //   props.setResponseInputState
-            // );
           }}
           type="button"
         >

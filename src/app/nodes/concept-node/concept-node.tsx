@@ -131,11 +131,9 @@ const ConceptNode = (props: NodeProps) => {
   } = useContext(FlowContext);
 
   // useEffect(() => {
-  //   console.log('useEffect1');
-  //   // console.log('props.id', props.id);
+  //   if (!devFlags.disableVerbose) { console.log('useEffect1'); };
   //   reactFlowInstance.setNodes((nodes) =>
   //     nodes.map((node) => {
-  //       console.log('node', node);
   //       if (node.id === props.id) {
   //         node.data.state = {
   //           responseSelfState,
@@ -150,23 +148,11 @@ const ConceptNode = (props: NodeProps) => {
   // }, [reactFlowInstance, concept, input, responseInputState]);
 
   useEffect(() => {
-    if (!devFlags.disableVerbose) {
-      console.log("useEffect2");
-    }
-    // console.log(props.data.state.input, props.data.state.responseInputState)
     // If a response is already given, don't take in any input.
     if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
       handleSubmit();
     } else if (props.data.state.responseInputState === ResponseState.INPUT) {
-      const currElement = document.querySelectorAll(
-        `[data-id="${props.id}"]`
-      )[0];
-      const inputElement = currElement.getElementsByClassName(
-        "text-input"
-      )[0] as HTMLInputElement;
-      setTimeout(() => {
-        inputElement.focus();
-      }, 100);
+
     }
   }, []);
 
@@ -239,23 +225,21 @@ const ConceptNode = (props: NodeProps) => {
   };
 
   const handleSubmit = async () => {
-
+    
     const parentNode = reactFlowInstance.getNode(props.id);
-
-    if (!parentNode) {
+    console.log('input', input);
+    if (!parentNode || input === '') {
+      console.log('?');
       return;
     }
 
-    if (parentNode.data.label === '') { 
-      return; // if input box is empty, don't run
-    }
+    setInput(input);
 
     setResponseInputState(ResponseState.LOADING);
 
-    setConcept(parentNode.data.label);
-
-    extendConcept(reactFlowInstance, input, true).then((data) => {
-      const topics = data;
+    // await extendConcept(reactFlowInstance, input, true).then((data) => {
+    const topics = await extendConcept(reactFlowInstance, input, true);
+      // const topics = data;
 
       if (!devFlags.disableVerbose) {
         console.log("topics", topics);
@@ -267,7 +251,6 @@ const ConceptNode = (props: NodeProps) => {
         topics
       );
 
-      
       const childNodeArray = createdArray[0];
       const childEdgeArray = createdArray[1];
       
@@ -276,19 +259,24 @@ const ConceptNode = (props: NodeProps) => {
         console.log("childEdgeArray", childEdgeArray);
       }
       
+      console.log('1');
       const currNodes = reactFlowInstance.getNodes();
       const currEdges = reactFlowInstance.getEdges();
+      console.log('2');
       
       // @ts-ignore
       reactFlowInstance.setNodes([...currNodes, ...childNodeArray]);
       // @ts-ignore
       reactFlowInstance.setEdges([...currEdges, ...childEdgeArray]);
-      
-      setResponseInputState(ResponseState.COMPLETE);
+      console.log('3');
+
+      console.log(reactFlowInstance.getNodes());
 
       setTimeout(layout_, 100);
-    });
-    setResponseSelfState(ResponseState.COMPLETE);
+    // });
+
+    setResponseInputState(ResponseState.COMPLETE);
+
   };
 
   if (responseSelfState === ResponseState.INPUT) {
@@ -378,7 +366,7 @@ const ConceptNode = (props: NodeProps) => {
           position={Position.Left}
           className="node-handle-direct"
         />
-        {concept || "Enter concept"}
+        {input || "Enter concept"}
         <Handle
           type="source"
           className="concept-node-handle"

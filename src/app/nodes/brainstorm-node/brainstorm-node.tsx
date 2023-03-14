@@ -30,6 +30,7 @@ import { createChatNode } from "../chat-node/chat-node.helper";
 import { ChatNodeData, TypeChatNode } from "../chat-node/chat-node.model";
 import QuestionNode from "./question-node";
 import { QuestionNodeData, TypeQuestionNode } from "./question-node.model";
+import { devFlags } from "../../utils";
 
 type BrainstormState = {
   input: string;
@@ -44,8 +45,7 @@ const BrainstormNode = (props: NodeProps) => {
   const [input, setInput] = useState(props.data.state.input ?? '');
   const [questions, setQuestions] = useState(props.data.state.questions ?? {});
   const [responseInputState, setResponseInputState] = useState<ResponseState>(
-    ResponseState.INPUT
-  );
+    props.data.state.responseInputState ?? ResponseState.INPUT);
   const zoom: number = useStore(zoomSelector);
 
   const showContent = zoom >= 0.35;
@@ -59,9 +59,8 @@ const BrainstormNode = (props: NodeProps) => {
     const response =
       (await getGPT3Questions(keyword)) || "Error: no response received";
 
-    // console.log('response[1]', response[1]);
+    await setResponseInputState(ResponseState.COMPLETE);
     setQuestions(response[1]);
-    setResponseInputState(ResponseState.COMPLETE);
   };
 
   useEffect(() => {
@@ -73,24 +72,17 @@ const BrainstormNode = (props: NodeProps) => {
           responseInputState
         };
       }
-      console.log('brainstorm node responseInputState', responseInputState);
       return node;
     }));
   }, [reactFlowInstance, input, questions, responseInputState]);
 
   useEffect(() => {
-    // console.log(props.data.state.input, props.data.state.responseInputState)
-    // If a response is already given, don't take in any input.
     if (props.data.state.input && props.data.state.responseInputState === ResponseState.LOADING) {
       generateQuestions(input);
-    } else if (props.data.state.responseInputState === ResponseState.INPUT) {
-      const currElement = document.querySelectorAll(`[data-id="${props.id}"]`)[0];
-      const inputElement = currElement.getElementsByClassName('text-input')[0] as HTMLInputElement;
-      setTimeout(() => {
-        inputElement.focus();
-      }, 100);
+    } else if (props.data.state.responseInputState === ResponseState.INPUT) {    
+
     }
-  }, []);
+  }, [])
 
   const Placeholder = () => (
     <div className="placeholder">
